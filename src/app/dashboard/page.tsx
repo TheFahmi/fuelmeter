@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BurgerMenu } from '@/components/ui/menu'
 import { Loading } from '@/components/ui/loading'
-import { useTheme } from '@/contexts/theme-context'
+import { ThemeWrapper } from '@/components/ui/theme-wrapper'
 import { Fuel, Plus, TrendingUp, TrendingDown, BarChart3, Edit } from 'lucide-react'
 import Link from 'next/link'
 
@@ -28,7 +28,6 @@ export default function DashboardPage() {
   const [user, setUser] = useState<{ email?: string } | null>(null)
   const [fuelRecords, setFuelRecords] = useState<FuelRecord[]>([])
   const [loading, setLoading] = useState(true)
-  const [mounted, setMounted] = useState(false)
   const [stats, setStats] = useState({
     totalRecords: 0,
     totalCost: 0,
@@ -39,14 +38,8 @@ export default function DashboardPage() {
   })
   const router = useRouter()
   const supabase = createClient()
-  
-  // Only use theme after component is mounted
-  const themeContext = useTheme()
-  const isDarkMode = mounted ? themeContext.isDarkMode : false
-  const toggleDarkMode = mounted ? themeContext.toggleDarkMode : () => {}
 
   useEffect(() => {
-    setMounted(true)
     checkUser()
     fetchFuelRecords()
   }, [])
@@ -106,23 +99,25 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-                <Fuel className="h-5 w-5 text-white" />
+    <ThemeWrapper>
+      {({ isDarkMode, toggleDarkMode }) => (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          {/* Header */}
+          <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center h-16">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
+                    <Fuel className="h-5 w-5 text-white" />
+                  </div>
+                  <h1 className="text-xl font-semibold text-gray-900 dark:text-white">FuelMeter</h1>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <BurgerMenu isDarkMode={isDarkMode} onToggleDarkMode={toggleDarkMode} />
+                </div>
               </div>
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">FuelMeter</h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <BurgerMenu isDarkMode={isDarkMode} onToggleDarkMode={toggleDarkMode} />
-            </div>
-          </div>
-        </div>
-      </header>
+          </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Welcome Section */}
@@ -327,5 +322,7 @@ export default function DashboardPage() {
         </div>
       </main>
     </div>
+      )}
+    </ThemeWrapper>
   )
 } 

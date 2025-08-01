@@ -5,13 +5,11 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BurgerMenu } from '@/components/ui/menu'
-import { useTheme } from '@/contexts/theme-context'
+import { ThemeWrapper } from '@/components/ui/theme-wrapper'
 import { 
   Fuel, 
-  TrendingUp, 
   TrendingDown, 
   BarChart3, 
-  Calendar,
   DollarSign,
   MapPin,
   ArrowLeft
@@ -45,17 +43,10 @@ export default function StatisticsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedPeriod, setSelectedPeriod] = useState('all')
-  const [mounted, setMounted] = useState(false)
   const router = useRouter()
   const supabase = createClient()
-  
-  // Only use theme after component is mounted
-  const themeContext = useTheme()
-  const isDarkMode = mounted ? themeContext.isDarkMode : false
-  const toggleDarkMode = mounted ? themeContext.toggleDarkMode : () => {}
 
   useEffect(() => {
-    setMounted(true)
     checkUser()
     fetchFuelRecords()
   }, [])
@@ -194,24 +185,26 @@ export default function StatisticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <Link href="/dashboard" className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white">
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-                <BarChart3 className="h-5 w-5 text-white" />
+    <ThemeWrapper>
+      {({ isDarkMode, toggleDarkMode }) => (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          {/* Header */}
+          <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center h-16">
+                <div className="flex items-center space-x-3">
+                  <Link href="/dashboard" className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+                    <ArrowLeft className="h-5 w-5" />
+                  </Link>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
+                    <BarChart3 className="h-5 w-5 text-white" />
+                  </div>
+                  <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Statistik</h1>
+                </div>
+                <BurgerMenu isDarkMode={isDarkMode} onToggleDarkMode={toggleDarkMode} />
               </div>
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Statistik</h1>
             </div>
-            <BurgerMenu isDarkMode={isDarkMode} onToggleDarkMode={toggleDarkMode} />
-          </div>
-        </div>
-      </header>
+          </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {error && (
@@ -415,5 +408,7 @@ export default function StatisticsPage() {
         </Card>
       </main>
     </div>
+      )}
+    </ThemeWrapper>
   )
 } 
