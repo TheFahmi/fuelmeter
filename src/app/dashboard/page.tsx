@@ -28,6 +28,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<{ email?: string } | null>(null)
   const [fuelRecords, setFuelRecords] = useState<FuelRecord[]>([])
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
   const [stats, setStats] = useState({
     totalRecords: 0,
     totalCost: 0,
@@ -38,9 +39,14 @@ export default function DashboardPage() {
   })
   const router = useRouter()
   const supabase = createClient()
-  const { isDarkMode, toggleDarkMode } = useTheme()
+  
+  // Only use theme after component is mounted
+  const themeContext = useTheme()
+  const isDarkMode = mounted ? themeContext.isDarkMode : false
+  const toggleDarkMode = mounted ? themeContext.toggleDarkMode : () => {}
 
   useEffect(() => {
+    setMounted(true)
     checkUser()
     fetchFuelRecords()
   }, [])

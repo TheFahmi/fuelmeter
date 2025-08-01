@@ -38,13 +38,19 @@ export default function EditRecordPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [mounted, setMounted] = useState(false)
   const router = useRouter()
   const params = useParams()
   const recordId = params.id as string
   const supabase = createClient()
-  const { isDarkMode, toggleDarkMode } = useTheme()
+  
+  // Only use theme after component is mounted
+  const themeContext = useTheme()
+  const isDarkMode = mounted ? themeContext.isDarkMode : false
+  const toggleDarkMode = mounted ? themeContext.toggleDarkMode : () => {}
 
   useEffect(() => {
+    setMounted(true)
     checkUser()
     fetchRecord()
   }, [recordId])

@@ -26,11 +26,17 @@ export default function AddRecordPage() {
   const [success, setSuccess] = useState('')
   const [showInitialOdometerModal, setShowInitialOdometerModal] = useState(false)
   const [hasRecords, setHasRecords] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const router = useRouter()
   const supabase = createClient()
-  const { isDarkMode, toggleDarkMode } = useTheme()
+  
+  // Only use theme after component is mounted
+  const themeContext = useTheme()
+  const isDarkMode = mounted ? themeContext.isDarkMode : false
+  const toggleDarkMode = mounted ? themeContext.toggleDarkMode : () => {}
 
   useEffect(() => {
+    setMounted(true)
     // Set default date to today
     const today = new Date().toISOString().split('T')[0]
     setDate(today)
