@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Menu as MenuIcon, X, Home, Plus, BarChart3, Settings, LogOut, Sun, Moon } from 'lucide-react'
+import { Menu as MenuIcon, X, Home, Plus, BarChart3, LogOut, Sun, Moon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
