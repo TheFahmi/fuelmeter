@@ -5,77 +5,89 @@ import { createContext, useContext, useEffect, useState } from 'react'
 interface ThemeContextType {
   isDarkMode: boolean
   toggleDarkMode: () => void
+  isLoading: boolean
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Apply theme immediately to prevent flashing
-  const applyTheme = (darkMode: boolean) => {
-    console.log('Applying theme:', darkMode ? 'dark' : 'light')
-    if (darkMode) {
-      document.documentElement.classList.add('dark')
-      document.documentElement.style.colorScheme = 'dark'
+  // Function to apply theme to DOM
+  const applyTheme = (isDark: boolean) => {
+    const root = document.documentElement
+    
+    if (isDark) {
+      root.classList.add('dark')
+      root.style.colorScheme = 'dark'
+      console.log('✅ Applied DARK theme')
     } else {
-      document.documentElement.classList.remove('dark')
-      document.documentElement.style.colorScheme = 'light'
+      root.classList.remove('dark')
+      root.style.colorScheme = 'light'
+      console.log('✅ Applied LIGHT theme')
     }
   }
 
-  // Initialize theme
+  // Initialize theme on mount
   useEffect(() => {
-    setMounted(true)
-    
-    const savedTheme = localStorage.getItem('theme')
-    console.log('Saved theme:', savedTheme)
-    
-    // Default to light mode if no preference is saved
-    let initialDarkMode = false
-    
-    if (savedTheme === 'dark') {
-      initialDarkMode = true
-    } else if (savedTheme === 'light') {
-      initialDarkMode = false
-    } else {
-      // Default to light mode for new users
-      initialDarkMode = false
-      localStorage.setItem('theme', 'light')
+    const initTheme = () => {
+      try {
+        // Get saved theme from localStorage
+        const savedTheme = localStorage.getItem('theme')
+        console.log('💾 Saved theme:', savedTheme)
+        
+        let shouldUseDarkMode = false
+        
+        if (savedTheme === 'dark') {
+          shouldUseDarkMode = true
+        } else if (savedTheme === 'light') {
+          shouldUseDarkMode = false
+        } else {
+          // No saved preference - default to light
+          shouldUseDarkMode = false
+          localStorage.setItem('theme', 'light')
+          console.log('🔧 Set default theme to light')
+        }
+        
+        console.log('🎨 Initializing theme:', shouldUseDarkMode ? 'dark' : 'light')
+        
+        // Apply theme immediately
+        applyTheme(shouldUseDarkMode)
+        setIsDarkMode(shouldUseDarkMode)
+        
+      } catch (error) {
+        console.error('❌ Theme initialization error:', error)
+        // Fallback to light mode
+        applyTheme(false)
+        setIsDarkMode(false)
+        localStorage.setItem('theme', 'light')
+      } finally {
+        setIsLoading(false)
+      }
     }
-    
-    console.log('Initial dark mode:', initialDarkMode)
-    setIsDarkMode(initialDarkMode)
-    applyTheme(initialDarkMode)
-  }, [])
 
-  // Prevent hydration mismatch
-  if (!mounted) {
-    return <>{children}</>
-  }
+    initTheme()
+  }, [])
 
   const toggleDarkMode = () => {
     const newDarkMode = !isDarkMode
-    console.log('Toggle theme:', { from: isDarkMode, to: newDarkMode })
+    console.log('🔄 Toggle theme:', isDarkMode ? 'dark' : 'light', '→', newDarkMode ? 'dark' : 'light')
     
     // Update state
     setIsDarkMode(newDarkMode)
     
-    // Apply theme immediately
+    // Apply to DOM immediately
     applyTheme(newDarkMode)
     
-    // Save preference
-    localStorage.setItem('theme', newDarkMode ? 'dark' : 'light')
-    
-    // Force re-render
-    setTimeout(() => {
-      window.dispatchEvent(new Event('storage'))
-    }, 0)
+    // Save to localStorage
+    const themeValue = newDarkMode ? 'dark' : 'light'
+    localStorage.setItem('theme', themeValue)
+    console.log('💾 Saved theme:', themeValue)
   }
 
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
+    <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode, isLoading }}>
       {children}
     </ThemeContext.Provider>
   )

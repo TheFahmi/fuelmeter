@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { BurgerMenu } from '@/components/ui/menu'
 import { Loading } from '@/components/ui/loading'
 import { ThemeWrapper } from '@/components/ui/theme-wrapper'
+import { BudgetTracker } from '@/components/budget-tracker'
 import { Fuel, Plus, TrendingUp, TrendingDown, BarChart3, Edit } from 'lucide-react'
 import Link from 'next/link'
 
@@ -211,6 +212,11 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Budget Tracker */}
+        <div className="mb-6">
+          <BudgetTracker />
         </div>
 
         {/* Quick Actions */}

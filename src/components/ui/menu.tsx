@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Menu as MenuIcon, X, Home, Plus, BarChart3, LogOut, Sun, Moon } from 'lucide-react'
+import { Menu as MenuIcon, X, Home, Plus, BarChart3, User, LogOut, Sun, Moon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
@@ -42,6 +42,11 @@ export function BurgerMenu({ isDarkMode, onToggleDarkMode }: BurgerMenuProps) {
       name: 'Statistik',
       href: '/dashboard/statistics',
       icon: BarChart3
+    },
+    {
+      name: 'Profil',
+      href: '/dashboard/profile',
+      icon: User
     }
   ]
 
