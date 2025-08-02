@@ -64,21 +64,22 @@ export function BurgerMenu({ isDarkMode, onToggleDarkMode }: BurgerMenuProps) {
       </button>
 
       {/* Menu Overlay */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50">
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black bg-opacity-50 transition-opacity duration-200"
-            onClick={() => {
-              setIsAnimating(false)
-              setTimeout(() => setIsOpen(false), 300)
-            }}
-          />
-          
-          {/* Menu Panel */}
-          <div className={`absolute right-0 top-0 h-full w-80 bg-white dark:bg-gray-800 shadow-xl transform transition-transform duration-300 ease-out ${
-            isAnimating ? 'translate-x-0' : 'translate-x-full'
-          }`}>
+      <div className={`fixed inset-0 z-50 menu-overlay ${
+        isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+      }`}>
+        {/* Backdrop */}
+        <div 
+          className="absolute inset-0 bg-black bg-opacity-50"
+          onClick={() => {
+            setIsAnimating(false)
+            setTimeout(() => setIsOpen(false), 300)
+          }}
+        />
+        
+        {/* Menu Panel */}
+        <div className={`absolute right-0 top-0 h-full w-80 bg-white dark:bg-gray-800 shadow-xl transform menu-panel ${
+          isAnimating ? 'translate-x-0' : 'translate-x-full'
+        }`}>
           <div className="p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
@@ -143,9 +144,8 @@ export function BurgerMenu({ isDarkMode, onToggleDarkMode }: BurgerMenuProps) {
               </button>
             </div>
           </div>
-          </div>
         </div>
-      )}
+      </div>
     </div>
   )
 } 

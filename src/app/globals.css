@@ -15,6 +15,18 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Light mode styles */
+html {
+  background-color: #ffffff;
+  color: #171717;
+}
+
+/* Dark mode styles */
+html.dark {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
 /* Ensure input text is visible in both modes */
 input, textarea, select {
   color: #171717 !important;
@@ -23,4 +35,13 @@ input, textarea, select {
 /* Dark mode support for inputs */
 .dark input, .dark textarea, .dark select {
   color: #ededed !important;
+}
+
+/* Menu animation improvements */
+.menu-overlay {
+  transition: opacity 0.3s ease;
+}
+
+.menu-panel {
+  transition: transform 0.3s ease-out;
 }
