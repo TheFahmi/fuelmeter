@@ -1,10 +1,20 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { TrendingUp, TrendingDown, BarChart3, Target, Lightbulb, Calendar, DollarSign, Zap } from 'lucide-react'
+import { TrendingUp, TrendingDown, BarChart3, Target, Lightbulb, DollarSign, Zap } from 'lucide-react'
+
+interface FuelRecord {
+  id: string
+  date: string
+  fuel_type: string
+  quantity: number
+  price_per_liter: number
+  total_cost: number
+  distance_km: number
+  created_at: string
+}
 
 interface AnalyticsData {
   trends: {
@@ -40,17 +50,29 @@ interface AnalyticsData {
   }
 }
 
+interface MonthlyData {
+  spending: number
+  efficiency: number
+  distance: number
+  price: number
+  count: number
+}
+
+interface FuelTypeAnalysis {
+  [key: string]: {
+    total: number
+    efficiency: number
+    count: number
+  }
+}
+
 export function AdvancedAnalytics() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [timeRange, setTimeRange] = useState<'3months' | '6months' | '12months'>('6months')
   const supabase = createClient()
 
-  useEffect(() => {
-    loadAnalyticsData()
-  }, [timeRange])
-
-  const loadAnalyticsData = async () => {
+  const loadAnalyticsData = useCallback(async () => {
     try {
       // Get data based on time range
       const months = timeRange === '3months' ? 3 : timeRange === '6months' ? 6 : 12
@@ -69,16 +91,16 @@ export function AdvancedAnalytics() {
       }
 
       // Calculate trends
-      const trends = calculateTrends(records, months)
+      const trends = calculateTrends(records as FuelRecord[], months)
       
       // Calculate predictions
-      const predictions = calculatePredictions(records)
+      const predictions = calculatePredictions(records as FuelRecord[])
       
       // Generate insights
-      const insights = generateInsights(records)
+      const insights = generateInsights(records as FuelRecord[])
       
       // Calculate comparisons
-      const comparisons = calculateComparisons(records)
+      const comparisons = calculateComparisons(records as FuelRecord[])
 
       setAnalyticsData({
         trends,
@@ -92,10 +114,14 @@ export function AdvancedAnalytics() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [timeRange, supabase])
 
-  const calculateTrends = (records: any[], months: number) => {
-    const monthlyData = new Array(months).fill(0).map(() => ({
+  useEffect(() => {
+    loadAnalyticsData()
+  }, [loadAnalyticsData])
+
+  const calculateTrends = (records: FuelRecord[], months: number) => {
+    const monthlyData: MonthlyData[] = new Array(months).fill(0).map(() => ({
       spending: 0,
       efficiency: 0,
       distance: 0,
@@ -130,7 +156,7 @@ export function AdvancedAnalytics() {
     }
   }
 
-  const calculatePredictions = (records: any[]) => {
+  const calculatePredictions = (records: FuelRecord[]) => {
     // Simple linear regression for predictions
     const recentRecords = records.slice(-10) // Last 10 records
     
@@ -169,23 +195,9 @@ export function AdvancedAnalytics() {
     }
   }
 
-  const generateInsights = (records: any[]) => {
-    // Analyze best and worst fill times
-    const fillTimes = records.map(record => {
-      const date = new Date(record.date)
-      return {
-        hour: date.getHours(),
-        cost: record.total_cost,
-        efficiency: record.distance_km / record.quantity
-      }
-    })
-
-    // Find best and worst times (simplified analysis)
-    const bestFillTime = 'Morning (6-10 AM)'
-    const worstFillTime = 'Evening (6-10 PM)'
-
+  const generateInsights = (records: FuelRecord[]) => {
     // Analyze fuel types
-    const fuelTypeAnalysis = records.reduce((acc, record) => {
+    const fuelTypeAnalysis: FuelTypeAnalysis = records.reduce((acc, record) => {
       if (!acc[record.fuel_type]) {
         acc[record.fuel_type] = { total: 0, efficiency: 0, count: 0 }
       }
@@ -193,10 +205,10 @@ export function AdvancedAnalytics() {
       acc[record.fuel_type].efficiency += record.distance_km / record.quantity
       acc[record.fuel_type].count += 1
       return acc
-    }, {} as any)
+    }, {} as FuelTypeAnalysis)
 
     const optimalFuelType = Object.entries(fuelTypeAnalysis)
-      .sort(([,a]: any, [,b]: any) => (b.efficiency / b.count) - (a.efficiency / a.count))[0]?.[0] || 'Pertalite'
+      .sort(([,a], [,b]) => (b.efficiency / b.count) - (a.efficiency / a.count))[0]?.[0] || 'Pertalite'
 
     // Cost optimization tips
     const costOptimization = 'Consider filling up on weekdays before 10 AM for better prices'
@@ -211,15 +223,15 @@ export function AdvancedAnalytics() {
     ]
 
     return {
-      bestFillTime,
-      worstFillTime,
+      bestFillTime: 'Morning (6-10 AM)',
+      worstFillTime: 'Evening (6-10 PM)',
       optimalFuelType,
       costOptimization,
       efficiencyTips
     }
   }
 
-  const calculateComparisons = (records: any[]) => {
+  const calculateComparisons = (records: FuelRecord[]) => {
     const currentMonth = new Date().getMonth()
     const currentYear = new Date().getFullYear()
     
@@ -320,7 +332,7 @@ export function AdvancedAnalytics() {
           </div>
           <select
             value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value as any)}
+            onChange={(e) => setTimeRange(e.target.value as '3months' | '6months' | '12months')}
             className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
           >
             <option value="3months">3 Months</option>
