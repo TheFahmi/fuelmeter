@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Leaf, Tree, Car, TrendingDown, Globe, Target, Award } from 'lucide-react'
+import { Leaf, Car, TrendingDown, Globe, Target, Award } from 'lucide-react'
 
 interface CarbonData {
   totalCO2: number
@@ -352,7 +352,7 @@ export function CarbonFootprint() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <Tree className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <Leaf className="h-5 w-5 text-green-600 dark:text-green-400" />
               <div>
                 <p className="font-medium text-gray-900 dark:text-white">
                   {carbonData.treesNeeded} Trees

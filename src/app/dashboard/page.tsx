@@ -17,6 +17,8 @@ import { VehicleManager } from '@/components/vehicle-manager'
 import { CarbonFootprint } from '@/components/carbon-footprint'
 import { PDFExport } from '@/components/pdf-export'
 import { Challenges } from '@/components/challenges'
+import { Notifications } from '@/components/notifications'
+import { AdvancedAnalytics } from '@/components/advanced-analytics'
 import { Fuel, Plus, TrendingUp, TrendingDown, BarChart3, Edit } from 'lucide-react'
 import Link from 'next/link'
 
@@ -295,6 +297,16 @@ export default function DashboardPage() {
         {/* Challenges & Leaderboard */}
         <div className="mb-6">
           <Challenges />
+        </div>
+
+        {/* Notifications */}
+        <div className="mb-6">
+          <Notifications />
+        </div>
+
+        {/* Advanced Analytics */}
+        <div className="mb-6">
+          <AdvancedAnalytics />
         </div>
 
         {/* Quick Actions */}
