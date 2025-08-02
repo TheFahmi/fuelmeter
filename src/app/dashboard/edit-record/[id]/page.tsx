@@ -9,7 +9,7 @@ import { Select } from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BurgerMenu } from '@/components/ui/menu'
 import { Loading } from '@/components/ui/loading'
-import { useTheme } from '@/contexts/theme-context'
+import { ThemeWrapper } from '@/components/ui/theme-wrapper'
 import { Fuel, ArrowLeft, Save, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -38,19 +38,12 @@ export default function EditRecordPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  const [mounted, setMounted] = useState(false)
   const router = useRouter()
   const params = useParams()
   const recordId = params.id as string
   const supabase = createClient()
-  
-  // Only use theme after component is mounted
-  const themeContext = useTheme()
-  const isDarkMode = mounted ? themeContext.isDarkMode : false
-  const toggleDarkMode = mounted ? themeContext.toggleDarkMode : () => {}
 
   useEffect(() => {
-    setMounted(true)
     checkUser()
     fetchRecord()
   }, [recordId])
@@ -217,33 +210,35 @@ export default function EditRecordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <Link href="/dashboard/records" className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white">
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-                <Fuel className="h-5 w-5 text-white" />
+    <ThemeWrapper>
+      {({ isDarkMode, toggleDarkMode }) => (
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          {/* Header */}
+          <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center h-16">
+                <div className="flex items-center space-x-3">
+                  <Link href="/dashboard/records" className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+                    <ArrowLeft className="h-5 w-5" />
+                  </Link>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
+                    <Fuel className="h-5 w-5 text-white" />
+                  </div>
+                  <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Edit Catatan</h1>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={handleDelete}
+                    className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    disabled={saving}
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+                  <BurgerMenu isDarkMode={isDarkMode} onToggleDarkMode={toggleDarkMode} />
+                </div>
               </div>
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Edit Catatan</h1>
             </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={handleDelete}
-                className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                disabled={saving}
-              >
-                <Trash2 className="h-5 w-5" />
-              </button>
-              <BurgerMenu isDarkMode={isDarkMode} onToggleDarkMode={toggleDarkMode} />
-            </div>
-          </div>
-        </div>
-      </header>
+          </header>
 
       <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Card className="dark:bg-gray-800 dark:border-gray-700">
@@ -382,5 +377,7 @@ export default function EditRecordPage() {
         </Card>
       </main>
     </div>
+      )}
+    </ThemeWrapper>
   )
 } 
