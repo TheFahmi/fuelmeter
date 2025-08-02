@@ -25,8 +25,17 @@ interface FuelRecord {
   created_at: string
 }
 
+interface UserSettings {
+  display_name?: string
+  vehicle_type?: string
+  fuel_capacity?: number
+  monthly_budget?: number
+  currency?: string
+}
+
 export default function DashboardPage() {
   const [user, setUser] = useState<{ email?: string } | null>(null)
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
   const [fuelRecords, setFuelRecords] = useState<FuelRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState({
@@ -43,6 +52,7 @@ export default function DashboardPage() {
   useEffect(() => {
     checkUser()
     fetchFuelRecords()
+    fetchUserSettings()
   }, [])
 
   const checkUser = async () => {
@@ -51,6 +61,21 @@ export default function DashboardPage() {
       router.push('/login')
     } else {
       setUser(user)
+    }
+  }
+
+  const fetchUserSettings = async () => {
+    try {
+      const { data: settings, error } = await supabase
+        .from('user_settings')
+        .select('display_name, vehicle_type, fuel_capacity, monthly_budget, currency')
+        .single()
+
+      if (!error && settings) {
+        setUserSettings(settings)
+      }
+    } catch (error) {
+      console.log('User settings not found or error:', error)
     }
   }
 
@@ -124,9 +149,14 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Selamat datang, {user?.email?.split('@')[0]}!
+            Selamat datang, {userSettings?.display_name || user?.email?.split('@')[0] || 'User'}!
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">Kelola data bahan bakar Anda dengan mudah</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            {userSettings?.vehicle_type 
+              ? `Kelola data bahan bakar ${userSettings.vehicle_type} Anda dengan mudah`
+              : 'Kelola data bahan bakar Anda dengan mudah'
+            }
+          </p>
         </div>
 
         {/* Stats Cards */}
