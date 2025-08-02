@@ -49,21 +49,43 @@ export default function ProfilePage() {
       }
 
       // Get user profile from user_settings or create default
-      const { data: settings } = await supabase
+      const { data: settings, error: settingsError } = await supabase
         .from('user_settings')
         .select('*')
         .single()
 
-      setProfile({
-        email: user.email || '',
-        displayName: settings?.display_name || '',
-        vehicleType: settings?.vehicle_type || '',
-        fuelCapacity: settings?.fuel_capacity || 0,
-        monthlyBudget: settings?.monthly_budget || 0,
-        currency: settings?.currency || 'IDR'
-      })
+      // Handle case where settings don't exist or columns are missing
+      if (settingsError) {
+        console.log('Settings not found or columns missing, using defaults')
+        setProfile({
+          email: user.email || '',
+          displayName: '',
+          vehicleType: '',
+          fuelCapacity: 0,
+          monthlyBudget: 0,
+          currency: 'IDR'
+        })
+      } else {
+        setProfile({
+          email: user.email || '',
+          displayName: settings?.display_name || '',
+          vehicleType: settings?.vehicle_type || '',
+          fuelCapacity: settings?.fuel_capacity || 0,
+          monthlyBudget: settings?.monthly_budget || 0,
+          currency: settings?.currency || 'IDR'
+        })
+      }
     } catch (error) {
       console.error('Error loading profile:', error)
+      // Set default profile on error
+      setProfile({
+        email: '',
+        displayName: '',
+        vehicleType: '',
+        fuelCapacity: 0,
+        monthlyBudget: 0,
+        currency: 'IDR'
+      })
     } finally {
       setLoading(false)
     }
@@ -76,7 +98,8 @@ export default function ProfilePage() {
     setSuccess('')
 
     try {
-      const { error } = await supabase
+      // First try to update existing settings
+      const { error: updateError } = await supabase
         .from('user_settings')
         .upsert({
           display_name: profile.displayName,
@@ -88,12 +111,28 @@ export default function ProfilePage() {
           onConflict: 'user_id'
         })
 
-      if (error) throw error
+      if (updateError) {
+        console.log('Update failed, trying insert:', updateError)
+        
+        // If update fails, try to insert with only basic columns
+        const { error: insertError } = await supabase
+          .from('user_settings')
+          .insert({
+            display_name: profile.displayName,
+            vehicle_type: profile.vehicleType,
+            fuel_capacity: profile.fuelCapacity,
+            monthly_budget: profile.monthlyBudget,
+            currency: profile.currency
+          })
+
+        if (insertError) throw insertError
+      }
 
       setSuccess('Profil berhasil disimpan!')
       setTimeout(() => setSuccess(''), 3000)
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan'
+      console.error('Save profile error:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan saat menyimpan profil'
       setError(errorMessage)
     } finally {
       setSaving(false)

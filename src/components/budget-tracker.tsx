@@ -28,12 +28,13 @@ export function BudgetTracker() {
   const loadBudgetData = async () => {
     try {
       // Get monthly budget from user settings
-      const { data: settings } = await supabase
+      const { data: settings, error: settingsError } = await supabase
         .from('user_settings')
         .select('monthly_budget')
         .single()
 
-      const monthlyBudget = settings?.monthly_budget || 0
+      // Handle case where settings don't exist or columns are missing
+      const monthlyBudget = settingsError ? 0 : (settings?.monthly_budget || 0)
 
       // Get current month spending
       const now = new Date()
