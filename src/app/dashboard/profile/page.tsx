@@ -1,149 +1,112 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BurgerMenu } from '@/components/ui/menu'
-import { ThemeWrapper } from '@/components/ui/theme-wrapper'
-import { User, ArrowLeft, Save, Download, Upload, Trash2, DollarSign } from 'lucide-react'
-import Link from 'next/link'
+import { User, Save, Download, Trash2, Settings } from 'lucide-react'
 
-interface UserProfile {
-  email: string
-  displayName: string
-  vehicleType: string
-  fuelCapacity: number
-  monthlyBudget: number
-  currency: string
-  lastServiceDate: string
-  serviceIntervalDays: number
+interface UserSettings {
+  display_name?: string
+  vehicle_type?: string
+  fuel_capacity?: number
+  monthly_budget?: number
+  currency?: string
+  last_service_date?: string
+  service_interval_days?: number
 }
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<UserProfile>({
-    email: '',
-    displayName: '',
-    vehicleType: '',
-    fuelCapacity: 0,
-    monthlyBudget: 0,
+  const [formData, setFormData] = useState({
+    display_name: '',
+    vehicle_type: '',
+    fuel_capacity: '',
+    monthly_budget: '',
     currency: 'IDR',
-    lastServiceDate: '',
-    serviceIntervalDays: 90
+    last_service_date: '',
+    service_interval_days: '90'
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
   const router = useRouter()
   const supabase = createClient()
 
-  useEffect(() => {
-    loadProfile()
-  }, [])
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/login')
-        return
-      }
-
-      // Get user profile from user_settings or create default
-      const { data: settings, error: settingsError } = await supabase
+      const { data: settings, error } = await supabase
         .from('user_settings')
         .select('*')
         .single()
 
-      // Handle case where settings don't exist or columns are missing
-      if (settingsError) {
-        console.log('Settings not found or columns missing, using defaults')
-              setProfile({
-        email: user.email || '',
-        displayName: '',
-        vehicleType: '',
-        fuelCapacity: 0,
-        monthlyBudget: 0,
-        currency: 'IDR',
-        lastServiceDate: '',
-        serviceIntervalDays: 90
-      })
-      } else {
-        setProfile({
-          email: user.email || '',
-          displayName: settings?.display_name || '',
-          vehicleType: settings?.vehicle_type || '',
-          fuelCapacity: settings?.fuel_capacity || 0,
-          monthlyBudget: settings?.monthly_budget || 0,
-          currency: settings?.currency || 'IDR',
-          lastServiceDate: settings?.last_service_date || '',
-          serviceIntervalDays: settings?.service_interval_days || 90
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error loading profile:', error)
+      }
+
+      if (settings) {
+        setFormData({
+          display_name: settings.display_name || '',
+          vehicle_type: settings.vehicle_type || '',
+          fuel_capacity: settings.fuel_capacity?.toString() || '',
+          monthly_budget: settings.monthly_budget?.toString() || '',
+          currency: settings.currency || 'IDR',
+          last_service_date: settings.last_service_date || '',
+          service_interval_days: settings.service_interval_days?.toString() || '90'
         })
       }
     } catch (error) {
       console.error('Error loading profile:', error)
-      // Set default profile on error
-      setProfile({
-        email: '',
-        displayName: '',
-        vehicleType: '',
-        fuelCapacity: 0,
-        monthlyBudget: 0,
-        currency: 'IDR',
-        lastServiceDate: '',
-        serviceIntervalDays: 90
-      })
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
 
-  const saveProfile = async (e: React.FormEvent) => {
+  useEffect(() => {
+    loadProfile()
+  }, [loadProfile])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
-    setError('')
-    setSuccess('')
 
     try {
-      // First try to update existing settings
-      const { error: updateError } = await supabase
+      const { error } = await supabase
         .from('user_settings')
         .upsert({
-          display_name: profile.displayName,
-          vehicle_type: profile.vehicleType,
-          fuel_capacity: profile.fuelCapacity,
-          monthly_budget: profile.monthlyBudget,
-          currency: profile.currency
+          display_name: formData.display_name || null,
+          vehicle_type: formData.vehicle_type || null,
+          fuel_capacity: parseFloat(formData.fuel_capacity) || null,
+          monthly_budget: parseFloat(formData.monthly_budget) || null,
+          currency: formData.currency,
+          last_service_date: formData.last_service_date || null,
+          service_interval_days: parseInt(formData.service_interval_days) || 90
         }, {
           onConflict: 'user_id'
         })
 
-      if (updateError) {
-        console.log('Update failed, trying insert:', updateError)
-        
-        // If update fails, try to insert with only basic columns
+      if (error) {
+        // Fallback to insert if upsert fails
         const { error: insertError } = await supabase
           .from('user_settings')
           .insert({
-            display_name: profile.displayName,
-            vehicle_type: profile.vehicleType,
-            fuel_capacity: profile.fuelCapacity,
-            monthly_budget: profile.monthlyBudget,
-            currency: profile.currency
+            display_name: formData.display_name || null,
+            vehicle_type: formData.vehicle_type || null,
+            fuel_capacity: parseFloat(formData.fuel_capacity) || null,
+            monthly_budget: parseFloat(formData.monthly_budget) || null,
+            currency: formData.currency,
+            last_service_date: formData.last_service_date || null,
+            service_interval_days: parseInt(formData.service_interval_days) || 90
           })
 
         if (insertError) throw insertError
       }
 
-      setSuccess('Profil berhasil disimpan!')
-      setTimeout(() => setSuccess(''), 3000)
-    } catch (error: unknown) {
-      console.error('Save profile error:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan saat menyimpan profil'
-      setError(errorMessage)
+      alert('Profile updated successfully!')
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      alert('Failed to save profile. Please try again.')
     } finally {
       setSaving(false)
     }
@@ -151,236 +114,264 @@ export default function ProfilePage() {
 
   const exportData = async () => {
     try {
-      const { data: records } = await supabase
+      const { data: records, error } = await supabase
         .from('fuel_records')
         .select('*')
         .order('date', { ascending: false })
 
-      if (!records) return
+      if (error) throw error
 
-      // Convert to CSV
-      const headers = ['Date', 'Fuel Type', 'Quantity (L)', 'Price/L', 'Total Cost', 'Odometer (km)', 'Distance (km)', 'Cost/km']
+      // Create CSV content
+      const headers = ['Date', 'Fuel Type', 'Quantity (L)', 'Price per Liter (Rp)', 'Total Cost (Rp)', 'Distance (km)', 'Odometer (km)', 'Station']
       const csvContent = [
         headers.join(','),
-        ...records.map(record => [
+        ...(records || []).map(record => [
           record.date,
           record.fuel_type,
           record.quantity,
           record.price_per_liter,
           record.total_cost,
-          record.odometer_km || 0,
-          record.distance_km || 0,
-          record.cost_per_km || 0
+          record.distance_km,
+          record.odometer_km,
+          record.station
         ].join(','))
       ].join('\n')
 
-      // Download CSV
+      // Download CSV file
       const blob = new Blob([csvContent], { type: 'text/csv' })
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `fuel-records-${new Date().toISOString().split('T')[0]}.csv`
+      a.download = `fuelmeter_data_${new Date().toISOString().split('T')[0]}.csv`
+      document.body.appendChild(a)
       a.click()
+      document.body.removeChild(a)
       window.URL.revokeObjectURL(url)
 
-      setSuccess('Data berhasil diexport!')
-      setTimeout(() => setSuccess(''), 3000)
+      alert('Data exported successfully!')
     } catch (error) {
-      setError('Gagal export data')
+      console.error('Error exporting data:', error)
+      alert('Failed to export data. Please try again.')
     }
   }
 
   const clearAllData = async () => {
-    if (!confirm('⚠️ PERINGATAN: Ini akan menghapus SEMUA data bahan bakar Anda. Tindakan ini tidak dapat dibatalkan. Apakah Anda yakin?')) {
-      return
-    }
-
-    if (!confirm('Konfirmasi sekali lagi: Hapus SEMUA data bahan bakar?')) {
+    if (!confirm('Are you sure you want to delete ALL your data? This action cannot be undone.')) {
       return
     }
 
     try {
-      const { error } = await supabase
+      // Delete all fuel records
+      const { error: recordsError } = await supabase
         .from('fuel_records')
         .delete()
         .neq('id', '00000000-0000-0000-0000-000000000000') // Delete all records
 
-      if (error) throw error
+      if (recordsError) throw recordsError
 
-      setSuccess('Semua data berhasil dihapus')
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 2000)
+      // Delete user settings
+      const { error: settingsError } = await supabase
+        .from('user_settings')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000') // Delete all settings
+
+      if (settingsError) throw settingsError
+
+      alert('All data cleared successfully!')
+      router.push('/dashboard')
     } catch (error) {
-      setError('Gagal menghapus data')
+      console.error('Error clearing data:', error)
+      alert('Failed to clear data. Please try again.')
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Memuat profil...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <BurgerMenu />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading profile...</p>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <ThemeWrapper>
-      {({ isDarkMode, toggleDarkMode }) => (
-        <div className="bg-gray-50 dark:bg-gray-900 flex-1">
-          {/* Header */}
-          <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center h-16">
-                <div className="flex items-center space-x-3">
-                  <Link href="/dashboard" className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white">
-                    <ArrowLeft className="h-5 w-5" />
-                  </Link>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-                    <User className="h-5 w-5 text-white" />
-                  </div>
-                  <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Profil</h1>
-                </div>
-                <BurgerMenu isDarkMode={isDarkMode} onToggleDarkMode={toggleDarkMode} />
-              </div>
-            </div>
-          </header>
-
-          <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="space-y-6">
-              {/* Profile Settings */}
-              <Card className="dark:bg-gray-800 dark:border-gray-700">
-                <CardHeader>
-                  <CardTitle className="dark:text-white">Pengaturan Profil</CardTitle>
-                  <CardDescription className="dark:text-gray-400">
-                    Kelola informasi akun dan preferensi Anda
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={saveProfile} className="space-y-4">
-                    <Input
-                      label="Email"
-                      type="email"
-                      value={profile.email}
-                      disabled
-                      className="bg-gray-100 dark:bg-gray-700"
-                    />
-                    
-                    <Input
-                      label="Nama Tampilan"
-                      type="text"
-                      value={profile.displayName}
-                      onChange={(e) => setProfile({...profile, displayName: e.target.value})}
-                      placeholder="Masukkan nama tampilan"
-                    />
-                    
-                    <Input
-                      label="Jenis Kendaraan"
-                      type="text"
-                      value={profile.vehicleType}
-                      onChange={(e) => setProfile({...profile, vehicleType: e.target.value})}
-                      placeholder="Contoh: Honda Civic, Toyota Avanza"
-                    />
-                    
-                    <Input
-                      label="Kapasitas Tangki (Liter)"
-                      type="number"
-                      min="0"
-                      step="0.1"
-                      value={profile.fuelCapacity}
-                      onChange={(e) => setProfile({...profile, fuelCapacity: parseFloat(e.target.value) || 0})}
-                      placeholder="Contoh: 45"
-                    />
-                    
-                    <Input
-                      label="Budget Bulanan (Rp)"
-                      type="number"
-                      min="0"
-                      value={profile.monthlyBudget}
-                      onChange={(e) => setProfile({...profile, monthlyBudget: parseInt(e.target.value) || 0})}
-                      placeholder="Contoh: 500000"
-                    />
-
-                    <Input
-                      label="Tanggal Servis Terakhir"
-                      type="date"
-                      value={profile.lastServiceDate}
-                      onChange={(e) => setProfile({...profile, lastServiceDate: e.target.value})}
-                    />
-
-                    <Input
-                      label="Interval Servis (Hari)"
-                      type="number"
-                      min="30"
-                      max="365"
-                      value={profile.serviceIntervalDays}
-                      onChange={(e) => setProfile({...profile, serviceIntervalDays: parseInt(e.target.value) || 90})}
-                      placeholder="Contoh: 90"
-                    />
-
-                    {error && (
-                      <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
-                        {error}
-                      </div>
-                    )}
-
-                    {success && (
-                      <div className="text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-                        {success}
-                      </div>
-                    )}
-
-                    <Button type="submit" disabled={saving} className="w-full">
-                      {saving ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Menyimpan...
-                        </>
-                      ) : (
-                        <>
-                          <Save className="h-4 w-4 mr-2" />
-                          Simpan Profil
-                        </>
-                      )}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-
-              {/* Data Management */}
-              <Card className="dark:bg-gray-800 dark:border-gray-700">
-                <CardHeader>
-                  <CardTitle className="dark:text-white">Kelola Data</CardTitle>
-                  <CardDescription className="dark:text-gray-400">
-                    Export, backup, atau hapus data bahan bakar Anda
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Button onClick={exportData} variant="outline" className="w-full">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export Data ke CSV
-                  </Button>
-                  
-                  <div className="border-t border-gray-200 dark:border-gray-600 pt-4">
-                    <h4 className="text-sm font-medium text-red-600 dark:text-red-400 mb-2">Danger Zone</h4>
-                    <Button 
-                      onClick={clearAllData}
-                      variant="outline"
-                      className="w-full border-red-300 text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Hapus Semua Data
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </main>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <BurgerMenu />
+      
+      <div className="max-w-4xl mx-auto p-4">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Profile Settings
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Manage your profile and application settings
+          </p>
         </div>
-      )}
-    </ThemeWrapper>
+
+        {/* Profile Form */}
+        <Card className="dark:bg-gray-800 dark:border-gray-700 mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center text-gray-900 dark:text-white">
+              <User className="h-5 w-5 mr-2" />
+              Personal Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Display Name
+                  </label>
+                  <Input
+                    value={formData.display_name}
+                    onChange={(e) => setFormData({...formData, display_name: e.target.value})}
+                    placeholder="Enter your display name"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Vehicle Type
+                  </label>
+                  <Input
+                    value={formData.vehicle_type}
+                    onChange={(e) => setFormData({...formData, vehicle_type: e.target.value})}
+                    placeholder="e.g., Honda Civic, Toyota Avanza"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Fuel Capacity (L)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={formData.fuel_capacity}
+                    onChange={(e) => setFormData({...formData, fuel_capacity: e.target.value})}
+                    placeholder="e.g., 45"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Monthly Budget (Rp)
+                  </label>
+                  <Input
+                    type="number"
+                    value={formData.monthly_budget}
+                    onChange={(e) => setFormData({...formData, monthly_budget: e.target.value})}
+                    placeholder="e.g., 500000"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Currency
+                  </label>
+                  <select
+                    value={formData.currency}
+                    onChange={(e) => setFormData({...formData, currency: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="IDR">IDR (Indonesian Rupiah)</option>
+                    <option value="USD">USD (US Dollar)</option>
+                    <option value="EUR">EUR (Euro)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Last Service Date
+                  </label>
+                  <Input
+                    type="date"
+                    value={formData.last_service_date}
+                    onChange={(e) => setFormData({...formData, last_service_date: e.target.value})}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Service Interval (Days)
+                  </label>
+                  <Input
+                    type="number"
+                    value={formData.service_interval_days}
+                    onChange={(e) => setFormData({...formData, service_interval_days: e.target.value})}
+                    placeholder="e.g., 90"
+                  />
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={saving}
+                className="w-full"
+              >
+                {saving ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Profile
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Data Management */}
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
+          <CardHeader>
+            <CardTitle className="flex items-center text-gray-900 dark:text-white">
+              <Settings className="h-5 w-5 mr-2" />
+              Data Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button
+                onClick={exportData}
+                variant="outline"
+                className="h-12"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export Data (CSV)
+              </Button>
+              
+              <Button
+                onClick={clearAllData}
+                variant="outline"
+                className="h-12 text-red-600 hover:text-red-700"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Clear All Data
+              </Button>
+            </div>
+            
+            <div className="text-sm text-gray-600 dark:text-gray-400 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
+              <p className="font-medium mb-1">⚠️ Warning:</p>
+              <ul className="space-y-1">
+                <li>• Export data creates a CSV file with all your fuel records</li>
+                <li>• Clear all data permanently deletes all your records and settings</li>
+                <li>• These actions cannot be undone</li>
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   )
 } 

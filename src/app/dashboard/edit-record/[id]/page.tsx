@@ -1,14 +1,26 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import { useRouter, useParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { BurgerMenu } from '@/components/ui/menu'
-import { ArrowLeft, Save, Edit, Trash2 } from 'lucide-react'
-import Link from 'next/link'
+import { ArrowLeft, Save, Trash2 } from 'lucide-react'
+
+interface FuelRecord {
+  id: string
+  date: string
+  fuel_type: string
+  quantity: number
+  price_per_liter: number
+  total_cost: number
+  distance_km: number
+  odometer_km: number
+  station: string
+  created_at: string
+}
 
 export default function EditRecordPage() {
   const [formData, setFormData] = useState({
@@ -23,7 +35,6 @@ export default function EditRecordPage() {
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [record, setRecord] = useState<any>(null)
   const router = useRouter()
   const params = useParams()
   const recordId = params.id as string
@@ -46,17 +57,18 @@ export default function EditRecordPage() {
 
       if (error) throw error
 
-      setRecord(data)
-      setFormData({
-        date: data.date,
-        fuel_type: data.fuel_type,
-        quantity: data.quantity.toString(),
-        price_per_liter: data.price_per_liter.toString(),
-        total_cost: data.total_cost.toString(),
-        distance_km: data.distance_km?.toString() || '',
-        odometer_km: data.odometer_km?.toString() || '',
-        station: data.station || ''
-      })
+      if (data) {
+        setFormData({
+          date: data.date,
+          fuel_type: data.fuel_type,
+          quantity: data.quantity.toString(),
+          price_per_liter: data.price_per_liter.toString(),
+          total_cost: data.total_cost.toString(),
+          distance_km: data.distance_km?.toString() || '',
+          odometer_km: data.odometer_km?.toString() || '',
+          station: data.station || ''
+        })
+      }
     } catch (error) {
       console.error('Error fetching record:', error)
       alert('Record not found')
@@ -121,6 +133,8 @@ export default function EditRecordPage() {
       return
     }
 
+    setSaving(true)
+
     try {
       const { error } = await supabase
         .from('fuel_records')
@@ -134,52 +148,50 @@ export default function EditRecordPage() {
     } catch (error) {
       console.error('Error deleting record:', error)
       alert('Failed to delete record. Please try again.')
+    } finally {
+      setSaving(false)
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <BurgerMenu />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading record...</p>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <Link href="/dashboard/records" className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white">
-                <ArrowLeft className="h-5 w-5" />
-              </Link>
-              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Edit Record</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <BurgerMenu />
-            </div>
-          </div>
+      <BurgerMenu />
+      
+      <div className="max-w-2xl mx-auto p-4">
+        {/* Header */}
+        <div className="flex items-center space-x-4 mb-6">
+          <Button
+            onClick={() => router.push('/dashboard/records')}
+            variant="outline"
+            size="sm"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Records
+          </Button>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Edit Fuel Record
+          </h1>
         </div>
-      </header>
 
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Form */}
         <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between text-gray-900 dark:text-white">
-              <div className="flex items-center">
-                <Edit className="h-5 w-5 mr-2" />
-                Edit Fuel Record
-              </div>
-              <Button
-                onClick={handleDelete}
-                variant="outline"
-                size="sm"
-                className="text-red-600 hover:text-red-700"
-              >
-                <Trash2 className="h-5 w-5" />
-              </Button>
+            <CardTitle className="text-gray-900 dark:text-white">
+              Update Fuel Record
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -194,7 +206,6 @@ export default function EditRecordPage() {
                     value={formData.date}
                     onChange={(e) => handleInputChange('date', e.target.value)}
                     required
-                    className="text-gray-900 dark:text-white"
                   />
                 </div>
 
@@ -208,6 +219,7 @@ export default function EditRecordPage() {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     required
                   >
+                    <option value="">Select fuel type</option>
                     <option value="Pertalite">Pertalite</option>
                     <option value="Pertamax">Pertamax</option>
                     <option value="Pertamax Turbo">Pertamax Turbo</option>
@@ -226,7 +238,6 @@ export default function EditRecordPage() {
                     onChange={(e) => handleInputChange('quantity', e.target.value)}
                     placeholder="e.g., 25.5"
                     required
-                    className="text-gray-900 dark:text-white"
                   />
                 </div>
 
@@ -240,7 +251,6 @@ export default function EditRecordPage() {
                     onChange={(e) => handleInputChange('price_per_liter', e.target.value)}
                     placeholder="e.g., 10000"
                     required
-                    className="text-gray-900 dark:text-white"
                   />
                 </div>
 
@@ -254,20 +264,6 @@ export default function EditRecordPage() {
                     onChange={(e) => handleInputChange('total_cost', e.target.value)}
                     placeholder="Auto-calculated"
                     required
-                    className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-600"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Current Odometer (km)
-                  </label>
-                  <Input
-                    type="number"
-                    value={formData.odometer_km}
-                    onChange={(e) => handleInputChange('odometer_km', e.target.value)}
-                    placeholder="e.g., 50000"
-                    className="text-gray-900 dark:text-white"
                   />
                 </div>
 
@@ -280,35 +276,36 @@ export default function EditRecordPage() {
                     step="0.1"
                     value={formData.distance_km}
                     onChange={(e) => handleInputChange('distance_km', e.target.value)}
-                    placeholder="Auto-calculated"
-                    className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-600"
+                    placeholder="e.g., 150.5"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Odometer (km)
+                  </label>
+                  <Input
+                    type="number"
+                    value={formData.odometer_km}
+                    onChange={(e) => handleInputChange('odometer_km', e.target.value)}
+                    placeholder="e.g., 50000"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Station
                   </label>
                   <Input
-                    type="text"
                     value={formData.station}
                     onChange={(e) => handleInputChange('station', e.target.value)}
-                    placeholder="e.g., Pertamina, Shell"
-                    className="text-gray-900 dark:text-white"
+                    placeholder="e.g., Pertamina, Shell, BP"
                   />
                 </div>
               </div>
 
-              <div className="flex space-x-4">
-                <Link href="/dashboard/records" className="flex-1">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                  >
-                    Cancel
-                  </Button>
-                </Link>
+              {/* Action Buttons */}
+              <div className="flex space-x-3 pt-4">
                 <Button
                   type="submit"
                   disabled={saving}
@@ -317,20 +314,31 @@ export default function EditRecordPage() {
                   {saving ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Saving...
+                      Updating...
                     </>
                   ) : (
                     <>
                       <Save className="h-4 w-4 mr-2" />
-                      Save Changes
+                      Update Record
                     </>
                   )}
+                </Button>
+                
+                <Button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={saving}
+                  variant="outline"
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
                 </Button>
               </div>
             </form>
           </CardContent>
         </Card>
-      </main>
+      </div>
     </div>
   )
 } 

@@ -1,141 +1,97 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Leaf, Car, TrendingDown, Globe, Target, Award } from 'lucide-react'
+import { Leaf, Car, Globe } from 'lucide-react'
+
+interface FuelRecord {
+  id: string
+  date: string
+  fuel_type: string
+  quantity: number
+  price_per_liter: number
+  total_cost: number
+  distance_km: number
+  odometer_km: number
+  station: string
+  created_at: string
+}
 
 interface CarbonData {
   totalCO2: number
-  monthlyCO2: number
-  averagePerKm: number
   treesNeeded: number
-  carbonOffset: number
   environmentalScore: number
-  fuelEfficiency: number
-  totalDistance: number
-  totalFuel: number
-}
-
-interface CarbonGoal {
-  targetCO2: number
-  currentCO2: number
-  progress: number
-  daysRemaining: number
-  isOnTrack: boolean
+  monthlyAverage: number
+  yearlyProjection: number
 }
 
 export function CarbonFootprint() {
-  const [carbonData, setCarbonData] = useState<CarbonData | null>(null)
-  const [carbonGoal, setCarbonGoal] = useState<CarbonGoal | null>(null)
+  const [carbonData, setCarbonData] = useState<CarbonData>({
+    totalCO2: 0,
+    treesNeeded: 0,
+    environmentalScore: 0,
+    monthlyAverage: 0,
+    yearlyProjection: 0
+  })
+  const [carbonGoal, setCarbonGoal] = useState(100)
   const [loading, setLoading] = useState(true)
-  const [showOffset, setShowOffset] = useState(false)
   const supabase = createClient()
 
-  // CO2 emission factors (kg CO2 per liter)
-  const CO2_FACTORS = {
-    'Pertalite': 2.31,
-    'Pertamax': 2.35,
-    'Pertamax Turbo': 2.38,
-    'Solar': 2.68,
-    'Premium': 2.35,
-    'Dexlite': 2.31
-  }
-
-  // Average tree absorbs 22kg CO2 per year
-  const CO2_PER_TREE_PER_YEAR = 22
-
-  useEffect(() => {
-    loadCarbonData()
-    loadCarbonGoal()
-  }, [])
-
-  const loadCarbonData = async () => {
+  const loadCarbonData = useCallback(async () => {
     try {
-      // Get last 12 months of data
-      const now = new Date()
-      const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 12, 1)
-      
-      const { data: records } = await supabase
+      const { data: records, error } = await supabase
         .from('fuel_records')
         .select('*')
-        .gte('date', twelveMonthsAgo.toISOString().split('T')[0])
         .order('date', { ascending: true })
 
-      if (!records || records.length === 0) {
-        setCarbonData({
-          totalCO2: 0,
-          monthlyCO2: 0,
-          averagePerKm: 0,
-          treesNeeded: 0,
-          carbonOffset: 0,
-          environmentalScore: 100,
-          fuelEfficiency: 0,
-          totalDistance: 0,
-          totalFuel: 0
-        })
+      if (error) throw error
+
+      const fuelRecords = records || []
+      
+      if (fuelRecords.length === 0) {
+        setLoading(false)
         return
       }
 
-      // Calculate CO2 emissions
-      let totalCO2 = 0
-      let totalDistance = 0
-      let totalFuel = 0
+      // Calculate CO2 emissions based on fuel type
+      const co2Emissions = fuelRecords.reduce((total, record) => {
+        let emissionFactor = 2.31 // Default for gasoline (kg CO2/L)
+        
+        switch (record.fuel_type.toLowerCase()) {
+          case 'pertalite':
+          case 'pertamax':
+          case 'pertamax turbo':
+            emissionFactor = 2.31 // Gasoline
+            break
+          case 'solar':
+            emissionFactor = 2.68 // Diesel
+            break
+          default:
+            emissionFactor = 2.31 // Default to gasoline
+        }
+        
+        return total + (record.quantity * emissionFactor)
+      }, 0)
 
-      records.forEach(record => {
-        const co2Factor = CO2_FACTORS[record.fuel_type as keyof typeof CO2_FACTORS] || 2.35
-        const recordCO2 = record.quantity * co2Factor
-        totalCO2 += recordCO2
-        totalDistance += record.distance_km
-        totalFuel += record.quantity
-      })
+      // Calculate trees needed to offset (1 tree absorbs ~22kg CO2/year)
+      const treesNeeded = Math.ceil(co2Emissions / 22)
 
-      // Calculate monthly average
-      const monthsDiff = 12
-      const monthlyCO2 = totalCO2 / monthsDiff
+      // Calculate environmental score (0-100, lower is better)
+      const avgMonthlyCO2 = co2Emissions / Math.max(1, fuelRecords.length / 12)
+      const environmentalScore = Math.max(0, 100 - (avgMonthlyCO2 / 50) * 100)
 
-      // Calculate average CO2 per km
-      const averagePerKm = totalDistance > 0 ? totalCO2 / totalDistance : 0
-
-      // Calculate fuel efficiency
-      const fuelEfficiency = totalFuel > 0 ? totalDistance / totalFuel : 0
-
-      // Calculate trees needed to offset
-      const treesNeeded = Math.ceil(totalCO2 / CO2_PER_TREE_PER_YEAR)
-
-      // Calculate carbon offset cost (assuming $10 per ton CO2)
-      const carbonOffset = (totalCO2 / 1000) * 10 // Convert to tons and multiply by $10
-
-      // Calculate environmental score (0-100)
-      let environmentalScore = 100
-      
-      // Deduct points for high CO2 per km
-      if (averagePerKm > 0.3) environmentalScore -= 30
-      else if (averagePerKm > 0.25) environmentalScore -= 20
-      else if (averagePerKm > 0.2) environmentalScore -= 10
-      
-      // Deduct points for low fuel efficiency
-      if (fuelEfficiency < 8) environmentalScore -= 30
-      else if (fuelEfficiency < 10) environmentalScore -= 20
-      else if (fuelEfficiency < 12) environmentalScore -= 10
-      
-      // Add points for good efficiency
-      if (fuelEfficiency > 15) environmentalScore += 10
-      if (averagePerKm < 0.15) environmentalScore += 10
-
-      environmentalScore = Math.max(0, Math.min(100, environmentalScore))
+      // Calculate monthly average and yearly projection
+      const monthsOfData = Math.max(1, (new Date().getTime() - new Date(fuelRecords[0].date).getTime()) / (1000 * 60 * 60 * 24 * 30))
+      const monthlyAverage = co2Emissions / monthsOfData
+      const yearlyProjection = monthlyAverage * 12
 
       setCarbonData({
-        totalCO2,
-        monthlyCO2,
-        averagePerKm,
+        totalCO2: co2Emissions,
         treesNeeded,
-        carbonOffset,
         environmentalScore,
-        fuelEfficiency,
-        totalDistance,
-        totalFuel
+        monthlyAverage,
+        yearlyProjection
       })
 
     } catch (error) {
@@ -143,65 +99,55 @@ export function CarbonFootprint() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
 
-  const loadCarbonGoal = async () => {
+  const loadCarbonGoal = useCallback(async () => {
     try {
-      // Get user's carbon goal from settings
-      const { data: settings } = await supabase
+      const { data: settings, error } = await supabase
         .from('user_settings')
         .select('carbon_goal_kg')
         .single()
 
-      if (settings?.carbon_goal_kg) {
-        const targetCO2 = settings.carbon_goal_kg
-        const currentCO2 = carbonData?.monthlyCO2 || 0
-        const progress = Math.min(100, (currentCO2 / targetCO2) * 100)
-        const daysRemaining = 30 // Assuming monthly goal
-        const isOnTrack = currentCO2 <= targetCO2
-
-        setCarbonGoal({
-          targetCO2,
-          currentCO2,
-          progress,
-          daysRemaining,
-          isOnTrack
-        })
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error loading carbon goal:', error)
+      } else {
+        setCarbonGoal(settings?.carbon_goal_kg || 100)
       }
     } catch (error) {
       console.error('Error loading carbon goal:', error)
     }
-  }
+  }, [supabase])
 
-  const getEnvironmentalGrade = (score: number) => {
-    if (score >= 90) return { grade: 'A+', color: 'text-green-600 dark:text-green-400', icon: '🌱' }
-    if (score >= 80) return { grade: 'A', color: 'text-green-600 dark:text-green-400', icon: '🌿' }
-    if (score >= 70) return { grade: 'B', color: 'text-blue-600 dark:text-blue-400', icon: '🌳' }
-    if (score >= 60) return { grade: 'C', color: 'text-yellow-600 dark:text-yellow-400', icon: '🍃' }
-    if (score >= 50) return { grade: 'D', color: 'text-orange-600 dark:text-orange-400', icon: '🌾' }
-    return { grade: 'F', color: 'text-red-600 dark:text-red-400', icon: '🌍' }
-  }
-
-  const getOffsetSuggestions = () => {
-    const suggestions = []
-    
-    if (carbonData) {
-      if (carbonData.averagePerKm > 0.25) {
-        suggestions.push('🚗 Consider carpooling or public transport')
-      }
-      if (carbonData.fuelEfficiency < 10) {
-        suggestions.push('🔧 Maintain your vehicle regularly')
-      }
-      if (carbonData.treesNeeded > 5) {
-        suggestions.push('🌳 Plant trees to offset your carbon footprint')
-      }
-      if (carbonData.monthlyCO2 > 100) {
-        suggestions.push('⚡ Switch to electric or hybrid vehicles')
-      }
+  useEffect(() => {
+    const loadData = async () => {
+      await loadCarbonData()
+      await loadCarbonGoal()
     }
-    
-    return suggestions.length > 0 ? suggestions : ['🌱 You\'re doing great! Keep it up!']
+    loadData()
+  }, [loadCarbonData, loadCarbonGoal])
+
+  const getEnvironmentalGrade = (score: number): string => {
+    if (score >= 90) return 'A+'
+    if (score >= 80) return 'A'
+    if (score >= 70) return 'B'
+    if (score >= 60) return 'C'
+    if (score >= 50) return 'D'
+    return 'F'
   }
+
+  const getEnvironmentalColor = (score: number): string => {
+    if (score >= 80) return 'text-green-600 dark:text-green-400'
+    if (score >= 60) return 'text-yellow-600 dark:text-yellow-400'
+    return 'text-red-600 dark:text-red-400'
+  }
+
+  const getProgressColor = (percentage: number): string => {
+    if (percentage >= 90) return 'bg-red-500'
+    if (percentage >= 75) return 'bg-yellow-500'
+    return 'bg-green-500'
+  }
+
+  const goalProgress = carbonGoal > 0 ? (carbonData.yearlyProjection / carbonGoal) * 100 : 0
 
   if (loading) {
     return (
@@ -217,27 +163,6 @@ export function CarbonFootprint() {
     )
   }
 
-  if (!carbonData) {
-    return (
-      <Card className="dark:bg-gray-800 dark:border-gray-700">
-        <CardHeader>
-          <CardTitle className="flex items-center text-gray-900 dark:text-white">
-            <Leaf className="h-5 w-5 mr-2" />
-            Carbon Footprint
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
-            Tidak cukup data untuk menghitung carbon footprint. Tambahkan catatan bahan bakar!
-          </p>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  const envGrade = getEnvironmentalGrade(carbonData.environmentalScore)
-  const offsetSuggestions = getOffsetSuggestions()
-
   return (
     <Card className="dark:bg-gray-800 dark:border-gray-700">
       <CardHeader>
@@ -248,176 +173,121 @@ export function CarbonFootprint() {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Environmental Score */}
-        <div className="text-center">
-          <div className="flex items-center justify-center space-x-2 mb-2">
-            <span className="text-2xl">{envGrade.icon}</span>
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">
-              {carbonData.environmentalScore.toFixed(0)}
-            </span>
-            <span className={`text-2xl font-bold ${envGrade.color}`}>
-              {envGrade.grade}
+        <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="font-medium text-gray-900 dark:text-white">Environmental Score</h4>
+            <span className={`text-2xl font-bold ${getEnvironmentalColor(carbonData.environmentalScore)}`}>
+              {getEnvironmentalGrade(carbonData.environmentalScore)}
             </span>
           </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3 mb-2">
+            <div
+              className={`h-3 rounded-full transition-all duration-300 ${
+                carbonData.environmentalScore >= 80 ? 'bg-green-500' :
+                carbonData.environmentalScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+              }`}
+              style={{ width: `${carbonData.environmentalScore}%` }}
+            ></div>
+          </div>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Environmental Score
+            Based on your fuel consumption patterns
           </p>
         </div>
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+        {/* CO2 Emissions Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="text-center p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+            <div className="flex justify-center mb-2">
+              <Car className="h-8 w-8 text-red-600 dark:text-red-400" />
+            </div>
+            <h5 className="font-medium text-gray-900 dark:text-white mb-1">Total CO2 Emissions</h5>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {carbonData.totalCO2.toFixed(1)} kg
-            </div>
-            <p className="text-xs text-gray-600 dark:text-gray-400">
-              Total CO2 (12 months)
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              From all fuel purchases
             </p>
           </div>
-          <div className="text-center">
-            <div className="text-lg font-semibold text-gray-900 dark:text-white">
-              {carbonData.monthlyCO2.toFixed(1)} kg
+
+          <div className="text-center p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+            <div className="flex justify-center mb-2">
+              <Leaf className="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
-            <p className="text-xs text-gray-600 dark:text-gray-400">
-              Monthly Average
-            </p>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-semibold text-gray-900 dark:text-white">
-              {(carbonData.averagePerKm * 1000).toFixed(1)} g
-            </div>
-            <p className="text-xs text-gray-600 dark:text-gray-400">
-              CO2 per km
-            </p>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h5 className="font-medium text-gray-900 dark:text-white mb-1">Trees Needed</h5>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {carbonData.treesNeeded}
-            </div>
-            <p className="text-xs text-gray-600 dark:text-gray-400">
-              Trees to Offset
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              To offset emissions
+            </p>
+          </div>
+        </div>
+
+        {/* Monthly and Yearly Projections */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+            <h5 className="font-medium text-gray-900 dark:text-white mb-2">Monthly Average</h5>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {carbonData.monthlyAverage.toFixed(1)} kg CO2
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Average monthly emissions
+            </p>
+          </div>
+
+          <div className="p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+            <h5 className="font-medium text-gray-900 dark:text-white mb-2">Yearly Projection</h5>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {carbonData.yearlyProjection.toFixed(1)} kg CO2
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Based on current usage
             </p>
           </div>
         </div>
 
         {/* Carbon Goal Progress */}
-        {carbonGoal && (
-          <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
-                Monthly Carbon Goal
-              </span>
-              <span className={`text-sm font-semibold ${
-                carbonGoal.isOnTrack ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-              }`}>
-                {carbonGoal.isOnTrack ? 'On Track' : 'Over Target'}
-              </span>
-            </div>
-            
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
-              <div 
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  carbonGoal.isOnTrack ? 'bg-green-500' : 'bg-red-500'
-                }`}
-                style={{ width: `${Math.min(carbonGoal.progress, 100)}%` }}
-              ></div>
-            </div>
-            
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-              <span>{carbonGoal.currentCO2.toFixed(1)} kg</span>
-              <span>{carbonGoal.targetCO2.toFixed(1)} kg</span>
-            </div>
-          </div>
-        )}
-
-        {/* Carbon Offset */}
-        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-900 dark:text-white">
-              Carbon Offset Cost
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Carbon Goal Progress
             </span>
-            <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-              ${carbonData.carbonOffset.toFixed(2)}
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              {goalProgress.toFixed(1)}%
             </span>
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
-            Estimated cost to offset your carbon footprint through certified projects
+          <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-3">
+            <div
+              className={`h-3 rounded-full transition-all duration-300 ${getProgressColor(goalProgress)}`}
+              style={{ width: `${Math.min(goalProgress, 100)}%` }}
+            ></div>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Goal: {carbonGoal} kg CO2/year
           </p>
         </div>
 
         {/* Environmental Impact */}
-        <div className="space-y-3">
-          <h4 className="font-medium text-gray-900 dark:text-white">
-            Environmental Impact
-          </h4>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <Leaf className="h-5 w-5 text-green-600 dark:text-green-400" />
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">
-                  {carbonData.treesNeeded} Trees
-                </p>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Needed to offset your emissions
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <Car className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white">
-                  {carbonData.fuelEfficiency.toFixed(1)} km/L
-                </p>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Average fuel efficiency
-                </p>
-              </div>
-            </div>
+        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+          <h4 className="font-medium text-gray-900 dark:text-white mb-2">🌍 Environmental Impact</h4>
+          <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            <p>• Your emissions equal driving {Math.round(carbonData.totalCO2 / 0.404)} km in a typical car</p>
+            <p>• You would need to plant {carbonData.treesNeeded} trees to offset your emissions</p>
+            <p>• This is equivalent to {Math.round(carbonData.totalCO2 / 2.3)} liters of gasoline burned</p>
           </div>
         </div>
 
-        {/* Suggestions */}
-        <div className="space-y-3">
-          <h4 className="font-medium text-gray-900 dark:text-white">
-            Suggestions to Reduce Impact
-          </h4>
-          
-          <div className="space-y-2">
-            {offsetSuggestions.map((suggestion, index) => (
-              <div key={index} className="flex items-start space-x-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <span className="text-lg">{suggestion.split(' ')[0]}</span>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
-                  {suggestion.split(' ').slice(1).join(' ')}
-                </p>
-              </div>
-            ))}
-          </div>
+        {/* Tips for Reducing Carbon Footprint */}
+        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+          <h4 className="font-medium text-gray-900 dark:text-white mb-2">💡 Tips to Reduce Your Carbon Footprint</h4>
+          <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+            <li>• Drive more efficiently - avoid rapid acceleration and braking</li>
+            <li>• Maintain proper tire pressure for better fuel economy</li>
+            <li>• Consider carpooling or using public transportation</li>
+            <li>• Plan routes to avoid traffic and reduce idling</li>
+            <li>• Consider switching to a more fuel-efficient vehicle</li>
+          </ul>
         </div>
-
-        {/* Offset Action */}
-        <Button
-          onClick={() => setShowOffset(!showOffset)}
-          variant="outline"
-          className="w-full"
-        >
-          <Globe className="h-4 w-4 mr-2" />
-          Learn About Carbon Offset
-        </Button>
-
-        {showOffset && (
-          <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <h5 className="font-medium text-gray-900 dark:text-white mb-2">
-              Carbon Offset Options
-            </h5>
-            <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-              <p>🌳 <strong>Tree Planting:</strong> Plant trees to absorb CO2 naturally</p>
-              <p>⚡ <strong>Renewable Energy:</strong> Support solar/wind energy projects</p>
-              <p>🏭 <strong>Energy Efficiency:</strong> Fund energy-saving initiatives</p>
-              <p>🚗 <strong>Transportation:</strong> Support electric vehicle infrastructure</p>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   )
