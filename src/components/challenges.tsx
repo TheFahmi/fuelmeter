@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Trophy, Target, Users, Star, Calendar, Zap, Award, Crown, Check } from 'lucide-react'
+import { Trophy, Target, Users, Star, Zap, Award, Crown } from 'lucide-react'
 
 interface Challenge {
   id: string
@@ -33,21 +32,32 @@ interface LeaderboardEntry {
   efficiency: number
 }
 
+interface FuelRecord {
+  id: string
+  date: string
+  fuel_type: string
+  quantity: number
+  total_cost: number
+  distance_km: number
+  created_at: string
+}
+
 export function Challenges() {
   const [challenges, setChallenges] = useState<Challenge[]>([])
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
-  const [userStats, setUserStats] = useState<any>(null)
+  const [userStats, setUserStats] = useState<{
+    totalRecords: number
+    totalCost: number
+    totalDistance: number
+    averageEfficiency: number
+    points: number
+    achievements: number
+  } | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'challenges' | 'leaderboard'>('challenges')
   const supabase = createClient()
 
-  useEffect(() => {
-    loadChallenges()
-    loadLeaderboard()
-    loadUserStats()
-  }, [])
-
-  const loadChallenges = async () => {
+  const loadChallenges = useCallback(async () => {
     try {
       // Get user's current stats
       const { data: records } = await supabase
@@ -60,7 +70,6 @@ export function Challenges() {
       const now = new Date()
       const currentMonth = now.getMonth()
       const currentYear = now.getFullYear()
-      const startOfMonth = new Date(currentYear, currentMonth, 1)
       const startOfWeek = new Date(now.getTime() - (now.getDay() * 24 * 60 * 60 * 1000))
 
       // Calculate current stats
@@ -76,7 +85,6 @@ export function Challenges() {
         return recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear
       })
       const monthlyCost = monthlyRecords.reduce((sum, record) => sum + record.total_cost, 0)
-      const monthlyDistance = monthlyRecords.reduce((sum, record) => sum + record.distance_km, 0)
 
       // Weekly stats
       const weeklyRecords = records.filter(record => {
@@ -224,9 +232,9 @@ export function Challenges() {
     } catch (error) {
       console.error('Error loading challenges:', error)
     }
-  }
+  }, [supabase])
 
-  const calculateConsecutiveDays = (records: any[]) => {
+  const calculateConsecutiveDays = (records: FuelRecord[]) => {
     if (records.length === 0) return 0
     
     const sortedDates = records.map(r => r.date).sort().reverse()
@@ -247,7 +255,7 @@ export function Challenges() {
     return consecutiveDays
   }
 
-  const loadLeaderboard = async () => {
+  const loadLeaderboard = useCallback(async () => {
     try {
       // Simulate leaderboard data
       const mockLeaderboard: LeaderboardEntry[] = [
@@ -267,9 +275,9 @@ export function Challenges() {
     } catch (error) {
       console.error('Error loading leaderboard:', error)
     }
-  }
+  }, [])
 
-  const loadUserStats = async () => {
+  const loadUserStats = useCallback(async () => {
     try {
       const { data: records } = await supabase
         .from('fuel_records')
@@ -295,7 +303,13 @@ export function Challenges() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    loadChallenges()
+    loadLeaderboard()
+    loadUserStats()
+  }, [loadChallenges, loadLeaderboard, loadUserStats])
 
   const getChallengeIcon = (category: string) => {
     switch (category) {
@@ -421,7 +435,7 @@ export function Challenges() {
                       </div>
                       {challenge.isCompleted && (
                         <div className="text-green-600 dark:text-green-400">
-                          <Check className="h-5 w-5" />
+                          <Star className="h-5 w-5" />
                         </div>
                       )}
                     </div>

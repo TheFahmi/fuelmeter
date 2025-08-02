@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -47,20 +47,7 @@ export function Notifications() {
   const [unreadCount, setUnreadCount] = useState(0)
   const supabase = createClient()
 
-  useEffect(() => {
-    loadNotifications()
-    loadSettings()
-    checkNotificationPermission()
-  }, [])
-
-  const checkNotificationPermission = async () => {
-    if ('Notification' in window) {
-      const permission = await Notification.requestPermission()
-      setSettings(prev => ({ ...prev, pushEnabled: permission === 'granted' }))
-    }
-  }
-
-  const loadNotifications = async () => {
+  const loadNotifications = useCallback(async () => {
     try {
       // Get user's fuel records and settings for smart notifications
       const { data: records } = await supabase
@@ -88,7 +75,7 @@ export function Notifications() {
             id: 'budget-warning',
             type: 'warning',
             title: 'Budget Warning',
-            message: `You've spent ${((totalCost / monthlyBudget) * 100).toFixed(0)}% of your monthly fuel budget`,
+            message: `You&apos;ve spent ${((totalCost / monthlyBudget) * 100).toFixed(0)}% of your monthly fuel budget`,
             timestamp: new Date().toISOString(),
             isRead: false,
             action: {
@@ -105,7 +92,7 @@ export function Notifications() {
             id: 'low-fuel-reminder',
             type: 'info',
             title: 'Fuel Reminder',
-            message: `It's been ${daysSinceLastFill} days since your last fuel fill`,
+            message: `It&apos;s been ${daysSinceLastFill} days since your last fuel fill`,
             timestamp: new Date().toISOString(),
             isRead: false,
             action: {
@@ -156,7 +143,7 @@ export function Notifications() {
             id: 'achievement-milestone',
             type: 'success',
             title: 'Achievement Unlocked!',
-            message: `Congratulations! You've recorded ${records.length} fuel entries`,
+            message: `Congratulations! You&apos;ve recorded ${records.length} fuel entries`,
             timestamp: new Date().toISOString(),
             isRead: false,
             action: {
@@ -218,16 +205,11 @@ export function Notifications() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
 
-  const loadSettings = async () => {
-    try {
-      // In a real app, you'd load settings from database
-      // For now, we'll use local state
-    } catch (error) {
-      console.error('Error loading notification settings:', error)
-    }
-  }
+  useEffect(() => {
+    loadNotifications()
+  }, [loadNotifications])
 
   const markAsRead = async (notificationId: string) => {
     setNotifications(prev => 
@@ -493,7 +475,7 @@ export function Notifications() {
                   No Notifications
                 </h4>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  You're all caught up! Check back later for updates.
+                  You&apos;re all caught up! Check back later for updates.
                 </p>
               </div>
             ) : (

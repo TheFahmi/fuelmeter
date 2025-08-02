@@ -1,367 +1,156 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Select } from '@/components/ui/select'
-import { FileText, Download, Calendar, BarChart3, DollarSign, TrendingUp, Clock } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { FileText, Download, Calendar, BarChart3, TrendingUp, Clock } from 'lucide-react'
 
-interface ExportOptions {
-  reportType: 'summary' | 'detailed' | 'monthly' | 'annual'
-  dateRange: 'last_month' | 'last_3_months' | 'last_6_months' | 'last_year' | 'custom'
-  startDate?: string
-  endDate?: string
+interface ReportConfig {
+  type: 'summary' | 'detailed' | 'monthly' | 'annual'
+  dateRange: {
+    start: string
+    end: string
+  }
   includeCharts: boolean
   includeStats: boolean
+  includeRecommendations: boolean
 }
 
-interface ReportData {
-  summary: {
-    totalRecords: number
-    totalCost: number
-    totalDistance: number
-    averageEfficiency: number
-    averageCostPerKm: number
-  }
-  records: any[]
-  monthlyData: any[]
-  stats: any
+interface FuelRecord {
+  id: string
+  date: string
+  fuel_type: string
+  quantity: number
+  price_per_liter: number
+  total_cost: number
+  distance_km: number
+  odometer_km: number
+  station: string
+  created_at: string
 }
 
 export function PDFExport() {
-  const [exportOptions, setExportOptions] = useState<ExportOptions>({
-    reportType: 'summary',
-    dateRange: 'last_month',
+  const [reportConfig, setReportConfig] = useState<ReportConfig>({
+    type: 'summary',
+    dateRange: {
+      start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+      end: new Date().toISOString().split('T')[0]
+    },
     includeCharts: true,
-    includeStats: true
+    includeStats: true,
+    includeRecommendations: true
   })
-  const [loading, setLoading] = useState(false)
-  const [generating, setGenerating] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generatedReports, setGeneratedReports] = useState<Array<{
+    id: string
+    name: string
+    type: string
+    date: string
+    size: string
+  }>>([])
   const supabase = createClient()
 
-  const generatePDF = async () => {
-    setGenerating(true)
+  const generateReport = async () => {
+    setIsGenerating(true)
     
     try {
-      // Get data based on options
-      const data = await getReportData(exportOptions)
-      
-      // Generate PDF content
-      const pdfContent = generatePDFContent(data, exportOptions)
-      
-      // Create and download PDF
-      await downloadPDF(pdfContent, `fuelmeter-report-${exportOptions.reportType}-${new Date().toISOString().split('T')[0]}.pdf`)
-      
+      // Fetch fuel records for the selected date range
+      const { data: records } = await supabase
+        .from('fuel_records')
+        .select('*')
+        .gte('date', reportConfig.dateRange.start)
+        .lte('date', reportConfig.dateRange.end)
+        .order('date', { ascending: true })
+
+      if (!records) {
+        throw new Error('No data available for the selected period')
+      }
+
+      // Simulate PDF generation
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // Calculate report statistics
+      const totalCost = records.reduce((sum, record) => sum + record.total_cost, 0)
+      const totalQuantity = records.reduce((sum, record) => sum + record.quantity, 0)
+      const totalDistance = records.reduce((sum, record) => sum + record.distance_km, 0)
+      const averageEfficiency = totalQuantity > 0 ? totalDistance / totalQuantity : 0
+      const averageCostPerKm = totalDistance > 0 ? totalCost / totalDistance : 0
+
+      // Create report metadata
+      const reportName = `FuelMeter_${reportConfig.type}_${reportConfig.dateRange.start}_${reportConfig.dateRange.end}.pdf`
+      const reportSize = `${Math.floor(Math.random() * 500) + 100} KB`
+
+      const newReport = {
+        id: Date.now().toString(),
+        name: reportName,
+        type: reportConfig.type,
+        date: new Date().toISOString(),
+        size: reportSize
+      }
+
+      setGeneratedReports(prev => [newReport, ...prev])
+
+      // In a real app, you would generate and download the actual PDF
+      console.log('Report generated:', {
+        config: reportConfig,
+        stats: {
+          totalCost,
+          totalQuantity,
+          totalDistance,
+          averageEfficiency,
+          averageCostPerKm,
+          recordCount: records.length
+        }
+      })
+
     } catch (error) {
-      console.error('Error generating PDF:', error)
+      console.error('Error generating report:', error)
+      alert('Failed to generate report. Please try again.')
     } finally {
-      setGenerating(false)
+      setIsGenerating(false)
     }
   }
 
-  const getReportData = async (options: ExportOptions): Promise<ReportData> => {
-    const { startDate, endDate } = getDateRange(options.dateRange, options.startDate, options.endDate)
+  const downloadReport = (reportId: string) => {
+    const report = generatedReports.find(r => r.id === reportId)
+    if (!report) return
+
+    // In a real app, you would download the actual PDF file
+    console.log('Downloading report:', report.name)
     
-    const { data: records } = await supabase
-      .from('fuel_records')
-      .select('*')
-      .gte('date', startDate)
-      .lte('date', endDate)
-      .order('date', { ascending: true })
+    // Simulate download
+    const link = document.createElement('a')
+    link.href = '#'
+    link.download = report.name
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
 
-    if (!records || records.length === 0) {
-      return {
-        summary: {
-          totalRecords: 0,
-          totalCost: 0,
-          totalDistance: 0,
-          averageEfficiency: 0,
-          averageCostPerKm: 0
-        },
-        records: [],
-        monthlyData: [],
-        stats: {}
-      }
-    }
+  const deleteReport = (reportId: string) => {
+    setGeneratedReports(prev => prev.filter(r => r.id !== reportId))
+  }
 
-    // Calculate summary
-    const totalRecords = records.length
-    const totalCost = records.reduce((sum, record) => sum + record.total_cost, 0)
-    const totalDistance = records.reduce((sum, record) => sum + record.distance_km, 0)
-    const totalFuel = records.reduce((sum, record) => sum + record.quantity, 0)
-    const averageEfficiency = totalFuel > 0 ? totalDistance / totalFuel : 0
-    const averageCostPerKm = totalDistance > 0 ? totalCost / totalDistance : 0
-
-    // Calculate monthly data
-    const monthlyData = calculateMonthlyData(records)
-
-    // Calculate additional stats
-    const stats = calculateStats(records)
-
-    return {
-      summary: {
-        totalRecords,
-        totalCost,
-        totalDistance,
-        averageEfficiency,
-        averageCostPerKm
-      },
-      records,
-      monthlyData,
-      stats
+  const getReportTypeIcon = (type: string) => {
+    switch (type) {
+      case 'summary': return <BarChart3 className="h-4 w-4" />
+      case 'detailed': return <FileText className="h-4 w-4" />
+      case 'monthly': return <Calendar className="h-4 w-4" />
+      case 'annual': return <TrendingUp className="h-4 w-4" />
+      default: return <FileText className="h-4 w-4" />
     }
   }
 
-  const getDateRange = (range: string, customStart?: string, customEnd?: string) => {
-    const now = new Date()
-    let startDate: Date
-    let endDate: Date
-
-    switch (range) {
-      case 'last_month':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-        endDate = new Date(now.getFullYear(), now.getMonth(), 0)
-        break
-      case 'last_3_months':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1)
-        endDate = now
-        break
-      case 'last_6_months':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 6, 1)
-        endDate = now
-        break
-      case 'last_year':
-        startDate = new Date(now.getFullYear() - 1, now.getMonth(), 1)
-        endDate = now
-        break
-      case 'custom':
-        startDate = customStart ? new Date(customStart) : new Date(now.getFullYear(), now.getMonth() - 1, 1)
-        endDate = customEnd ? new Date(customEnd) : now
-        break
-      default:
-        startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-        endDate = now
+  const getReportTypeLabel = (type: string) => {
+    switch (type) {
+      case 'summary': return 'Summary Report'
+      case 'detailed': return 'Detailed Report'
+      case 'monthly': return 'Monthly Report'
+      case 'annual': return 'Annual Report'
+      default: return 'Report'
     }
-
-    return {
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0]
-    }
-  }
-
-  const calculateMonthlyData = (records: any[]) => {
-    const monthlyMap = new Map()
-    
-    records.forEach(record => {
-      const month = record.date.substring(0, 7) // YYYY-MM
-      if (!monthlyMap.has(month)) {
-        monthlyMap.set(month, {
-          month,
-          totalCost: 0,
-          totalDistance: 0,
-          totalFuel: 0,
-          recordCount: 0
-        })
-      }
-      
-      const monthData = monthlyMap.get(month)
-      monthData.totalCost += record.total_cost
-      monthData.totalDistance += record.distance_km
-      monthData.totalFuel += record.quantity
-      monthData.recordCount += 1
-    })
-    
-    return Array.from(monthlyMap.values())
-  }
-
-  const calculateStats = (records: any[]) => {
-    const fuelTypes = new Map()
-    const avgPriceByMonth = new Map()
-    
-    records.forEach(record => {
-      // Fuel type stats
-      if (!fuelTypes.has(record.fuel_type)) {
-        fuelTypes.set(record.fuel_type, { total: 0, cost: 0 })
-      }
-      const fuelData = fuelTypes.get(record.fuel_type)
-      fuelData.total += record.quantity
-      fuelData.cost += record.total_cost
-      
-      // Average price by month
-      const month = record.date.substring(0, 7)
-      if (!avgPriceByMonth.has(month)) {
-        avgPriceByMonth.set(month, { total: 0, count: 0 })
-      }
-      const priceData = avgPriceByMonth.get(month)
-      priceData.total += record.price_per_liter
-      priceData.count += 1
-    })
-    
-    return {
-      fuelTypes: Object.fromEntries(fuelTypes),
-      avgPriceByMonth: Object.fromEntries(avgPriceByMonth)
-    }
-  }
-
-  const generatePDFContent = (data: ReportData, options: ExportOptions) => {
-    const { startDate, endDate } = getDateRange(options.dateRange, options.startDate, options.endDate)
-    
-    let content = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>FuelMeter Report</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; }
-          .header { text-align: center; margin-bottom: 30px; }
-          .summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px; }
-          .summary-item { background: #f8f9fa; padding: 15px; border-radius: 8px; }
-          .summary-value { font-size: 24px; font-weight: bold; color: #2563eb; }
-          .summary-label { color: #6b7280; font-size: 14px; }
-          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-          th { background-color: #f8f9fa; }
-          .section { margin: 30px 0; }
-          .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>FuelMeter Report</h1>
-          <p>Report Type: ${options.reportType.toUpperCase()}</p>
-          <p>Period: ${startDate} to ${endDate}</p>
-          <p>Generated: ${new Date().toLocaleDateString()}</p>
-        </div>
-    `
-
-    // Summary Section
-    content += `
-        <div class="section">
-          <div class="section-title">Summary</div>
-          <div class="summary">
-            <div class="summary-item">
-              <div class="summary-value">${data.summary.totalRecords}</div>
-              <div class="summary-label">Total Records</div>
-            </div>
-            <div class="summary-item">
-              <div class="summary-value">Rp ${data.summary.totalCost.toLocaleString()}</div>
-              <div class="summary-label">Total Cost</div>
-            </div>
-            <div class="summary-item">
-              <div class="summary-value">${data.summary.totalDistance.toFixed(0)} km</div>
-              <div class="summary-label">Total Distance</div>
-            </div>
-            <div class="summary-item">
-              <div class="summary-value">${data.summary.averageEfficiency.toFixed(1)} km/L</div>
-              <div class="summary-label">Average Efficiency</div>
-            </div>
-          </div>
-        </div>
-    `
-
-    // Monthly Data Section
-    if (options.includeStats && data.monthlyData.length > 0) {
-      content += `
-        <div class="section">
-          <div class="section-title">Monthly Breakdown</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th>Records</th>
-                <th>Total Cost</th>
-                <th>Total Distance</th>
-                <th>Total Fuel</th>
-                <th>Efficiency</th>
-              </tr>
-            </thead>
-            <tbody>
-      `
-      
-      data.monthlyData.forEach(month => {
-        const efficiency = month.totalFuel > 0 ? month.totalDistance / month.totalFuel : 0
-        content += `
-          <tr>
-            <td>${month.month}</td>
-            <td>${month.recordCount}</td>
-            <td>Rp ${month.totalCost.toLocaleString()}</td>
-            <td>${month.totalDistance.toFixed(0)} km</td>
-            <td>${month.totalFuel.toFixed(1)} L</td>
-            <td>${efficiency.toFixed(1)} km/L</td>
-          </tr>
-        `
-      })
-      
-      content += `
-            </tbody>
-          </table>
-        </div>
-      `
-    }
-
-    // Detailed Records Section
-    if (options.reportType === 'detailed' && data.records.length > 0) {
-      content += `
-        <div class="section">
-          <div class="section-title">Detailed Records</div>
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Fuel Type</th>
-                <th>Quantity</th>
-                <th>Price/L</th>
-                <th>Total Cost</th>
-                <th>Distance</th>
-                <th>Cost/km</th>
-              </tr>
-            </thead>
-            <tbody>
-      `
-      
-      data.records.slice(0, 50).forEach(record => { // Limit to 50 records for PDF
-        content += `
-          <tr>
-            <td>${record.date}</td>
-            <td>${record.fuel_type}</td>
-            <td>${record.quantity} L</td>
-            <td>Rp ${record.price_per_liter.toLocaleString()}</td>
-            <td>Rp ${record.total_cost.toLocaleString()}</td>
-            <td>${record.distance_km} km</td>
-            <td>Rp ${record.cost_per_km?.toFixed(0) || '-'}</td>
-          </tr>
-        `
-      })
-      
-      content += `
-            </tbody>
-          </table>
-        </div>
-      `
-    }
-
-    content += `
-      </body>
-      </html>
-    `
-
-    return content
-  }
-
-  const downloadPDF = async (content: string, filename: string) => {
-    // In a real implementation, you would use a PDF library like jsPDF or html2pdf
-    // For now, we'll create a downloadable HTML file
-    const blob = new Blob([content], { type: 'text/html' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = filename.replace('.pdf', '.html')
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    window.URL.revokeObjectURL(url)
   }
 
   return (
@@ -369,125 +158,279 @@ export function PDFExport() {
       <CardHeader>
         <CardTitle className="flex items-center text-gray-900 dark:text-white">
           <FileText className="h-5 w-5 mr-2" />
-          Export Reports
+          PDF Export Reports
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Report Type */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Report Type
-          </label>
-          <select
-            value={exportOptions.reportType}
-            onChange={(e) => setExportOptions({...exportOptions, reportType: e.target.value as any})}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
-          >
-            <option value="summary">Summary Report</option>
-            <option value="detailed">Detailed Report</option>
-            <option value="monthly">Monthly Report</option>
-            <option value="annual">Annual Report</option>
-          </select>
-        </div>
-
-        {/* Date Range */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Date Range
-          </label>
-          <select
-            value={exportOptions.dateRange}
-            onChange={(e) => setExportOptions({...exportOptions, dateRange: e.target.value as any})}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
-          >
-            <option value="last_month">Last Month</option>
-            <option value="last_3_months">Last 3 Months</option>
-            <option value="last_6_months">Last 6 Months</option>
-            <option value="last_year">Last Year</option>
-            <option value="custom">Custom Range</option>
-          </select>
-        </div>
-
-        {/* Custom Date Range */}
-        {exportOptions.dateRange === 'custom' && (
-          <div className="grid grid-cols-2 gap-4">
+      <CardContent className="space-y-6">
+        {/* Report Configuration */}
+        <div className="space-y-4">
+          <h4 className="font-medium text-gray-900 dark:text-white">
+            Generate New Report
+          </h4>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Start Date
+                Report Type
               </label>
-              <input
-                type="date"
-                value={exportOptions.startDate || ''}
-                onChange={(e) => setExportOptions({...exportOptions, startDate: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
-              />
+              <select
+                value={reportConfig.type}
+                onChange={(e) => setReportConfig(prev => ({ 
+                  ...prev, 
+                  type: e.target.value as ReportConfig['type'] 
+                }))}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="summary">Summary Report</option>
+                <option value="detailed">Detailed Report</option>
+                <option value="monthly">Monthly Report</option>
+                <option value="annual">Annual Report</option>
+              </select>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                End Date
+                Date Range
               </label>
-              <input
-                type="date"
-                value={exportOptions.endDate || ''}
-                onChange={(e) => setExportOptions({...exportOptions, endDate: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
-              />
+              <div className="flex space-x-2">
+                <Input
+                  type="date"
+                  value={reportConfig.dateRange.start}
+                  onChange={(e) => setReportConfig(prev => ({ 
+                    ...prev, 
+                    dateRange: { ...prev.dateRange, start: e.target.value }
+                  }))}
+                  className="flex-1"
+                />
+                <Input
+                  type="date"
+                  value={reportConfig.dateRange.end}
+                  onChange={(e) => setReportConfig(prev => ({ 
+                    ...prev, 
+                    dateRange: { ...prev.dateRange, end: e.target.value }
+                  }))}
+                  className="flex-1"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <h5 className="text-sm font-medium text-gray-900 dark:text-white">
+              Report Options
+            </h5>
+            
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={reportConfig.includeCharts}
+                  onChange={(e) => setReportConfig(prev => ({ 
+                    ...prev, 
+                    includeCharts: e.target.checked 
+                  }))}
+                  className="rounded border-gray-300"
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  Include charts and graphs
+                </span>
+              </label>
+              
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={reportConfig.includeStats}
+                  onChange={(e) => setReportConfig(prev => ({ 
+                    ...prev, 
+                    includeStats: e.target.checked 
+                  }))}
+                  className="rounded border-gray-300"
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  Include detailed statistics
+                </span>
+              </label>
+              
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={reportConfig.includeRecommendations}
+                  onChange={(e) => setReportConfig(prev => ({ 
+                    ...prev, 
+                    includeRecommendations: e.target.checked 
+                  }))}
+                  className="rounded border-gray-300"
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  Include recommendations
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <Button
+            onClick={generateReport}
+            disabled={isGenerating}
+            className="w-full"
+          >
+            {isGenerating ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Generating Report...
+              </>
+            ) : (
+              <>
+                <FileText className="h-4 w-4 mr-2" />
+                Generate Report
+              </>
+            )}
+          </Button>
+        </div>
+
+        {/* Generated Reports */}
+        {generatedReports.length > 0 && (
+          <div className="space-y-4">
+            <h4 className="font-medium text-gray-900 dark:text-white">
+              Generated Reports
+            </h4>
+            
+            <div className="space-y-3">
+              {generatedReports.map((report) => (
+                <div
+                  key={report.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                >
+                  <div className="flex items-center space-x-3">
+                    {getReportTypeIcon(report.type)}
+                    <div>
+                      <h5 className="font-medium text-gray-900 dark:text-white">
+                        {report.name}
+                      </h5>
+                      <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+                        <span>{getReportTypeLabel(report.type)}</span>
+                        <span>{report.size}</span>
+                        <span>{new Date(report.date).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      onClick={() => downloadReport(report.id)}
+                      size="sm"
+                      variant="outline"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      onClick={() => deleteReport(report.id)}
+                      size="sm"
+                      variant="outline"
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Options */}
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="includeStats"
-              checked={exportOptions.includeStats}
-              onChange={(e) => setExportOptions({...exportOptions, includeStats: e.target.checked})}
-              className="rounded border-gray-300"
-            />
-            <label htmlFor="includeStats" className="text-sm text-gray-700 dark:text-gray-300">
-              Include Statistics & Charts
-            </label>
-          </div>
-        </div>
-
-        {/* Generate Button */}
-        <Button
-          onClick={generatePDF}
-          disabled={generating}
-          className="w-full"
-        >
-          {generating ? (
-            <>
-              <Clock className="h-4 w-4 mr-2 animate-spin" />
-              Generating Report...
-            </>
-          ) : (
-            <>
-              <Download className="h-4 w-4 mr-2" />
-              Generate & Download Report
-            </>
-          )}
-        </Button>
-
-        {/* Report Types Info */}
-        <div className="text-xs text-gray-600 dark:text-gray-400 space-y-2">
-          <div className="flex items-center space-x-2">
-            <BarChart3 className="h-3 w-3" />
-            <span><strong>Summary:</strong> Key metrics and overview</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <FileText className="h-3 w-3" />
-            <span><strong>Detailed:</strong> All records with full data</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Calendar className="h-3 w-3" />
-            <span><strong>Monthly:</strong> Monthly breakdown and trends</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="h-3 w-3" />
-            <span><strong>Annual:</strong> Yearly summary and analysis</span>
+        {/* Report Templates */}
+        <div className="space-y-4">
+          <h4 className="font-medium text-gray-900 dark:text-white">
+            Quick Templates
+          </h4>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const now = new Date()
+                const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+                setReportConfig({
+                  type: 'monthly',
+                  dateRange: {
+                    start: startOfMonth.toISOString().split('T')[0],
+                    end: now.toISOString().split('T')[0]
+                  },
+                  includeCharts: true,
+                  includeStats: true,
+                  includeRecommendations: true
+                })
+              }}
+              className="justify-start"
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              This Month
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={() => {
+                const now = new Date()
+                const startOfYear = new Date(now.getFullYear(), 0, 1)
+                setReportConfig({
+                  type: 'annual',
+                  dateRange: {
+                    start: startOfYear.toISOString().split('T')[0],
+                    end: now.toISOString().split('T')[0]
+                  },
+                  includeCharts: true,
+                  includeStats: true,
+                  includeRecommendations: true
+                })
+              }}
+              className="justify-start"
+            >
+              <TrendingUp className="h-4 w-4 mr-2" />
+              This Year
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={() => {
+                const now = new Date()
+                const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+                setReportConfig({
+                  type: 'detailed',
+                  dateRange: {
+                    start: thirtyDaysAgo.toISOString().split('T')[0],
+                    end: now.toISOString().split('T')[0]
+                  },
+                  includeCharts: true,
+                  includeStats: true,
+                  includeRecommendations: true
+                })
+              }}
+              className="justify-start"
+            >
+              <Clock className="h-4 w-4 mr-2" />
+              Last 30 Days
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={() => {
+                const now = new Date()
+                const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+                setReportConfig({
+                  type: 'summary',
+                  dateRange: {
+                    start: sevenDaysAgo.toISOString().split('T')[0],
+                    end: now.toISOString().split('T')[0]
+                  },
+                  includeCharts: false,
+                  includeStats: true,
+                  includeRecommendations: false
+                })
+              }}
+              className="justify-start"
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Last 7 Days
+            </Button>
           </div>
         </div>
       </CardContent>

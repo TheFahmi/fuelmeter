@@ -1,362 +1,389 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Select } from '@/components/ui/select'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { BurgerMenu } from '@/components/ui/menu'
-import { Loading } from '@/components/ui/loading'
-import { InitialOdometerModal } from '@/components/initial-odometer-modal'
-import { ThemeWrapper } from '@/components/ui/theme-wrapper'
-import { Fuel, ArrowLeft, Save } from 'lucide-react'
+import { ArrowLeft, Save, Plus } from 'lucide-react'
 import Link from 'next/link'
 
 export default function AddRecordPage() {
-  const [date, setDate] = useState('')
-  const [fuelType, setFuelType] = useState('')
-  const [quantity, setQuantity] = useState('')
-  const [pricePerLiter, setPricePerLiter] = useState('')
-  const [odometerKm, setOdometerKm] = useState('')
-  const [lastOdometer, setLastOdometer] = useState<number | null>(null)
+  const [formData, setFormData] = useState({
+    date: new Date().toISOString().split('T')[0],
+    fuel_type: 'Pertalite',
+    quantity: '',
+    price_per_liter: '',
+    total_cost: '',
+    distance_km: '',
+    odometer_km: '',
+    station: ''
+  })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
-  const [showInitialOdometerModal, setShowInitialOdometerModal] = useState(false)
-  const [hasRecords, setHasRecords] = useState(false)
+  const [hasInitialOdometer, setHasInitialOdometer] = useState(false)
+  const [showOdometerModal, setShowOdometerModal] = useState(false)
+  const [initialOdometer, setInitialOdometer] = useState('')
   const router = useRouter()
   const supabase = createClient()
 
-  useEffect(() => {
-    // Set default date to today
-    const today = new Date().toISOString().split('T')[0]
-    setDate(today)
-    checkUser()
-    checkUserRecords()
-  }, [])
-
-  const checkUserRecords = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('fuel_records')
-        .select('id')
-        .limit(1)
-
-      if (error) throw error
-
-      if (data && data.length > 0) {
-        setHasRecords(true)
-        fetchLastOdometer()
-      } else {
-        setHasRecords(false)
-        setShowInitialOdometerModal(true)
-      }
-    } catch (error) {
-      console.error('Error checking user records:', error)
-      setShowInitialOdometerModal(true)
+  const checkUser = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      router.push('/login')
     }
-  }
+  }, [supabase, router])
 
-  const fetchLastOdometer = async () => {
+  const checkUserRecords = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      const { data: records } = await supabase
         .from('fuel_records')
         .select('odometer_km')
         .order('created_at', { ascending: false })
         .limit(1)
 
-      if (error) throw error
-
-      if (data && data.length > 0) {
-        setLastOdometer(data[0].odometer_km)
+      if (records && records.length > 0 && records[0].odometer_km) {
+        setHasInitialOdometer(true)
+      } else {
+        setShowOdometerModal(true)
       }
     } catch (error) {
-      console.error('Error fetching last odometer:', error)
+      console.error('Error checking user records:', error)
+      setShowOdometerModal(true)
     }
-  }
+  }, [supabase])
 
-  const saveInitialOdometer = async (initialOdometer: number) => {
+  useEffect(() => {
+    checkUser()
+    checkUserRecords()
+  }, [checkUser, checkUserRecords])
+
+  const saveInitialOdometer = async () => {
+    if (!initialOdometer) return
+
     try {
-      const { error } = await supabase
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Try to upsert user settings
+      const { error: upsertError } = await supabase
         .from('user_settings')
         .upsert({
-          initial_odometer: initialOdometer
+          user_id: user.id,
+          initial_odometer: parseFloat(initialOdometer)
         }, {
           onConflict: 'user_id'
         })
 
-      if (error) throw error
+      if (upsertError) {
+        // Fallback to insert if upsert fails
+        const { error: insertError } = await supabase
+          .from('user_settings')
+          .insert({
+            user_id: user.id,
+            initial_odometer: parseFloat(initialOdometer)
+          })
 
-      setLastOdometer(initialOdometer)
-      setShowInitialOdometerModal(false)
+        if (insertError) {
+          throw insertError
+        }
+      }
+
+      setHasInitialOdometer(true)
+      setShowOdometerModal(false)
     } catch (error) {
       console.error('Error saving initial odometer:', error)
-      setError('Gagal menyimpan odometer awal')
+      alert('Failed to save initial odometer. Please try again.')
     }
   }
 
-  const skipInitialOdometer = () => {
-    setShowInitialOdometerModal(false)
-  }
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
 
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      router.push('/login')
+    // Auto-calculate total cost
+    if (field === 'quantity' || field === 'price_per_liter') {
+      const quantity = field === 'quantity' ? parseFloat(value) : parseFloat(formData.quantity)
+      const price = field === 'price_per_liter' ? parseFloat(value) : parseFloat(formData.price_per_liter)
+      
+      if (!isNaN(quantity) && !isNaN(price)) {
+        setFormData(prev => ({ ...prev, total_cost: (quantity * price).toString() }))
+      }
+    }
+
+    // Auto-calculate distance if odometer is provided
+    if (field === 'odometer_km') {
+      const currentOdometer = parseFloat(value)
+      if (!isNaN(currentOdometer)) {
+        // Get previous odometer reading
+        getPreviousOdometer().then(prevOdometer => {
+          if (prevOdometer && currentOdometer > prevOdometer) {
+            const distance = currentOdometer - prevOdometer
+            setFormData(prev => ({ ...prev, distance_km: distance.toString() }))
+          }
+        })
+      }
     }
   }
 
-  const calculateTotal = () => {
-    const qty = parseFloat(quantity) || 0
-    const price = parseFloat(pricePerLiter) || 0
-    return (qty * price).toFixed(0)
-  }
+  const getPreviousOdometer = async () => {
+    try {
+      const { data: records } = await supabase
+        .from('fuel_records')
+        .select('odometer_km')
+        .order('created_at', { ascending: false })
+        .limit(1)
 
-  const calculateDistance = () => {
-    const currentOdometer = parseFloat(odometerKm) || 0
-    const lastOdo = lastOdometer || 0
-    
-    // Jika ini catatan pertama dan ada odometer awal, gunakan odometer awal
-    if (!hasRecords && lastOdo > 0) {
-      return Math.max(0, currentOdometer - lastOdo)
+      return records && records.length > 0 ? records[0].odometer_km : null
+    } catch (error) {
+      console.error('Error getting previous odometer:', error)
+      return null
     }
-    
-    // Jika ada catatan sebelumnya, gunakan odometer terakhir
-    if (hasRecords && lastOdo > 0) {
-      return Math.max(0, currentOdometer - lastOdo)
-    }
-    
-    return 0
-  }
-
-  const calculateCostPerKm = () => {
-    const total = parseFloat(calculateTotal()) || 0
-    const distance = calculateDistance()
-    return distance > 0 ? (total / distance).toFixed(0) : '0'
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError('')
-    setSuccess('')
-
-    if (!date || !fuelType || !quantity || !pricePerLiter) {
-      setError('Semua field harus diisi')
-      setLoading(false)
-      return
-    }
-
-    const totalCost = parseFloat(calculateTotal())
-    const currentOdometer = parseFloat(odometerKm) || 0
-    const distance = calculateDistance()
-    const costPerKm = distance > 0 ? totalCost / distance : 0
 
     try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.push('/login')
+        return
+      }
+
+      const recordData = {
+        user_id: user.id,
+        date: formData.date,
+        fuel_type: formData.fuel_type,
+        quantity: parseFloat(formData.quantity),
+        price_per_liter: parseFloat(formData.price_per_liter),
+        total_cost: parseFloat(formData.total_cost),
+        distance_km: parseFloat(formData.distance_km) || 0,
+        odometer_km: parseFloat(formData.odometer_km) || null,
+        station: formData.station || null
+      }
+
       const { error } = await supabase
         .from('fuel_records')
-        .insert([
-          {
-            date,
-            fuel_type: fuelType,
-            quantity: parseFloat(quantity),
-            price_per_liter: parseFloat(pricePerLiter),
-            total_cost: totalCost,
-            odometer_km: currentOdometer,
-            distance_km: distance,
-            cost_per_km: costPerKm,
-          }
-        ])
+        .insert(recordData)
 
       if (error) throw error
 
-      setSuccess('Catatan berhasil ditambahkan!')
-      setTimeout(() => {
-        router.push('/dashboard')
-      }, 2000)
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan saat menyimpan'
-      setError(errorMessage)
+      // Reset form
+      setFormData({
+        date: new Date().toISOString().split('T')[0],
+        fuel_type: 'Pertalite',
+        quantity: '',
+        price_per_liter: '',
+        total_cost: '',
+        distance_km: '',
+        odometer_km: '',
+        station: ''
+      })
+
+      alert('Fuel record added successfully!')
+      router.push('/dashboard')
+    } catch (error) {
+      console.error('Error saving fuel record:', error)
+      alert('Failed to save fuel record. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
+  if (showOdometerModal) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md dark:bg-gray-800 dark:border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-gray-900 dark:text-white">
+              Welcome to FuelMeter!
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-gray-600 dark:text-gray-400">
+              To get started, please enter your current odometer reading. This will help us calculate distances for your fuel records.
+            </p>
+            <Input
+              type="number"
+              placeholder="Current odometer (km)"
+              value={initialOdometer}
+              onChange={(e) => setInitialOdometer(e.target.value)}
+              className="text-gray-900 dark:text-white"
+            />
+            <Button
+              onClick={saveInitialOdometer}
+              disabled={!initialOdometer}
+              className="w-full"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save & Continue
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
-    <ThemeWrapper>
-      {({ isDarkMode, toggleDarkMode }) => (
-        <div className="bg-gray-50 dark:bg-gray-900 flex-1">
-          {/* Initial Odometer Modal */}
-          <InitialOdometerModal
-            isOpen={showInitialOdometerModal}
-            onSave={saveInitialOdometer}
-            onSkip={skipInitialOdometer}
-          />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <Link
+            href="/dashboard"
+            className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Dashboard
+          </Link>
+        </div>
 
-          {/* Header */}
-          <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center h-16">
-                <div className="flex items-center space-x-3">
-                  <Link href="/dashboard" className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white">
-                    <ArrowLeft className="h-5 w-5" />
-                  </Link>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
-                    <Fuel className="h-5 w-5 text-white" />
-                  </div>
-                  <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Tambah Catatan</h1>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <BurgerMenu isDarkMode={isDarkMode} onToggleDarkMode={toggleDarkMode} />
-                </div>
-              </div>
-            </div>
-          </header>
-
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="dark:text-white">Tambah Catatan Bahan Bakar</CardTitle>
-            <CardDescription className="dark:text-gray-400">
-              Isi informasi pengisian bahan bakar Anda
-            </CardDescription>
+            <CardTitle className="flex items-center text-gray-900 dark:text-white">
+              <Plus className="h-5 w-5 mr-2" />
+              Add Fuel Record
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <Input
-                label="Tanggal"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-              />
-
-              <Select
-                label="Jenis Bahan Bakar"
-                value={fuelType}
-                onChange={(e) => setFuelType(e.target.value)}
-                options={[
-                  { value: '', label: 'Pilih jenis bahan bakar' },
-                  { value: 'Pertalite', label: 'Pertalite' },
-                  { value: 'Pertamax', label: 'Pertamax' },
-                  { value: 'Pertamax Turbo', label: 'Pertamax Turbo' },
-                  { value: 'Solar', label: 'Solar' },
-                  { value: 'Pertamina Dex', label: 'Pertamina Dex' },
-                  { value: 'Lainnya', label: 'Lainnya' }
-                ]}
-                required
-              />
-
-              <Input
-                label="Jumlah (Liter)"
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                required
-              />
-
-              <Input
-                label="Harga per Liter (Rp)"
-                type="number"
-                min="0"
-                placeholder="0"
-                value={pricePerLiter}
-                onChange={(e) => setPricePerLiter(e.target.value)}
-                required
-              />
-
-              <Input
-                label="Odometer (km)"
-                type="number"
-                step="0.1"
-                min="0"
-                placeholder="0.0"
-                value={odometerKm}
-                onChange={(e) => setOdometerKm(e.target.value)}
-              />
-
-              {/* Total Calculation */}
-              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Total Biaya:</span>
-                  <span className="text-lg font-bold text-gray-900 dark:text-white">
-                    Rp {calculateTotal()}
-                  </span>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Date
+                  </label>
+                  <Input
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => handleInputChange('date', e.target.value)}
+                    required
+                    className="text-gray-900 dark:text-white"
+                  />
                 </div>
-                {lastOdometer !== null && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Jarak Tempuh:</span>
-                    <span className="text-lg font-bold text-green-600 dark:text-green-400">
-                      {calculateDistance().toFixed(1)} km
-                    </span>
-                  </div>
-                )}
-                {!hasRecords && lastOdometer && (
-                  <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                    Berdasarkan odometer awal: {lastOdometer} km
-                  </div>
-                )}
-                {calculateDistance() > 0 && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Biaya per km:</span>
-                    <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                      Rp {calculateCostPerKm()}
-                    </span>
-                  </div>
-                )}
-              </div>
 
-              {error && (
-                <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
-                  {error}
-                </div>
-              )}
-
-              {success && (
-                <div className="text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-                  {success}
-                </div>
-              )}
-
-              <div className="flex space-x-4">
-                <Link href="/dashboard" className="flex-1">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Fuel Type
+                  </label>
+                  <select
+                    value={formData.fuel_type}
+                    onChange={(e) => handleInputChange('fuel_type', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    required
                   >
-                    Batal
-                  </Button>
-                </Link>
-                <Button
-                  type="submit"
-                  className="flex-1"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Menyimpan...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Simpan
-                    </>
-                  )}
-                </Button>
+                    <option value="Pertalite">Pertalite</option>
+                    <option value="Pertamax">Pertamax</option>
+                    <option value="Pertamax Turbo">Pertamax Turbo</option>
+                    <option value="Solar">Solar</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Quantity (L)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={formData.quantity}
+                    onChange={(e) => handleInputChange('quantity', e.target.value)}
+                    placeholder="e.g., 25.5"
+                    required
+                    className="text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Price per Liter (Rp)
+                  </label>
+                  <Input
+                    type="number"
+                    value={formData.price_per_liter}
+                    onChange={(e) => handleInputChange('price_per_liter', e.target.value)}
+                    placeholder="e.g., 10000"
+                    required
+                    className="text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Total Cost (Rp)
+                  </label>
+                  <Input
+                    type="number"
+                    value={formData.total_cost}
+                    onChange={(e) => handleInputChange('total_cost', e.target.value)}
+                    placeholder="Auto-calculated"
+                    required
+                    className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Current Odometer (km)
+                  </label>
+                  <Input
+                    type="number"
+                    value={formData.odometer_km}
+                    onChange={(e) => handleInputChange('odometer_km', e.target.value)}
+                    placeholder="e.g., 50000"
+                    className="text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Distance (km)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    value={formData.distance_km}
+                    onChange={(e) => handleInputChange('distance_km', e.target.value)}
+                    placeholder="Auto-calculated"
+                    className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Station
+                  </label>
+                  <Input
+                    type="text"
+                    value={formData.station}
+                    onChange={(e) => handleInputChange('station', e.target.value)}
+                    placeholder="e.g., Pertamina, Shell"
+                    className="text-gray-900 dark:text-white"
+                  />
+                </div>
               </div>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Record
+                  </>
+                )}
+              </Button>
             </form>
           </CardContent>
         </Card>
-      </main>
+      </div>
     </div>
-      )}
-    </ThemeWrapper>
   )
 } 
