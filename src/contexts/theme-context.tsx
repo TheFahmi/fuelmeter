@@ -11,57 +11,34 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [isDarkMode, setIsDarkMode] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isDarkMode] = useState(true) // Always dark mode
 
-  // Function to apply theme to DOM
-  const applyTheme = (isDark: boolean) => {
+  // Function to apply dark theme to DOM
+  const applyDarkTheme = () => {
     const root = document.documentElement
-    
-    if (isDark) {
-      root.classList.add('dark')
-      root.style.colorScheme = 'dark'
-      console.log('✅ Applied DARK theme')
-    } else {
-      root.classList.remove('dark')
-      root.style.colorScheme = 'light'
-      console.log('✅ Applied LIGHT theme')
-    }
+    root.classList.add('dark')
+    root.style.colorScheme = 'dark'
+    console.log('✅ Applied DARK theme')
   }
 
-  // Initialize theme on mount
+  // Initialize dark theme on mount
   useEffect(() => {
     const initTheme = () => {
       try {
-        // Get saved theme from localStorage
-        const savedTheme = localStorage.getItem('theme')
-        console.log('💾 Saved theme:', savedTheme)
+        console.log('🎨 Initializing dark theme')
         
-        let shouldUseDarkMode = false
+        // Always apply dark theme
+        applyDarkTheme()
         
-        if (savedTheme === 'dark') {
-          shouldUseDarkMode = true
-        } else if (savedTheme === 'light') {
-          shouldUseDarkMode = false
-        } else {
-          // No saved preference - default to light
-          shouldUseDarkMode = false
-          localStorage.setItem('theme', 'light')
-          console.log('🔧 Set default theme to light')
-        }
-        
-        console.log('🎨 Initializing theme:', shouldUseDarkMode ? 'dark' : 'light')
-        
-        // Apply theme immediately
-        applyTheme(shouldUseDarkMode)
-        setIsDarkMode(shouldUseDarkMode)
+        // Save to localStorage
+        localStorage.setItem('theme', 'dark')
         
       } catch (error) {
         console.error('❌ Theme initialization error:', error)
-        // Fallback to light mode
-        applyTheme(false)
-        setIsDarkMode(false)
-        localStorage.setItem('theme', 'light')
+        // Fallback to dark mode
+        applyDarkTheme()
+        localStorage.setItem('theme', 'dark')
       } finally {
         setIsLoading(false)
       }
@@ -70,20 +47,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     initTheme()
   }, [])
 
+  // Dummy function for compatibility
   const toggleDarkMode = () => {
-    const newDarkMode = !isDarkMode
-    console.log('🔄 Toggle theme:', isDarkMode ? 'dark' : 'light', '→', newDarkMode ? 'dark' : 'light')
-    
-    // Update state
-    setIsDarkMode(newDarkMode)
-    
-    // Apply to DOM immediately
-    applyTheme(newDarkMode)
-    
-    // Save to localStorage
-    const themeValue = newDarkMode ? 'dark' : 'light'
-    localStorage.setItem('theme', themeValue)
-    console.log('💾 Saved theme:', themeValue)
+    console.log('🔄 Theme toggle disabled - always dark mode')
   }
 
   return (

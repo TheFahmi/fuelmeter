@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Menu as MenuIcon, X, Home, Plus, BarChart3, User, LogOut, Sun, Moon } from 'lucide-react'
+import { Menu as MenuIcon, X, Home, Plus, BarChart3, User, LogOut } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
@@ -128,17 +128,10 @@ export function BurgerMenu({ isDarkMode, onToggleDarkMode }: BurgerMenuProps) {
 
             {/* Settings */}
             <div className="space-y-2">
-              <button
-                onClick={onToggleDarkMode}
-                className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors w-full"
-              >
-                {isDarkMode ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )}
-                <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
-              </button>
+              <div className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-500 dark:text-gray-500 opacity-50 cursor-not-allowed w-full">
+                <div className="h-5 w-5 rounded-full bg-gray-400 dark:bg-gray-600"></div>
+                <span>Dark Mode Only</span>
+              </div>
 
               <button
                 onClick={handleLogout}
