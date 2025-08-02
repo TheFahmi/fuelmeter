@@ -21,7 +21,6 @@ export default function AddRecordPage() {
     station: ''
   })
   const [loading, setLoading] = useState(false)
-  const [hasInitialOdometer, setHasInitialOdometer] = useState(false)
   const [showOdometerModal, setShowOdometerModal] = useState(false)
   const [initialOdometer, setInitialOdometer] = useState('')
   const router = useRouter()
@@ -43,7 +42,7 @@ export default function AddRecordPage() {
         .limit(1)
 
       if (records && records.length > 0 && records[0].odometer_km) {
-        setHasInitialOdometer(true)
+        // User has records, no need to show modal
       } else {
         setShowOdometerModal(true)
       }
@@ -89,7 +88,6 @@ export default function AddRecordPage() {
         }
       }
 
-      setHasInitialOdometer(true)
       setShowOdometerModal(false)
     } catch (error) {
       console.error('Error saving initial odometer:', error)

@@ -74,7 +74,6 @@ export function Challenges() {
 
       // Calculate current stats
       const totalRecords = records.length
-      const totalCost = records.reduce((sum, record) => sum + record.total_cost, 0)
       const totalDistance = records.reduce((sum, record) => sum + record.distance_km, 0)
       const totalFuel = records.reduce((sum, record) => sum + record.quantity, 0)
       const averageEfficiency = totalFuel > 0 ? totalDistance / totalFuel : 0
@@ -91,7 +90,6 @@ export function Challenges() {
         const recordDate = new Date(record.date)
         return recordDate >= startOfWeek
       })
-      const weeklyCost = weeklyRecords.reduce((sum, record) => sum + record.total_cost, 0)
 
       // Daily stats (today)
       const today = now.toISOString().split('T')[0]
