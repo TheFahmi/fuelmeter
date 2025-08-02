@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { FileText, Download, Calendar, BarChart3, TrendingUp, DollarSign } from 'lucide-react'
+import { FileText, Download, Calendar, BarChart3, TrendingUp } from 'lucide-react'
 
 interface ReportConfig {
   type: 'summary' | 'detailed' | 'monthly' | 'annual'

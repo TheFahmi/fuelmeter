@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Fuel, Mail, Lock, Eye, EyeOff, User } from 'lucide-react'
+import { Fuel, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
 
 export default function RegisterPage() {
@@ -20,16 +20,16 @@ export default function RegisterPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  useEffect(() => {
-    checkUser()
-  }, [])
-
-  const checkUser = async () => {
+  const checkUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       router.push('/dashboard')
     }
-  }
+  }, [supabase, router])
+
+  useEffect(() => {
+    checkUser()
+  }, [checkUser])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

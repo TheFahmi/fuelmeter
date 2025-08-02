@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { BurgerMenu } from '@/components/ui/menu'
-import { Plus, BarChart3, List, User, Fuel, TrendingUp, Calendar, Target } from 'lucide-react'
+import { Plus, BarChart3, List, TrendingUp, Calendar, Target } from 'lucide-react'
 import { BudgetTracker } from '@/components/budget-tracker'
 import { SmartReminders } from '@/components/smart-reminders'
 import { AdvancedStats } from '@/components/advanced-stats'
@@ -49,7 +49,6 @@ interface Stats {
 export default function DashboardPage() {
   const [user, setUser] = useState<{ email?: string } | null>(null)
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
-  const [fuelRecords, setFuelRecords] = useState<FuelRecord[]>([])
   const [stats, setStats] = useState<Stats>({
     totalRecords: 0,
     totalCost: 0,
@@ -80,7 +79,6 @@ export default function DashboardPage() {
 
       if (error) throw error
 
-      setFuelRecords(records || [])
       calculateStats(records || [])
     } catch (error) {
       console.error('Error fetching fuel records:', error)
@@ -163,20 +161,17 @@ export default function DashboardPage() {
       <BurgerMenu />
       
       <div className="max-w-7xl mx-auto p-4">
-        {/* Welcome Section */}
+        {/* Header */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Selamat datang, {userSettings?.display_name || user?.email?.split('@')[0] || 'User'}!
-          </h2>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Dashboard
+          </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            {userSettings?.vehicle_type
-              ? `Kelola data bahan bakar ${userSettings.vehicle_type} Anda dengan mudah`
-              : 'Kelola data bahan bakar Anda dengan mudah'
-            }
+            Welcome back, {userSettings?.display_name || user?.email}
           </p>
         </div>
 
-        {/* Quick Stats */}
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <Card className="dark:bg-gray-800 dark:border-gray-700">
             <CardContent className="p-4">
@@ -185,7 +180,7 @@ export default function DashboardPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400">Total Records</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalRecords}</p>
                 </div>
-                <Fuel className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                <List className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
             </CardContent>
           </Card>
@@ -227,93 +222,62 @@ export default function DashboardPage() {
                     Rp {stats.averageCostPerKm.toFixed(0)}
                   </p>
                 </div>
-                <Calendar className="h-8 w-8 text-orange-600 dark:text-orange-400" />
+                <BarChart3 className="h-8 w-8 text-orange-600 dark:text-orange-400" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <Button
             onClick={() => router.push('/dashboard/add-record')}
-            className="h-16 text-lg"
+            className="h-20 flex flex-col items-center justify-center space-y-2"
           >
-            <Plus className="h-5 w-5 mr-2" />
-            Add New Record
+            <Plus className="h-6 w-6" />
+            <span className="text-sm">Add Record</span>
           </Button>
-          
+
           <Button
             onClick={() => router.push('/dashboard/records')}
             variant="outline"
-            className="h-16 text-lg"
+            className="h-20 flex flex-col items-center justify-center space-y-2"
           >
-            <List className="h-5 w-5 mr-2" />
-            View All Records
+            <List className="h-6 w-6" />
+            <span className="text-sm">View Records</span>
           </Button>
-          
+
           <Button
             onClick={() => router.push('/dashboard/statistics')}
             variant="outline"
-            className="h-16 text-lg"
+            className="h-20 flex flex-col items-center justify-center space-y-2"
           >
-            <BarChart3 className="h-5 w-5 mr-2" />
-            View Statistics
+            <BarChart3 className="h-6 w-6" />
+            <span className="text-sm">Statistics</span>
+          </Button>
+
+          <Button
+            onClick={() => router.push('/dashboard/profile')}
+            variant="outline"
+            className="h-20 flex flex-col items-center justify-center space-y-2"
+          >
+            <Calendar className="h-6 w-6" />
+            <span className="text-sm">Profile</span>
           </Button>
         </div>
 
-        {/* Smart Reminders */}
-        <div className="mb-6">
-          <SmartReminders />
-        </div>
-
-        {/* Budget Tracker */}
-        <div className="mb-6">
+        {/* Feature Components */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <BudgetTracker />
-        </div>
-
-        {/* Advanced Statistics */}
-        <div className="mb-6">
+          <SmartReminders />
           <AdvancedStats />
-        </div>
-
-        {/* Achievement System */}
-        <div className="mb-6">
           <AchievementSystem />
-        </div>
-
-        {/* Vehicle Manager */}
-        <div className="mb-6">
-          <VehicleManager />
-        </div>
-
-        {/* Receipt Scanner */}
-        <div className="mb-6">
           <ReceiptScanner />
-        </div>
-
-        {/* Carbon Footprint */}
-        <div className="mb-6">
+          <VehicleManager />
           <CarbonFootprint />
-        </div>
-
-        {/* PDF Export */}
-        <div className="mb-6">
           <PDFExport />
-        </div>
-
-        {/* Challenges & Leaderboard */}
-        <div className="mb-6">
           <Challenges />
-        </div>
-
-        {/* Notifications */}
-        <div className="mb-6">
           <Notifications />
-        </div>
-
-        {/* Advanced Analytics */}
-        <div className="mb-6">
           <AdvancedAnalytics />
         </div>
       </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Trophy, Award, Target, CheckCircle, TrendingUp, Calendar, Zap, Star } from 'lucide-react'
+import { Trophy, CheckCircle } from 'lucide-react'
 
 interface FuelRecord {
   id: string

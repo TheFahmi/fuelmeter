@@ -9,18 +9,7 @@ import { Input } from '@/components/ui/input'
 import { BurgerMenu } from '@/components/ui/menu'
 import { ArrowLeft, Save, Trash2 } from 'lucide-react'
 
-interface FuelRecord {
-  id: string
-  date: string
-  fuel_type: string
-  quantity: number
-  price_per_liter: number
-  total_cost: number
-  distance_km: number
-  odometer_km: number
-  station: string
-  created_at: string
-}
+// ... existing code ...
 
 export default function EditRecordPage() {
   const [formData, setFormData] = useState({

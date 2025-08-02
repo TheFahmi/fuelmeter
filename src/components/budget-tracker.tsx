@@ -5,19 +5,6 @@ import { createClient } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DollarSign, AlertTriangle, CheckCircle, Target } from 'lucide-react'
 
-interface FuelRecord {
-  id: string
-  date: string
-  fuel_type: string
-  quantity: number
-  price_per_liter: number
-  total_cost: number
-  distance_km: number
-  odometer_km: number
-  station: string
-  created_at: string
-}
-
 export function BudgetTracker() {
   const [monthlyBudget, setMonthlyBudget] = useState(0)
   const [currentSpent, setCurrentSpent] = useState(0)

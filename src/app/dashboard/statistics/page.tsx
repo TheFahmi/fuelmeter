@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { BurgerMenu } from '@/components/ui/menu'
-import { BarChart3, TrendingUp, TrendingDown, Fuel, DollarSign, Target, Calendar } from 'lucide-react'
+import { BarChart3, TrendingUp, TrendingDown, Fuel, DollarSign, Target } from 'lucide-react'
 
 interface FuelRecord {
   id: string

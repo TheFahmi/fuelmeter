@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TrendingUp, TrendingDown, Target, Zap, BarChart3, Clock, DollarSign } from 'lucide-react'
+import { TrendingUp, TrendingDown, BarChart3, Clock, DollarSign } from 'lucide-react'
 
 interface FuelRecord {
   id: string

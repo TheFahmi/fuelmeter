@@ -7,32 +7,30 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { BurgerMenu } from '@/components/ui/menu'
-import { User, Save, Download, Trash2, Settings } from 'lucide-react'
-
-interface UserSettings {
-  display_name?: string
-  vehicle_type?: string
-  fuel_capacity?: number
-  monthly_budget?: number
-  currency?: string
-  last_service_date?: string
-  service_interval_days?: number
-}
+import { Settings, Download, Trash2, AlertTriangle } from 'lucide-react'
 
 export default function ProfilePage() {
   const [formData, setFormData] = useState({
     display_name: '',
     vehicle_type: '',
-    fuel_capacity: '',
+    vehicle_model: '',
+    license_plate: '',
     monthly_budget: '',
     currency: 'IDR',
     last_service_date: '',
-    service_interval_days: '90'
+    service_interval_days: ''
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+
+  const checkUser = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      router.push('/login')
+    }
+  }, [supabase, router])
 
   const loadProfile = useCallback(async () => {
     try {
@@ -43,17 +41,16 @@ export default function ProfilePage() {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error loading profile:', error)
-      }
-
-      if (settings) {
+      } else if (settings) {
         setFormData({
           display_name: settings.display_name || '',
           vehicle_type: settings.vehicle_type || '',
-          fuel_capacity: settings.fuel_capacity?.toString() || '',
+          vehicle_model: settings.vehicle_model || '',
+          license_plate: settings.license_plate || '',
           monthly_budget: settings.monthly_budget?.toString() || '',
           currency: settings.currency || 'IDR',
           last_service_date: settings.last_service_date || '',
-          service_interval_days: settings.service_interval_days?.toString() || '90'
+          service_interval_days: settings.service_interval_days?.toString() || ''
         })
       }
     } catch (error) {
@@ -64,8 +61,13 @@ export default function ProfilePage() {
   }, [supabase])
 
   useEffect(() => {
-    loadProfile()
-  }, [loadProfile])
+    const initializeProfile = async () => {
+      await checkUser()
+      await loadProfile()
+    }
+
+    initializeProfile()
+  }, [checkUser, loadProfile])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -75,38 +77,22 @@ export default function ProfilePage() {
       const { error } = await supabase
         .from('user_settings')
         .upsert({
-          display_name: formData.display_name || null,
-          vehicle_type: formData.vehicle_type || null,
-          fuel_capacity: parseFloat(formData.fuel_capacity) || null,
-          monthly_budget: parseFloat(formData.monthly_budget) || null,
+          display_name: formData.display_name,
+          vehicle_type: formData.vehicle_type,
+          vehicle_model: formData.vehicle_model,
+          license_plate: formData.license_plate,
+          monthly_budget: formData.monthly_budget ? parseFloat(formData.monthly_budget) : null,
           currency: formData.currency,
           last_service_date: formData.last_service_date || null,
-          service_interval_days: parseInt(formData.service_interval_days) || 90
-        }, {
-          onConflict: 'user_id'
+          service_interval_days: formData.service_interval_days ? parseInt(formData.service_interval_days) : null
         })
 
-      if (error) {
-        // Fallback to insert if upsert fails
-        const { error: insertError } = await supabase
-          .from('user_settings')
-          .insert({
-            display_name: formData.display_name || null,
-            vehicle_type: formData.vehicle_type || null,
-            fuel_capacity: parseFloat(formData.fuel_capacity) || null,
-            monthly_budget: parseFloat(formData.monthly_budget) || null,
-            currency: formData.currency,
-            last_service_date: formData.last_service_date || null,
-            service_interval_days: parseInt(formData.service_interval_days) || 90
-          })
-
-        if (insertError) throw insertError
-      }
+      if (error) throw error
 
       alert('Profile updated successfully!')
     } catch (error) {
-      console.error('Error saving profile:', error)
-      alert('Failed to save profile. Please try again.')
+      console.error('Error updating profile:', error)
+      alert('Failed to update profile. Please try again.')
     } finally {
       setSaving(false)
     }
@@ -121,28 +107,25 @@ export default function ProfilePage() {
 
       if (error) throw error
 
-      // Create CSV content
-      const headers = ['Date', 'Fuel Type', 'Quantity (L)', 'Price per Liter (Rp)', 'Total Cost (Rp)', 'Distance (km)', 'Odometer (km)', 'Station']
       const csvContent = [
-        headers.join(','),
+        ['Date', 'Fuel Type', 'Quantity (L)', 'Price per Liter', 'Total Cost', 'Distance (km)', 'Odometer (km)', 'Station'],
         ...(records || []).map(record => [
           record.date,
           record.fuel_type,
-          record.quantity,
-          record.price_per_liter,
-          record.total_cost,
-          record.distance_km,
-          record.odometer_km,
-          record.station
-        ].join(','))
-      ].join('\n')
+          record.quantity.toString(),
+          record.price_per_liter.toString(),
+          record.total_cost.toString(),
+          record.distance_km.toString(),
+          record.odometer_km.toString(),
+          record.station || ''
+        ])
+      ].map(row => row.join(',')).join('\n')
 
-      // Download CSV file
       const blob = new Blob([csvContent], { type: 'text/csv' })
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `fuelmeter_data_${new Date().toISOString().split('T')[0]}.csv`
+      a.download = `fuel_records_${new Date().toISOString().split('T')[0]}.csv`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -161,7 +144,7 @@ export default function ProfilePage() {
     }
 
     try {
-      // Delete all fuel records
+      // Delete fuel records
       const { error: recordsError } = await supabase
         .from('fuel_records')
         .delete()
@@ -177,8 +160,17 @@ export default function ProfilePage() {
 
       if (settingsError) throw settingsError
 
-      alert('All data cleared successfully!')
-      router.push('/dashboard')
+      alert('All data has been cleared successfully!')
+      setFormData({
+        display_name: '',
+        vehicle_type: '',
+        vehicle_model: '',
+        license_plate: '',
+        monthly_budget: '',
+        currency: 'IDR',
+        last_service_date: '',
+        service_interval_days: ''
+      })
     } catch (error) {
       console.error('Error clearing data:', error)
       alert('Failed to clear data. Please try again.')
@@ -210,7 +202,7 @@ export default function ProfilePage() {
             Profile Settings
           </h1>
           <p className="text-gray-600 dark:text-gray-400">
-            Manage your profile and application settings
+            Manage your account settings and preferences
           </p>
         </div>
 
@@ -218,7 +210,7 @@ export default function ProfilePage() {
         <Card className="dark:bg-gray-800 dark:border-gray-700 mb-6">
           <CardHeader>
             <CardTitle className="flex items-center text-gray-900 dark:text-white">
-              <User className="h-5 w-5 mr-2" />
+              <Settings className="h-5 w-5 mr-2" />
               Personal Information
             </CardTitle>
           </CardHeader>
@@ -230,8 +222,9 @@ export default function ProfilePage() {
                     Display Name
                   </label>
                   <Input
+                    type="text"
                     value={formData.display_name}
-                    onChange={(e) => setFormData({...formData, display_name: e.target.value})}
+                    onChange={(e) => setFormData(prev => ({ ...prev, display_name: e.target.value }))}
                     placeholder="Enter your display name"
                   />
                 </div>
@@ -241,34 +234,46 @@ export default function ProfilePage() {
                     Vehicle Type
                   </label>
                   <Input
+                    type="text"
                     value={formData.vehicle_type}
-                    onChange={(e) => setFormData({...formData, vehicle_type: e.target.value})}
-                    placeholder="e.g., Honda Civic, Toyota Avanza"
+                    onChange={(e) => setFormData(prev => ({ ...prev, vehicle_type: e.target.value }))}
+                    placeholder="e.g., Car, Motorcycle, Truck"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Fuel Capacity (L)
+                    Vehicle Model
                   </label>
                   <Input
-                    type="number"
-                    step="0.1"
-                    value={formData.fuel_capacity}
-                    onChange={(e) => setFormData({...formData, fuel_capacity: e.target.value})}
-                    placeholder="e.g., 45"
+                    type="text"
+                    value={formData.vehicle_model}
+                    onChange={(e) => setFormData(prev => ({ ...prev, vehicle_model: e.target.value }))}
+                    placeholder="e.g., Toyota Avanza, Honda Vario"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Monthly Budget (Rp)
+                    License Plate
+                  </label>
+                  <Input
+                    type="text"
+                    value={formData.license_plate}
+                    onChange={(e) => setFormData(prev => ({ ...prev, license_plate: e.target.value }))}
+                    placeholder="e.g., B 1234 ABC"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Monthly Budget
                   </label>
                   <Input
                     type="number"
                     value={formData.monthly_budget}
-                    onChange={(e) => setFormData({...formData, monthly_budget: e.target.value})}
-                    placeholder="e.g., 500000"
+                    onChange={(e) => setFormData(prev => ({ ...prev, monthly_budget: e.target.value }))}
+                    placeholder="Enter monthly budget"
                   />
                 </div>
 
@@ -278,7 +283,7 @@ export default function ProfilePage() {
                   </label>
                   <select
                     value={formData.currency}
-                    onChange={(e) => setFormData({...formData, currency: e.target.value})}
+                    onChange={(e) => setFormData(prev => ({ ...prev, currency: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   >
                     <option value="IDR">IDR (Indonesian Rupiah)</option>
@@ -294,7 +299,7 @@ export default function ProfilePage() {
                   <Input
                     type="date"
                     value={formData.last_service_date}
-                    onChange={(e) => setFormData({...formData, last_service_date: e.target.value})}
+                    onChange={(e) => setFormData(prev => ({ ...prev, last_service_date: e.target.value }))}
                   />
                 </div>
 
@@ -305,8 +310,8 @@ export default function ProfilePage() {
                   <Input
                     type="number"
                     value={formData.service_interval_days}
-                    onChange={(e) => setFormData({...formData, service_interval_days: e.target.value})}
-                    placeholder="e.g., 90"
+                    onChange={(e) => setFormData(prev => ({ ...prev, service_interval_days: e.target.value }))}
+                    placeholder="e.g., 90 days"
                   />
                 </div>
               </div>
@@ -322,10 +327,7 @@ export default function ProfilePage() {
                     Saving...
                   </>
                 ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Profile
-                  </>
+                  'Save Changes'
                 )}
               </Button>
             </form>
@@ -335,39 +337,39 @@ export default function ProfilePage() {
         {/* Data Management */}
         <Card className="dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="flex items-center text-gray-900 dark:text-white">
-              <Settings className="h-5 w-5 mr-2" />
-              Data Management
-            </CardTitle>
+            <CardTitle className="text-gray-900 dark:text-white">Data Management</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4">
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                  Data Management
+                </span>
+              </div>
+              <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                Export your data for backup or clear all data to start fresh.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 onClick={exportData}
                 variant="outline"
-                className="h-12"
+                className="flex items-center justify-center"
               >
                 <Download className="h-4 w-4 mr-2" />
                 Export Data (CSV)
               </Button>
-              
+
               <Button
                 onClick={clearAllData}
                 variant="outline"
-                className="h-12 text-red-600 hover:text-red-700"
+                className="flex items-center justify-center text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Clear All Data
               </Button>
-            </div>
-            
-            <div className="text-sm text-gray-600 dark:text-gray-400 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
-              <p className="font-medium mb-1">⚠️ Warning:</p>
-              <ul className="space-y-1">
-                <li>• Export data creates a CSV file with all your fuel records</li>
-                <li>• Clear all data permanently deletes all your records and settings</li>
-                <li>• These actions cannot be undone</li>
-              </ul>
             </div>
           </CardContent>
         </Card>
