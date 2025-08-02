@@ -6,12 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
-interface BurgerMenuProps {
-  isDarkMode: boolean
-  onToggleDarkMode: () => void
-}
-
-export function BurgerMenu({ isDarkMode, onToggleDarkMode }: BurgerMenuProps) {
+export function BurgerMenu() {
   const [isOpen, setIsOpen] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
   const router = useRouter()
@@ -102,44 +97,40 @@ export function BurgerMenu({ isDarkMode, onToggleDarkMode }: BurgerMenuProps) {
               </button>
             </div>
 
-            {/* Navigation Items */}
+            {/* Menu Items */}
             <nav className="space-y-2">
-              {menuItems.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => {
-                      setIsAnimating(false)
-                      setTimeout(() => setIsOpen(false), 300)
-                    }}
-                    className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <Icon className="h-5 w-5" />
-                    <span>{item.name}</span>
-                  </Link>
-                )
-              })}
+              {menuItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => {
+                    setIsAnimating(false)
+                    setTimeout(() => setIsOpen(false), 300)
+                  }}
+                  className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span>{item.name}</span>
+                </Link>
+              ))}
             </nav>
 
-            {/* Divider */}
-            <div className="my-6 border-t border-gray-200 dark:border-gray-600" />
-
             {/* Settings */}
-            <div className="space-y-2">
-              <div className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-500 dark:text-gray-500 opacity-50 cursor-not-allowed w-full">
-                <div className="h-5 w-5 rounded-full bg-gray-400 dark:bg-gray-600"></div>
-                <span>Dark Mode Only</span>
-              </div>
+            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <div className="space-y-2">
+                <div className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-500 dark:text-gray-500 opacity-50 cursor-not-allowed">
+                  <div className="h-5 w-5 rounded-full bg-gray-400 dark:bg-gray-600"></div>
+                  <span>Dark Mode Only</span>
+                </div>
 
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-3 px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full"
-              >
-                <LogOut className="h-5 w-5" />
-                <span>Logout</span>
-              </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-3 px-3 py-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors w-full"
+                >
+                  <LogOut className="h-5 w-5" />
+                  <span>Logout</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

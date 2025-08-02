@@ -4,7 +4,8 @@ import { useState, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Camera, Upload, FileText, Check, X, RotateCcw } from 'lucide-react'
+import { Camera, Upload, Check, X, RotateCcw } from 'lucide-react'
+import Image from 'next/image'
 
 interface ReceiptData {
   date: string
@@ -34,13 +35,13 @@ export function ReceiptScanner() {
       
       // Simulate OCR processing
       setTimeout(() => {
-        simulateOCRScan(file)
+        simulateOCRScan()
       }, 2000)
     }
     reader.readAsDataURL(file)
   }
 
-  const simulateOCRScan = (file: File) => {
+  const simulateOCRScan = () => {
     // Simulate OCR processing with realistic data
     const mockData: ReceiptData = {
       date: new Date().toISOString().split('T')[0],
@@ -137,11 +138,14 @@ export function ReceiptScanner() {
           <div className="space-y-4">
             {/* Image Preview */}
             <div className="relative">
-              <img
-                src={previewImage}
-                alt="Receipt preview"
-                className="w-full h-48 object-cover rounded-lg"
-              />
+              <div className="relative w-full h-48">
+                <Image
+                  src={previewImage}
+                  alt="Receipt preview"
+                  fill
+                  className="object-cover rounded-lg"
+                />
+              </div>
               <button
                 onClick={handleRetake}
                 className="absolute top-2 right-2 p-2 bg-black bg-opacity-50 text-white rounded-full hover:bg-opacity-70"

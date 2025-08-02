@@ -1,190 +1,141 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertTriangle, Fuel, DollarSign, Wrench, Bell, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { AlertTriangle, DollarSign, Fuel, Wrench, CheckCircle } from 'lucide-react'
 
 interface Reminder {
   id: string
-  type: 'low_fuel' | 'budget_warning' | 'service_reminder' | 'price_drop'
+  type: 'budget' | 'fuel' | 'service'
   title: string
   message: string
   severity: 'low' | 'medium' | 'high'
-  isRead: boolean
-  createdAt: string
-}
-
-interface VehicleInfo {
-  fuel_capacity: number
-  current_fuel_level?: number
-  last_service_date?: string
-  service_interval_days: number
+  icon: React.ReactNode
 }
 
 export function SmartReminders() {
   const [reminders, setReminders] = useState<Reminder[]>([])
-  const [vehicleInfo, setVehicleInfo] = useState<VehicleInfo | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showAll, setShowAll] = useState(false)
   const supabase = createClient()
 
-  useEffect(() => {
-    loadReminders()
-    loadVehicleInfo()
-  }, [])
-
-  const loadReminders = async () => {
+  const loadReminders = useCallback(async () => {
     try {
-      // Get user settings for budget
+      // Get user settings
       const { data: settings } = await supabase
         .from('user_settings')
-        .select('monthly_budget, fuel_capacity')
+        .select('monthly_budget, fuel_capacity, last_service_date, service_interval_days')
         .single()
 
-      // Get current month spending
+      // Get current month's fuel records
       const now = new Date()
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
       
       const { data: records } = await supabase
         .from('fuel_records')
-        .select('total_cost, quantity, date')
+        .select('*')
         .gte('date', startOfMonth.toISOString().split('T')[0])
-        .lte('date', now.toISOString().split('T')[0])
-
-      const currentSpent = records?.reduce((sum, record) => sum + record.total_cost, 0) || 0
-      const monthlyBudget = settings?.monthly_budget || 0
+        .order('date', { ascending: false })
 
       const newReminders: Reminder[] = []
 
       // Budget warning
-      if (monthlyBudget > 0) {
-        const budgetPercentage = (currentSpent / monthlyBudget) * 100
+      if (settings?.monthly_budget && records) {
+        const currentSpent = records.reduce((sum, record) => sum + record.total_cost, 0)
+        const budgetPercentage = (currentSpent / settings.monthly_budget) * 100
+        
         if (budgetPercentage >= 80 && budgetPercentage < 100) {
           newReminders.push({
-            id: 'budget_warning',
-            type: 'budget_warning',
+            id: 'budget-warning',
+            type: 'budget',
             title: 'Budget Warning',
-            message: `Anda telah menghabiskan ${budgetPercentage.toFixed(1)}% dari budget bulanan. Sisa: Rp ${(monthlyBudget - currentSpent).toLocaleString()}`,
+            message: `You've spent ${budgetPercentage.toFixed(0)}% of your monthly fuel budget`,
             severity: 'medium',
-            isRead: false,
-            createdAt: new Date().toISOString()
+            icon: <DollarSign className="h-4 w-4" />
           })
         } else if (budgetPercentage >= 100) {
           newReminders.push({
-            id: 'budget_exceeded',
-            type: 'budget_warning',
-            title: 'Budget Exceeded!',
-            message: `Anda telah melebihi budget bulanan sebesar Rp ${(currentSpent - monthlyBudget).toLocaleString()}`,
+            id: 'budget-exceeded',
+            type: 'budget',
+            title: 'Budget Exceeded',
+            message: `You've exceeded your monthly budget by ${(budgetPercentage - 100).toFixed(0)}%`,
             severity: 'high',
-            isRead: false,
-            createdAt: new Date().toISOString()
+            icon: <AlertTriangle className="h-4 w-4" />
           })
         }
       }
 
-      // Low fuel reminder (if we have fuel capacity info)
-      if (settings?.fuel_capacity) {
-        const lastRecord = records?.[0]
-        if (lastRecord) {
-          // Estimate current fuel level based on last fill
-          const estimatedFuelLevel = lastRecord.quantity * 0.3 // Assume 30% remaining
-          if (estimatedFuelLevel < (settings.fuel_capacity * 0.2)) { // Less than 20%
-            newReminders.push({
-              id: 'low_fuel',
-              type: 'low_fuel',
-              title: 'Low Fuel Alert',
-              message: `Perkiraan BBM tersisa sekitar ${estimatedFuelLevel.toFixed(1)}L. Segera isi BBM!`,
-              severity: 'high',
-              isRead: false,
-              createdAt: new Date().toISOString()
-            })
-          }
+      // Low fuel reminder
+      if (settings?.fuel_capacity && records && records.length > 0) {
+        const lastRecord = records[0]
+        const estimatedFuelLevel = lastRecord.quantity * 0.3 // Assume 30% remaining
+        if (estimatedFuelLevel < (settings.fuel_capacity * 0.2)) {
+          newReminders.push({
+            id: 'low-fuel',
+            type: 'fuel',
+            title: 'Low Fuel',
+            message: 'Consider refueling soon to avoid running out',
+            severity: 'medium',
+            icon: <Fuel className="h-4 w-4" />
+          })
         }
       }
 
       // Service reminder
-      const { data: serviceSettings } = await supabase
-        .from('user_settings')
-        .select('last_service_date, service_interval_days')
-        .single()
-
-      if (serviceSettings?.last_service_date && serviceSettings?.service_interval_days) {
-        const lastService = new Date(serviceSettings.last_service_date)
+      if (settings?.last_service_date && settings?.service_interval_days) {
+        const lastService = new Date(settings.last_service_date)
         const daysSinceService = Math.floor((now.getTime() - lastService.getTime()) / (1000 * 60 * 60 * 24))
-        const daysUntilService = serviceSettings.service_interval_days - daysSinceService
+        const daysUntilService = settings.service_interval_days - daysSinceService
 
         if (daysUntilService <= 7 && daysUntilService > 0) {
           newReminders.push({
-            id: 'service_reminder',
-            type: 'service_reminder',
-            title: 'Service Reminder',
-            message: `Servis berkala dalam ${daysUntilService} hari. Jadwalkan servis sekarang!`,
+            id: 'service-due-soon',
+            type: 'service',
+            title: 'Service Due Soon',
+            message: `Vehicle service due in ${daysUntilService} days`,
             severity: 'medium',
-            isRead: false,
-            createdAt: new Date().toISOString()
+            icon: <Wrench className="h-4 w-4" />
           })
         } else if (daysUntilService <= 0) {
           newReminders.push({
-            id: 'service_overdue',
-            type: 'service_reminder',
-            title: 'Service Overdue!',
-            message: `Servis berkala terlambat ${Math.abs(daysUntilService)} hari. Segera servis kendaraan!`,
+            id: 'service-overdue',
+            type: 'service',
+            title: 'Service Overdue',
+            message: `Vehicle service is ${Math.abs(daysUntilService)} days overdue`,
             severity: 'high',
-            isRead: false,
-            createdAt: new Date().toISOString()
+            icon: <AlertTriangle className="h-4 w-4" />
           })
         }
       }
 
       setReminders(newReminders)
+
     } catch (error) {
       console.error('Error loading reminders:', error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
 
-  const loadVehicleInfo = async () => {
-    try {
-      const { data: settings } = await supabase
-        .from('user_settings')
-        .select('fuel_capacity, last_service_date, service_interval_days')
-        .single()
-
-      if (settings) {
-        setVehicleInfo({
-          fuel_capacity: settings.fuel_capacity || 0,
-          last_service_date: settings.last_service_date,
-          service_interval_days: settings.service_interval_days || 90
-        })
-      }
-    } catch (error) {
-      console.error('Error loading vehicle info:', error)
-    }
-  }
-
-  const markAsRead = (reminderId: string) => {
-    setReminders(prev => prev.filter(r => r.id !== reminderId))
-  }
+  useEffect(() => {
+    loadReminders()
+  }, [loadReminders])
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'high': return 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20'
-      case 'medium': return 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20'
-      case 'low': return 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
-      default: return 'text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/20'
+      case 'high': return 'border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20'
+      case 'medium': return 'border-yellow-200 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/20'
+      case 'low': return 'border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20'
+      default: return 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/20'
     }
   }
 
-  const getIcon = (type: string) => {
-    switch (type) {
-      case 'low_fuel': return <Fuel className="h-5 w-5" />
-      case 'budget_warning': return <DollarSign className="h-5 w-5" />
-      case 'service_reminder': return <Wrench className="h-5 w-5" />
-      case 'price_drop': return <AlertTriangle className="h-5 w-5" />
-      default: return <Bell className="h-5 w-5" />
+  const getSeverityTextColor = (severity: string) => {
+    switch (severity) {
+      case 'high': return 'text-red-800 dark:text-red-200'
+      case 'medium': return 'text-yellow-800 dark:text-yellow-200'
+      case 'low': return 'text-blue-800 dark:text-blue-200'
+      default: return 'text-gray-800 dark:text-gray-200'
     }
   }
 
@@ -195,78 +146,60 @@ export function SmartReminders() {
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/3"></div>
             <div className="h-8 bg-gray-200 dark:bg-gray-600 rounded"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/2"></div>
           </div>
         </CardContent>
       </Card>
     )
   }
-
-  if (reminders.length === 0) {
-    return (
-      <Card className="dark:bg-gray-800 dark:border-gray-700">
-        <CardHeader>
-          <CardTitle className="flex items-center text-gray-900 dark:text-white">
-            <Bell className="h-5 w-5 mr-2" />
-            Smart Reminders
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
-            Tidak ada reminder saat ini. Semua baik-baik saja! 👍
-          </p>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  const displayedReminders = showAll ? reminders : reminders.slice(0, 3)
 
   return (
     <Card className="dark:bg-gray-800 dark:border-gray-700">
       <CardHeader>
         <CardTitle className="flex items-center text-gray-900 dark:text-white">
-          <Bell className="h-5 w-5 mr-2" />
+          <AlertTriangle className="h-5 w-5 mr-2" />
           Smart Reminders
           {reminders.length > 0 && (
-            <span className="ml-2 px-2 py-1 text-xs bg-red-500 text-white rounded-full">
+            <span className="ml-2 px-2 py-1 text-xs bg-blue-500 text-white rounded-full">
               {reminders.length}
             </span>
           )}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        {displayedReminders.map((reminder) => (
-          <div
-            key={reminder.id}
-            className={`p-4 rounded-lg border ${getSeverityColor(reminder.severity)}`}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start space-x-3">
-                {getIcon(reminder.type)}
-                <div className="flex-1">
-                  <h4 className="font-medium text-sm">{reminder.title}</h4>
-                  <p className="text-sm mt-1">{reminder.message}</p>
+      <CardContent className="space-y-4">
+        {reminders.length === 0 ? (
+          <div className="text-center py-8">
+            <CheckCircle className="h-12 w-12 text-green-400 dark:text-green-500 mx-auto mb-4" />
+            <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              All Good!
+            </h4>
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
+              No reminders at the moment. Keep up the good work!
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {reminders.map((reminder) => (
+              <div
+                key={reminder.id}
+                className={`p-4 rounded-lg border ${getSeverityColor(reminder.severity)}`}
+              >
+                <div className="flex items-start space-x-3">
+                  <div className={`p-2 rounded-full ${getSeverityColor(reminder.severity)}`}>
+                    {reminder.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className={`font-medium ${getSeverityTextColor(reminder.severity)}`}>
+                      {reminder.title}
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {reminder.message}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <button
-                onClick={() => markAsRead(reminder.id)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+            ))}
           </div>
-        ))}
-        
-        {reminders.length > 3 && (
-          <Button
-            onClick={() => setShowAll(!showAll)}
-            variant="outline"
-            size="sm"
-            className="w-full"
-          >
-            {showAll ? 'Show Less' : `Show ${reminders.length - 3} More`}
-          </Button>
         )}
       </CardContent>
     </Card>

@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Car, Plus, Edit, Trash2, Fuel, Settings, Calendar } from 'lucide-react'
+import { Car, Plus, Edit, Trash2 } from 'lucide-react'
 
 interface Vehicle {
   id: string
@@ -32,11 +32,7 @@ export function VehicleManager() {
   })
   const supabase = createClient()
 
-  useEffect(() => {
-    loadVehicles()
-  }, [])
-
-  const loadVehicles = async () => {
+  const loadVehicles = useCallback(async () => {
     try {
       const { data: vehicles, error } = await supabase
         .from('vehicles')
@@ -55,7 +51,11 @@ export function VehicleManager() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
+
+  useEffect(() => {
+    loadVehicles()
+  }, [loadVehicles])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
