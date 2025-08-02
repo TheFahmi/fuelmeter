@@ -23,7 +23,34 @@ export function ThemeDebug() {
 
   const toggleTheme = () => {
     const newTheme = isDarkMode ? 'light' : 'dark'
+    console.log('Debug toggle theme to:', newTheme)
     localStorage.setItem('theme', newTheme)
+    
+    // Force apply theme immediately
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark')
+      document.documentElement.style.colorScheme = 'dark'
+    } else {
+      document.documentElement.classList.remove('dark')
+      document.documentElement.style.colorScheme = 'light'
+    }
+    
+    window.location.reload()
+  }
+
+  const forceLight = () => {
+    console.log('Force light mode')
+    localStorage.setItem('theme', 'light')
+    document.documentElement.classList.remove('dark')
+    document.documentElement.style.colorScheme = 'light'
+    window.location.reload()
+  }
+
+  const forceDark = () => {
+    console.log('Force dark mode')
+    localStorage.setItem('theme', 'dark')
+    document.documentElement.classList.add('dark')
+    document.documentElement.style.colorScheme = 'dark'
     window.location.reload()
   }
 
@@ -60,12 +87,24 @@ export function ThemeDebug() {
             <div>State: {isDarkMode ? '🌙 Dark' : '☀️ Light'}</div>
             <div>HTML Class: <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{htmlClass || 'none'}</code></div>
             <div>LocalStorage: <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">{localStorageTheme}</code></div>
-            <div className="pt-2">
+            <div className="pt-2 space-y-2">
               <button
                 onClick={toggleTheme}
                 className="w-full px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded text-sm font-medium transition-colors"
               >
                 Force Toggle
+              </button>
+              <button
+                onClick={forceLight}
+                className="w-full px-3 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm font-medium transition-colors"
+              >
+                Force Light
+              </button>
+              <button
+                onClick={forceDark}
+                className="w-full px-3 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded text-sm font-medium transition-colors"
+              >
+                Force Dark
               </button>
             </div>
           </div>

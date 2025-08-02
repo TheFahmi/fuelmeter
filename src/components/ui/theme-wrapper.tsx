@@ -16,8 +16,10 @@ export function ThemeWrapper({ children, fallback }: ThemeWrapperProps) {
   )
 }
 
-function ThemeWrapperInner({ children }: ThemeWrapperProps) {
+function ThemeWrapperInner({ children }: { children: (props: { isDarkMode: boolean; toggleDarkMode: () => void }) => React.ReactNode }) {
   const { isDarkMode, toggleDarkMode } = useTheme()
+  
+  console.log('ThemeWrapper isDarkMode:', isDarkMode)
   
   return <>{children({ isDarkMode, toggleDarkMode })}</>
 } 
