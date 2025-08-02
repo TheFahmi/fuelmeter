@@ -14,6 +14,9 @@ import { AdvancedStats } from '@/components/advanced-stats'
 import { AchievementSystem } from '@/components/achievement-system'
 import { ReceiptScanner } from '@/components/receipt-scanner'
 import { VehicleManager } from '@/components/vehicle-manager'
+import { CarbonFootprint } from '@/components/carbon-footprint'
+import { PDFExport } from '@/components/pdf-export'
+import { Challenges } from '@/components/challenges'
 import { Fuel, Plus, TrendingUp, TrendingDown, BarChart3, Edit } from 'lucide-react'
 import Link from 'next/link'
 
@@ -277,6 +280,21 @@ export default function DashboardPage() {
         {/* Receipt Scanner */}
         <div className="mb-6">
           <ReceiptScanner />
+        </div>
+
+        {/* Carbon Footprint */}
+        <div className="mb-6">
+          <CarbonFootprint />
+        </div>
+
+        {/* PDF Export */}
+        <div className="mb-6">
+          <PDFExport />
+        </div>
+
+        {/* Challenges & Leaderboard */}
+        <div className="mb-6">
+          <Challenges />
         </div>
 
         {/* Quick Actions */}
