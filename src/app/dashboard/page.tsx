@@ -9,6 +9,8 @@ import { BurgerMenu } from '@/components/ui/menu'
 import { Loading } from '@/components/ui/loading'
 import { ThemeWrapper } from '@/components/ui/theme-wrapper'
 import { BudgetTracker } from '@/components/budget-tracker'
+import { SmartReminders } from '@/components/smart-reminders'
+import { AdvancedStats } from '@/components/advanced-stats'
 import { Fuel, Plus, TrendingUp, TrendingDown, BarChart3, Edit } from 'lucide-react'
 import Link from 'next/link'
 
@@ -244,9 +246,19 @@ export default function DashboardPage() {
           </Card>
         </div>
 
+        {/* Smart Reminders */}
+        <div className="mb-6">
+          <SmartReminders />
+        </div>
+
         {/* Budget Tracker */}
         <div className="mb-6">
           <BudgetTracker />
+        </div>
+
+        {/* Advanced Statistics */}
+        <div className="mb-6">
+          <AdvancedStats />
         </div>
 
         {/* Quick Actions */}

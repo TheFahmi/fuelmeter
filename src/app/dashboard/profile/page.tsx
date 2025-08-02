@@ -18,6 +18,8 @@ interface UserProfile {
   fuelCapacity: number
   monthlyBudget: number
   currency: string
+  lastServiceDate: string
+  serviceIntervalDays: number
 }
 
 export default function ProfilePage() {
@@ -27,7 +29,9 @@ export default function ProfilePage() {
     vehicleType: '',
     fuelCapacity: 0,
     monthlyBudget: 0,
-    currency: 'IDR'
+    currency: 'IDR',
+    lastServiceDate: '',
+    serviceIntervalDays: 90
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -57,14 +61,16 @@ export default function ProfilePage() {
       // Handle case where settings don't exist or columns are missing
       if (settingsError) {
         console.log('Settings not found or columns missing, using defaults')
-        setProfile({
-          email: user.email || '',
-          displayName: '',
-          vehicleType: '',
-          fuelCapacity: 0,
-          monthlyBudget: 0,
-          currency: 'IDR'
-        })
+              setProfile({
+        email: user.email || '',
+        displayName: '',
+        vehicleType: '',
+        fuelCapacity: 0,
+        monthlyBudget: 0,
+        currency: 'IDR',
+        lastServiceDate: '',
+        serviceIntervalDays: 90
+      })
       } else {
         setProfile({
           email: user.email || '',
@@ -72,7 +78,9 @@ export default function ProfilePage() {
           vehicleType: settings?.vehicle_type || '',
           fuelCapacity: settings?.fuel_capacity || 0,
           monthlyBudget: settings?.monthly_budget || 0,
-          currency: settings?.currency || 'IDR'
+          currency: settings?.currency || 'IDR',
+          lastServiceDate: settings?.last_service_date || '',
+          serviceIntervalDays: settings?.service_interval_days || 90
         })
       }
     } catch (error) {
@@ -84,7 +92,9 @@ export default function ProfilePage() {
         vehicleType: '',
         fuelCapacity: 0,
         monthlyBudget: 0,
-        currency: 'IDR'
+        currency: 'IDR',
+        lastServiceDate: '',
+        serviceIntervalDays: 90
       })
     } finally {
       setLoading(false)
@@ -292,6 +302,23 @@ export default function ProfilePage() {
                       value={profile.monthlyBudget}
                       onChange={(e) => setProfile({...profile, monthlyBudget: parseInt(e.target.value) || 0})}
                       placeholder="Contoh: 500000"
+                    />
+
+                    <Input
+                      label="Tanggal Servis Terakhir"
+                      type="date"
+                      value={profile.lastServiceDate}
+                      onChange={(e) => setProfile({...profile, lastServiceDate: e.target.value})}
+                    />
+
+                    <Input
+                      label="Interval Servis (Hari)"
+                      type="number"
+                      min="30"
+                      max="365"
+                      value={profile.serviceIntervalDays}
+                      onChange={(e) => setProfile({...profile, serviceIntervalDays: parseInt(e.target.value) || 90})}
+                      placeholder="Contoh: 90"
                     />
 
                     {error && (
