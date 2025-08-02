@@ -11,6 +11,9 @@ import { ThemeWrapper } from '@/components/ui/theme-wrapper'
 import { BudgetTracker } from '@/components/budget-tracker'
 import { SmartReminders } from '@/components/smart-reminders'
 import { AdvancedStats } from '@/components/advanced-stats'
+import { AchievementSystem } from '@/components/achievement-system'
+import { ReceiptScanner } from '@/components/receipt-scanner'
+import { VehicleManager } from '@/components/vehicle-manager'
 import { Fuel, Plus, TrendingUp, TrendingDown, BarChart3, Edit } from 'lucide-react'
 import Link from 'next/link'
 
@@ -259,6 +262,21 @@ export default function DashboardPage() {
         {/* Advanced Statistics */}
         <div className="mb-6">
           <AdvancedStats />
+        </div>
+
+        {/* Achievement System */}
+        <div className="mb-6">
+          <AchievementSystem />
+        </div>
+
+        {/* Vehicle Manager */}
+        <div className="mb-6">
+          <VehicleManager />
+        </div>
+
+        {/* Receipt Scanner */}
+        <div className="mb-6">
+          <ReceiptScanner />
         </div>
 
         {/* Quick Actions */}
