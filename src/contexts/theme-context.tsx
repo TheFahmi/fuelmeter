@@ -75,13 +75,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Toggle theme function
   const toggleDarkMode = () => {
     const newTheme = !isDarkMode
-    console.log('🔄 Toggling theme from', isDarkMode ? 'dark' : 'light', 'to', newTheme ? 'dark' : 'light')
+    console.log('🔄 Toggling theme to:', newTheme ? 'dark' : 'light')
 
     setIsDarkMode(newTheme)
     applyTheme(newTheme)
     localStorage.setItem('theme', newTheme ? 'dark' : 'light')
-
-    console.log('✅ Theme toggle complete. New state:', newTheme)
   }
 
   return (
@@ -93,8 +91,5 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 export function useTheme() {
   const context = useContext(ThemeContext)
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider')
-  }
   return context
-} 
+}
