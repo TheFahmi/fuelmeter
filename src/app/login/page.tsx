@@ -52,7 +52,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-slate-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -61,56 +61,56 @@ export default function LoginPage() {
               <Fuel className="h-10 w-10 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl font-bold text-black dark:text-white mb-2">
             🚗 FuelMeter
           </h1>
-          <p className="text-white/70 text-lg">
+          <p className="text-black/70 dark:text-white/70 text-lg">
             Sign in to your account
           </p>
         </div>
 
         {/* Login Form */}
-        <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl">
+        <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl shadow-2xl">
           <div className="p-8">
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">
+            <h2 className="text-2xl font-bold text-black dark:text-white mb-6 text-center">
               🔑 Sign In
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
+                <label className="block text-sm font-medium text-black/80 dark:text-white/80 mb-2">
                   📧 Email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-black/50 dark:text-white/50" />
                   <Input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
-                    className="pl-12 backdrop-blur-md bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl py-3"
+                    className="pl-12 backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 text-black dark:text-white placeholder-black/50 dark:placeholder-white/50 rounded-xl py-3"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">
+                <label className="block text-sm font-medium text-black/80 dark:text-white/80 mb-2">
                   🔒 Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-black/50 dark:text-white/50" />
                   <Input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="pl-12 pr-12 backdrop-blur-md bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl py-3"
+                    className="pl-12 pr-12 backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 text-black dark:text-white placeholder-black/50 dark:placeholder-white/50 rounded-xl py-3"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/80 transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-black/50 dark:text-white/50 hover:text-black/80 dark:hover:text-white/80 transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -118,7 +118,7 @@ export default function LoginPage() {
               </div>
 
               {message && (
-                <div className="text-sm text-red-300 bg-red-500/20 border border-red-300/30 p-4 rounded-xl backdrop-blur-sm">
+                <div className="text-sm text-red-600 dark:text-red-300 bg-red-500/20 border border-red-600/30 dark:border-red-300/30 p-4 rounded-xl backdrop-blur-sm">
                   {message}
                 </div>
               )}
@@ -140,11 +140,11 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-8 text-center">
-              <p className="text-white/70">
+              <p className="text-black/70 dark:text-white/70">
                 Don&apos;t have an account?{' '}
                 <Link
                   href="/register"
-                  className="font-medium text-blue-300 hover:text-blue-200 transition-colors"
+                  className="font-medium text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200 transition-colors"
                 >
                   Sign up
                 </Link>

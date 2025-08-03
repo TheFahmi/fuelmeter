@@ -1,16 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { Menu as MenuIcon, X, Home, Plus, BarChart3, User, LogOut } from 'lucide-react'
+import { Menu as MenuIcon, X, Home, Plus, BarChart3, User, LogOut, Sun, Moon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import { useTheme } from '@/contexts/theme-context'
 
 export function BurgerMenu() {
   const [isOpen, setIsOpen] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+  const { isDarkMode, toggleDarkMode } = useTheme()
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -58,7 +60,7 @@ export function BurgerMenu() {
             setTimeout(() => setIsOpen(false), 300)
           }
         }}
-        className="backdrop-blur-md bg-white/10 border border-white/20 rounded-full p-3 text-white hover:bg-white/20 transition-all duration-300 transform hover:scale-110 shadow-2xl"
+        className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-full p-3 text-black dark:text-white hover:bg-black/20 dark:hover:bg-white/20 transition-all duration-300 transform hover:scale-110 shadow-2xl"
       >
         {isOpen ? <X className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
       </button>
@@ -69,7 +71,7 @@ export function BurgerMenu() {
       }`}>
         {/* Backdrop */}
         <div
-          className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/30 dark:bg-black/30 backdrop-blur-sm"
           onClick={() => {
             setIsAnimating(false)
             setTimeout(() => setIsOpen(false), 300)
@@ -77,21 +79,26 @@ export function BurgerMenu() {
         />
 
         {/* Menu Panel */}
-        <div className={`absolute right-0 top-0 h-full w-80 backdrop-blur-xl bg-white/10 border-l border-white/20 shadow-2xl transform menu-panel transition-all duration-500 ease-out ${
+        <div className={`absolute right-0 top-0 h-full w-80 backdrop-blur-xl bg-black/10 dark:bg-white/10 border-l border-black/20 dark:border-white/20 shadow-2xl transform menu-panel transition-all duration-500 ease-out ${
           isAnimating ? 'translate-x-0' : 'translate-x-full'
         }`}>
           <div className="p-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-white">
-                🚗 FuelMeter
-              </h2>
+              <div>
+                <h2 className="text-2xl font-bold text-black dark:text-white">
+                  🚗 FuelMeter
+                </h2>
+                <p className="text-xs text-black/60 dark:text-white/60">
+                  {isDarkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
+                </p>
+              </div>
               <button
                 onClick={() => {
                   setIsAnimating(false)
                   setTimeout(() => setIsOpen(false), 300)
                 }}
-                className="backdrop-blur-md bg-white/10 border border-white/20 rounded-full p-2 text-white hover:bg-white/20 transition-all duration-200"
+                className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-full p-2 text-black dark:text-white hover:bg-black/20 dark:hover:bg-white/20 transition-all duration-200"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -107,7 +114,7 @@ export function BurgerMenu() {
                     setIsAnimating(false)
                     setTimeout(() => setIsOpen(false), 300)
                   }}
-                  className="flex items-center space-x-4 px-4 py-3 rounded-xl text-white hover:bg-white/10 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm border border-white/10 hover:border-white/20"
+                  className="flex items-center space-x-4 px-4 py-3 rounded-xl text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <item.icon className="h-5 w-5" />
@@ -117,16 +124,28 @@ export function BurgerMenu() {
             </nav>
 
             {/* Settings */}
-            <div className="mt-8 pt-6 border-t border-white/20">
+            <div className="mt-8 pt-6 border-t border-black/20 dark:border-white/20">
               <div className="space-y-3">
-                <div className="flex items-center space-x-4 px-4 py-3 rounded-xl text-white/60 backdrop-blur-sm border border-white/10">
-                  <div className="h-5 w-5 rounded-full bg-gradient-to-r from-purple-500 to-blue-500"></div>
-                  <span className="font-medium">🌙 Dark Mode Only</span>
-                </div>
+                <button
+                  onClick={toggleDarkMode}
+                  className="flex items-center space-x-4 px-4 py-3 rounded-xl text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20 w-full"
+                >
+                  {isDarkMode ? (
+                    <>
+                      <Sun className="h-5 w-5" />
+                      <span className="font-medium">☀️ Light Mode</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="h-5 w-5" />
+                      <span className="font-medium">🌙 Dark Mode</span>
+                    </>
+                  )}
+                </button>
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center space-x-4 px-4 py-3 rounded-xl text-red-300 hover:bg-red-500/20 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm border border-red-300/20 hover:border-red-300/40 w-full"
+                  className="flex items-center space-x-4 px-4 py-3 rounded-xl text-red-600 dark:text-red-300 hover:bg-red-500/20 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm border border-red-600/20 dark:border-red-300/20 hover:border-red-600/40 dark:hover:border-red-300/40 w-full"
                 >
                   <LogOut className="h-5 w-5" />
                   <span className="font-medium">🚪 Logout</span>

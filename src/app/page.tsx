@@ -5,11 +5,13 @@ import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Fuel, BarChart3, Plus, Target, TrendingUp, Shield, Zap, Globe } from 'lucide-react'
 import Link from 'next/link'
+import { useTheme } from '@/contexts/theme-context'
 
 export default function HomePage() {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const supabase = createClient()
+  const { isDarkMode, toggleDarkMode } = useTheme()
 
   const checkUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -26,11 +28,11 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
-        <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-slate-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 flex items-center justify-center">
+        <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-8 shadow-2xl">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto"></div>
-            <p className="mt-4 text-white/80">Loading...</p>
+            <p className="mt-4 text-black/80 dark:text-white/80">Loading...</p>
           </div>
         </div>
       </div>
@@ -38,20 +40,20 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-slate-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900">
       {/* Header */}
-      <header className="backdrop-blur-md bg-white/10 border-b border-white/20 sticky top-0 z-40">
+      <header className="backdrop-blur-md bg-black/10 dark:bg-white/10 border-b border-black/20 dark:border-white/20 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg">
                 <Fuel className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-white">🚗 FuelMeter</h1>
+              <h1 className="text-xl font-bold text-black dark:text-white">🚗 FuelMeter</h1>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/login">
-                <button className="backdrop-blur-md bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white hover:bg-white/20 transition-all duration-300 font-medium">
+                <button className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-xl px-4 py-2 text-black dark:text-white hover:bg-black/20 dark:hover:bg-white/20 transition-all duration-300 font-medium">
                   Sign In
                 </button>
               </Link>
@@ -68,11 +70,11 @@ export default function HomePage() {
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-16">
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-3xl p-12 shadow-2xl mb-12">
-            <h2 className="text-5xl font-bold text-white mb-6">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-3xl p-12 shadow-2xl mb-12">
+            <h2 className="text-5xl font-bold text-black dark:text-white mb-6">
               ⛽ Track Your Fuel Consumption
             </h2>
-            <p className="text-xl text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl text-black/80 dark:text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">
               Monitor your vehicle&apos;s fuel efficiency, calculate costs per kilometer, and gain insights into your driving patterns with our comprehensive fuel tracking app.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
@@ -83,10 +85,16 @@ export default function HomePage() {
                 </button>
               </Link>
               <Link href="/login">
-                <button className="backdrop-blur-md bg-white/10 border border-white/20 rounded-xl px-8 py-4 text-white hover:bg-white/20 transition-all duration-300 font-semibold w-full sm:w-auto">
+                <button className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-xl px-8 py-4 text-black dark:text-white hover:bg-black/20 dark:hover:bg-white/20 transition-all duration-300 font-semibold w-full sm:w-auto">
                   🔑 Sign In
                 </button>
               </Link>
+              <button
+                onClick={toggleDarkMode}
+                className="backdrop-blur-md bg-red-500/20 border border-red-500/30 rounded-xl px-8 py-4 text-black dark:text-white hover:bg-red-500/30 transition-all duration-300 font-semibold w-full sm:w-auto"
+              >
+                {isDarkMode ? '☀️ Light' : '🌙 Dark'} (Debug)
+              </button>
             </div>
           </div>
         </div>
@@ -116,6 +124,7 @@ export default function HomePage() {
           <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
             <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-purple-500/20 mb-6">
               <Target className="h-8 w-8 text-purple-300" />
+            </div>
             <h3 className="text-xl font-bold text-white mb-4">🎯 Cost Optimization</h3>
             <p className="text-white/70 leading-relaxed">
               Identify the most cost-effective fuel stations and optimize your driving habits.

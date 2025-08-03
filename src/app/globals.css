@@ -5,23 +5,23 @@
   box-sizing: border-box;
 }
 
-/* Base styles - Always dark mode */
+/* Base styles - Light mode default */
 html {
-  background-color: #0f172a;
-  color: #f8fafc;
+  background-color: #f8fafc;
+  color: #0f172a;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
-  background-color: #0f172a;
-  color: #f8fafc;
+  background-color: #f8fafc;
+  color: #0f172a;
   font-family: Arial, Helvetica, sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
   margin: 0;
   padding: 0;
 }
 
-/* Dark mode class for Tailwind */
+/* Dark mode styles */
 html.dark {
   background-color: #0f172a;
   color: #f8fafc;
@@ -32,14 +32,14 @@ html.dark body {
   color: #f8fafc;
 }
 
-/* Ensure input text is visible in both modes */
+/* Input styling for light mode */
 input, textarea, select {
-  color: #171717 !important;
+  color: #171717;
 }
 
-/* Dark mode support for inputs */
+/* Input styling for dark mode */
 .dark input, .dark textarea, .dark select {
-  color: #ededed !important;
+  color: #ededed;
 }
 
 /* Menu animation improvements */
