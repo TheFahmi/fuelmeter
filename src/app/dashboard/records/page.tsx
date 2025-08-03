@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { BurgerMenu } from '@/components/ui/menu'
 import { Calendar, MapPin, Trash2, Edit } from 'lucide-react'
@@ -87,12 +86,14 @@ export default function RecordsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <BurgerMenu />
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading records...</p>
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto"></div>
+              <p className="mt-4 text-white/80">Loading records...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -100,127 +101,156 @@ export default function RecordsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <BurgerMenu />
-      
+
       <div className="max-w-7xl mx-auto p-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Fuel Records
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            View and manage all your fuel purchase records
-          </p>
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl">
+            <h1 className="text-3xl font-bold text-white mb-2">
+              ⛽ Fuel Records
+            </h1>
+            <p className="text-white/70">
+              View and manage all your fuel purchase records with beautiful glassmorphism design
+            </p>
+          </div>
         </div>
 
         {/* Records List */}
         {fuelRecords.length === 0 ? (
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardContent className="p-8 text-center">
-              <div className="text-gray-400 dark:text-gray-500 mb-4">
-                <Calendar className="h-16 w-16 mx-auto" />
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl">
+            <div className="p-8 text-center">
+              <div className="text-white/60 mb-6">
+                <Calendar className="h-20 w-20 mx-auto" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+              <h3 className="text-2xl font-semibold text-white mb-3">
                 No Records Found
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                You haven&apos;t added any fuel records yet.
+              <p className="text-white/70 mb-6 text-lg">
+                You haven&apos;t added any fuel records yet. Start tracking your fuel consumption!
               </p>
-              <Button onClick={() => router.push('/dashboard/add-record')}>
-                Add Your First Record
+              <Button
+                onClick={() => router.push('/dashboard/add-record')}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              >
+                ✨ Add Your First Record
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {fuelRecords.map((record) => (
-              <Card key={record.id} className="dark:bg-gray-800 dark:border-gray-700">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
+              <div
+                key={record.id}
+                className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105 hover:shadow-3xl"
+              >
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="font-medium text-gray-900 dark:text-white">
-                        {record.fuel_type}
+                      <h3 className="text-xl font-semibold text-white mb-1">
+                        ⛽ {record.fuel_type}
                       </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {new Date(record.date).toLocaleDateString()}
+                      <p className="text-white/60 text-sm">
+                        📅 {new Date(record.date).toLocaleDateString('id-ID', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
                       </p>
                     </div>
                     <div className="flex space-x-2">
                       <Button
                         onClick={() => router.push(`/dashboard/edit-record/${record.id}`)}
                         size="sm"
-                        variant="outline"
+                        className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm rounded-xl transition-all duration-200"
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button
                         onClick={() => handleDelete(record.id)}
                         size="sm"
-                        variant="outline"
-                        className="text-red-600 hover:text-red-700"
+                        className="bg-red-500/20 hover:bg-red-500/30 text-red-300 border-red-300/30 backdrop-blur-sm rounded-xl transition-all duration-200"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
 
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Quantity:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {record.quantity} L
-                      </span>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                        <span className="text-white/60 text-xs uppercase tracking-wide">Quantity</span>
+                        <div className="text-white font-semibold text-lg">
+                          {record.quantity} L
+                        </div>
+                      </div>
+
+                      <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                        <span className="text-white/60 text-xs uppercase tracking-wide">Price/L</span>
+                        <div className="text-white font-semibold text-lg">
+                          Rp {record.price_per_liter.toLocaleString()}
+                        </div>
+                      </div>
                     </div>
-                    
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Price per L:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        Rp {record.price_per_liter.toLocaleString()}
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Total Cost:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">
+
+                    <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl p-4 border border-white/20">
+                      <span className="text-white/70 text-sm">💰 Total Cost</span>
+                      <div className="text-white font-bold text-2xl">
                         Rp {record.total_cost.toLocaleString()}
-                      </span>
+                      </div>
                     </div>
-                    
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Distance:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {record.distance_km} km
-                      </span>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                        <span className="text-white/60 text-xs uppercase tracking-wide">Distance</span>
+                        <div className="text-white font-semibold">
+                          🛣️ {record.distance_km} km
+                        </div>
+                      </div>
+
+                      <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                        <span className="text-white/60 text-xs uppercase tracking-wide">Cost/km</span>
+                        <div className="text-white font-semibold">
+                          Rp {calculateCostPerKm(record.total_cost, record.distance_km).toFixed(0)}
+                        </div>
+                      </div>
                     </div>
-                    
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Cost per km:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        Rp {calculateCostPerKm(record.total_cost, record.distance_km).toFixed(0)}
-                      </span>
+
+                    <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                      <span className="text-white/60 text-xs uppercase tracking-wide">Odometer</span>
+                      <div className="text-white font-semibold">
+                        🚗 {record.odometer_km.toLocaleString()} km
+                      </div>
                     </div>
-                    
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Odometer:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">
-                        {record.odometer_km.toLocaleString()} km
-                      </span>
-                    </div>
-                    
+
                     {record.station && (
-                      <div className="flex items-center space-x-1 text-gray-600 dark:text-gray-400">
-                        <MapPin className="h-3 w-3" />
-                        <span className="text-sm">{record.station}</span>
+                      <div className="bg-white/5 rounded-xl p-3 border border-white/10">
+                        <div className="flex items-center space-x-2 text-white/80">
+                          <MapPin className="h-4 w-4" />
+                          <span className="font-medium">📍 {record.station}</span>
+                        </div>
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Floating Action Button */}
+      <div className="fixed bottom-8 right-8">
+        <Button
+          onClick={() => router.push('/dashboard/add-record')}
+          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white p-4 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-110 backdrop-blur-md border border-white/20"
+          size="lg"
+        >
+          <Calendar className="h-6 w-6" />
+        </Button>
+      </div>
     </div>
   )
-} 
+}

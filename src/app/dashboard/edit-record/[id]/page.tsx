@@ -144,12 +144,14 @@ export default function EditRecordPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <BurgerMenu />
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading record...</p>
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto"></div>
+              <p className="mt-4 text-white/80">Loading record...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -157,9 +159,9 @@ export default function EditRecordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <BurgerMenu />
-      
+
       <div className="max-w-2xl mx-auto p-4">
         {/* Header */}
         <div className="flex items-center space-x-4 mb-6">

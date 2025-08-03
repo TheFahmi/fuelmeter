@@ -3,8 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { BurgerMenu } from '@/components/ui/menu'
 import { Plus, BarChart3, List, TrendingUp, Calendar, Target } from 'lucide-react'
 import { BudgetTracker } from '@/components/budget-tracker'
@@ -144,12 +142,14 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <BurgerMenu />
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading dashboard...</p>
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto"></div>
+              <p className="mt-4 text-white/80">Loading dashboard...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -157,113 +157,128 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <BurgerMenu />
-      
+
       <div className="max-w-7xl mx-auto p-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Dashboard
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Welcome back, {userSettings?.display_name || user?.email}
-          </p>
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl">
+            <h1 className="text-3xl font-bold text-white mb-2">
+              🚗 Dashboard
+            </h1>
+            <p className="text-white/70 text-lg">
+              Welcome back, {userSettings?.display_name || user?.email}! ✨
+            </p>
+          </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Records</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalRecords}</p>
-                </div>
-                <List className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-sm uppercase tracking-wide">Total Records</p>
+                <p className="text-3xl font-bold text-white">{stats.totalRecords}</p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="bg-blue-500/20 rounded-full p-3">
+                <List className="h-8 w-8 text-blue-300" />
+              </div>
+            </div>
+          </div>
 
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Cost</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Rp {stats.totalCost.toLocaleString()}
-                  </p>
-                </div>
-                <TrendingUp className="h-8 w-8 text-green-600 dark:text-green-400" />
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-sm uppercase tracking-wide">Total Cost</p>
+                <p className="text-3xl font-bold text-white">
+                  Rp {stats.totalCost.toLocaleString()}
+                </p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="bg-green-500/20 rounded-full p-3">
+                <TrendingUp className="h-8 w-8 text-green-300" />
+              </div>
+            </div>
+          </div>
 
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Distance</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalDistance.toFixed(1)} km
-                  </p>
-                </div>
-                <Target className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-sm uppercase tracking-wide">Total Distance</p>
+                <p className="text-3xl font-bold text-white">
+                  {stats.totalDistance.toFixed(1)} km
+                </p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="bg-purple-500/20 rounded-full p-3">
+                <Target className="h-8 w-8 text-purple-300" />
+              </div>
+            </div>
+          </div>
 
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Avg Cost/km</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Rp {stats.averageCostPerKm.toFixed(0)}
-                  </p>
-                </div>
-                <BarChart3 className="h-8 w-8 text-orange-600 dark:text-orange-400" />
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-sm uppercase tracking-wide">Avg Cost/km</p>
+                <p className="text-3xl font-bold text-white">
+                  Rp {stats.averageCostPerKm.toFixed(0)}
+                </p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="bg-orange-500/20 rounded-full p-3">
+                <BarChart3 className="h-8 w-8 text-orange-300" />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Button
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+          <button
             onClick={() => router.push('/dashboard/add-record')}
-            className="h-20 flex flex-col items-center justify-center space-y-2"
+            className="backdrop-blur-md bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-white/20 rounded-2xl p-6 shadow-2xl hover:from-blue-500/30 hover:to-purple-500/30 transition-all duration-300 transform hover:scale-105 text-white"
           >
-            <Plus className="h-6 w-6" />
-            <span className="text-sm">Add Record</span>
-          </Button>
+            <div className="flex flex-col items-center space-y-3">
+              <div className="bg-white/20 rounded-full p-3">
+                <Plus className="h-8 w-8" />
+              </div>
+              <span className="font-semibold">➕ Add Record</span>
+            </div>
+          </button>
 
-          <Button
+          <button
             onClick={() => router.push('/dashboard/records')}
-            variant="outline"
-            className="h-20 flex flex-col items-center justify-center space-y-2"
+            className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105 text-white"
           >
-            <List className="h-6 w-6" />
-            <span className="text-sm">View Records</span>
-          </Button>
+            <div className="flex flex-col items-center space-y-3">
+              <div className="bg-white/20 rounded-full p-3">
+                <List className="h-8 w-8" />
+              </div>
+              <span className="font-semibold">📋 View Records</span>
+            </div>
+          </button>
 
-          <Button
+          <button
             onClick={() => router.push('/dashboard/statistics')}
-            variant="outline"
-            className="h-20 flex flex-col items-center justify-center space-y-2"
+            className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105 text-white"
           >
-            <BarChart3 className="h-6 w-6" />
-            <span className="text-sm">Statistics</span>
-          </Button>
+            <div className="flex flex-col items-center space-y-3">
+              <div className="bg-white/20 rounded-full p-3">
+                <BarChart3 className="h-8 w-8" />
+              </div>
+              <span className="font-semibold">📊 Statistics</span>
+            </div>
+          </button>
 
-          <Button
+          <button
             onClick={() => router.push('/dashboard/profile')}
-            variant="outline"
-            className="h-20 flex flex-col items-center justify-center space-y-2"
+            className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105 text-white"
           >
-            <Calendar className="h-6 w-6" />
-            <span className="text-sm">Profile</span>
-          </Button>
+            <div className="flex flex-col items-center space-y-3">
+              <div className="bg-white/20 rounded-full p-3">
+                <Calendar className="h-8 w-8" />
+              </div>
+              <span className="font-semibold">👤 Profile</span>
+            </div>
+          </button>
         </div>
 
         {/* Feature Components */}
