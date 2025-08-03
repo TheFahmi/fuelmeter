@@ -3,9 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Fuel, BarChart3, Target, TrendingUp, Shield, Zap, Globe, ArrowRight, Star, Users, Sparkles } from 'lucide-react'
+import { Fuel, BarChart3, Plus, Target, TrendingUp, Shield, Zap, Globe } from 'lucide-react'
 import Link from 'next/link'
 
 export default function HomePage() {
@@ -28,11 +26,11 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="flex items-center justify-center min-h-screen">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-slate-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 flex items-center justify-center">
+        <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-8 shadow-2xl">
           <div className="text-center">
-            <div className="spinner-modern mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400 animate-pulse">Loading...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto"></div>
+            <p className="mt-4 text-black/80 dark:text-white/80">Loading...</p>
           </div>
         </div>
       </div>
@@ -40,28 +38,27 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-slate-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900">
       {/* Header */}
-      <header className="relative z-10">
+      <header className="backdrop-blur-md bg-black/10 dark:bg-white/10 border-b border-black/20 dark:border-white/20 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg">
                 <Fuel className="h-6 w-6 text-white" />
               </div>
-              <span className="text-2xl font-bold text-gradient">FuelMeter</span>
+              <h1 className="text-xl font-bold text-black dark:text-white">🚗 FuelMeter</h1>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/login">
-                <Button variant="ghost" className="nav-link">
+                <button className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-xl px-4 py-2 text-black dark:text-white hover:bg-black/20 dark:hover:bg-white/20 transition-all duration-300 font-medium">
                   Sign In
-                </Button>
+                </button>
               </Link>
               <Link href="/register">
-                <Button className="btn-primary-modern">
-                  Get Started
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  Sign Up
+                </button>
               </Link>
             </div>
           </div>
@@ -69,227 +66,118 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-          <div className="text-center">
-            <div className="animate-fade-in">
-              <h1 className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6">
-                Smart Fuel
-                <span className="text-gradient block">Tracking</span>
-              </h1>
-              <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Track your fuel consumption, optimize costs, and reduce your carbon footprint with our intelligent fuel management platform.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/register">
-                  <Button className="btn-primary-modern text-lg px-8 py-4">
-                    Start Tracking Now
-                    <Sparkles className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-                <Link href="#features">
-                  <Button variant="outline" className="btn-secondary-modern text-lg px-8 py-4">
-                    Learn More
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-              </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center mb-16">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-3xl p-12 shadow-2xl mb-12">
+            <h2 className="text-5xl font-bold text-black dark:text-white mb-6">
+              ⛽ Track Your Fuel Consumption
+            </h2>
+            <p className="text-xl text-black/80 dark:text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">
+              Monitor your vehicle&apos;s fuel efficiency, calculate costs per kilometer, and gain insights into your driving patterns with our comprehensive fuel tracking app.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
+              <Link href="/register">
+                <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 w-full sm:w-auto">
+                  <Plus className="h-5 w-5" />
+                  <span>✨ Get Started Free</span>
+                </button>
+              </Link>
+              <Link href="/login">
+                <button className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-xl px-8 py-4 text-black dark:text-white hover:bg-black/20 dark:hover:bg-white/20 transition-all duration-300 font-semibold w-full sm:w-auto">
+                  🔑 Sign In
+                </button>
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* Floating Elements */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-10 w-20 h-20 bg-blue-500/10 rounded-full blur-xl animate-bounce-gentle"></div>
-          <div className="absolute top-40 right-20 w-32 h-32 bg-purple-500/10 rounded-full blur-xl animate-bounce-gentle" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-20 left-1/4 w-16 h-16 bg-indigo-500/10 rounded-full blur-xl animate-bounce-gentle" style={{ animationDelay: '2s' }}></div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-20 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Why Choose FuelMeter?
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Everything you need to manage your fuel consumption efficiently and make informed decisions.
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-500/20 mb-6">
+              <Fuel className="h-8 w-8 text-blue-300" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-4">⛽ Fuel Tracking</h3>
+            <p className="text-white/70 leading-relaxed">
+              Easily record fuel purchases with automatic cost calculations and odometer tracking.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <Card className="card-modern hover-lift group">
-              <CardContent className="p-8">
-                <div className="stats-icon gradient-primary mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <BarChart3 className="h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                  Smart Analytics
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Get detailed insights into your fuel consumption patterns with advanced analytics and visualizations.
-                </p>
-              </CardContent>
-            </Card>
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-green-500/20 mb-6">
+              <BarChart3 className="h-8 w-8 text-green-300" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-4">📊 Smart Analytics</h3>
+            <p className="text-white/70 leading-relaxed">
+              Get detailed insights into your fuel consumption patterns and cost per kilometer.
+            </p>
+          </div>
 
-            {/* Feature 2 */}
-            <Card className="card-modern hover-lift group">
-              <CardContent className="p-8">
-                <div className="stats-icon gradient-success mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Target className="h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                  Budget Tracking
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Set monthly budgets and track your spending to stay on top of your fuel costs.
-                </p>
-              </CardContent>
-            </Card>
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-purple-500/20 mb-6">
+              <Target className="h-8 w-8 text-purple-300" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-4">🎯 Cost Optimization</h3>
+            <p className="text-white/70 leading-relaxed">
+              Identify the most cost-effective fuel stations and optimize your driving habits.
+            </p>
+          </div>
 
-            {/* Feature 3 */}
-            <Card className="card-modern hover-lift group">
-              <CardContent className="p-8">
-                <div className="stats-icon gradient-secondary mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <TrendingUp className="h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                  Performance Insights
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Monitor your vehicle&apos;s efficiency and get recommendations to improve performance.
-                </p>
-              </CardContent>
-            </Card>
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-orange-500/20 mb-6">
+              <TrendingUp className="h-8 w-8 text-orange-300" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-4">📈 Performance Tracking</h3>
+            <p className="text-white/70 leading-relaxed">
+              Monitor your vehicle&apos;s performance over time with comprehensive statistics.
+            </p>
+          </div>
 
-            {/* Feature 4 */}
-            <Card className="card-modern hover-lift group">
-              <CardContent className="p-8">
-                <div className="stats-icon gradient-warning mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Shield className="h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                  Secure & Private
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Your data is encrypted and secure. We never share your personal information.
-                </p>
-              </CardContent>
-            </Card>
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-red-500/20 mb-6">
+              <Shield className="h-8 w-8 text-red-300" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-4">🔒 Secure & Private</h3>
+            <p className="text-white/70 leading-relaxed">
+              Your data is securely stored and protected with enterprise-grade security.
+            </p>
+          </div>
 
-            {/* Feature 5 */}
-            <Card className="card-modern hover-lift group">
-              <CardContent className="p-8">
-                <div className="stats-icon gradient-dark mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Zap className="h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                  Real-time Sync
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Access your data anywhere, anytime with real-time synchronization across all devices.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Feature 6 */}
-            <Card className="card-modern hover-lift group">
-              <CardContent className="p-8">
-                <div className="stats-icon gradient-primary mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <Globe className="h-6 w-6" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                  Carbon Footprint
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Track your environmental impact and get tips to reduce your carbon footprint.
-                </p>
-              </CardContent>
-            </Card>
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-yellow-500/20 mb-6">
+              <Zap className="h-8 w-8 text-yellow-300" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-4">⚡ Real-time Sync</h3>
+            <p className="text-white/70 leading-relaxed">
+              Access your data anywhere with cloud synchronization across all devices.
+            </p>
           </div>
         </div>
-      </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-            <div className="animate-slide-up">
-              <div className="text-4xl font-bold text-gradient mb-2">10K+</div>
-              <div className="text-gray-600 dark:text-gray-400">Active Users</div>
-            </div>
-            <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
-              <div className="text-4xl font-bold text-gradient-success mb-2">1M+</div>
-              <div className="text-gray-600 dark:text-gray-400">Records Tracked</div>
-            </div>
-            <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
-              <div className="text-4xl font-bold text-gradient-warning mb-2">99.9%</div>
-              <div className="text-gray-600 dark:text-gray-400">Uptime</div>
-            </div>
-            <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
-              <div className="text-4xl font-bold text-gradient mb-2">24/7</div>
-              <div className="text-gray-600 dark:text-gray-400">Support</div>
-            </div>
-          </div>
+        {/* CTA Section */}
+        <div className="text-center backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-12 shadow-2xl">
+          <h3 className="text-3xl font-bold text-white mb-6">
+            🚀 Ready to Start Tracking?
+          </h3>
+          <p className="text-white/80 mb-8 text-lg">
+            Join thousands of users who are already optimizing their fuel consumption.
+          </p>
+          <Link href="/register">
+            <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 mx-auto">
+              <Globe className="h-5 w-5" />
+              <span>🌟 Create Free Account</span>
+            </button>
+          </Link>
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Card className="card-glass p-12">
-            <CardContent>
-              <div className="flex justify-center mb-6">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 shadow-xl">
-                  <Star className="h-8 w-8 text-white" />
-                </div>
-              </div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                Ready to Start Your Journey?
-              </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-                Join thousands of users who are already optimizing their fuel consumption with FuelMeter.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/register">
-                  <Button className="btn-primary-modern text-lg px-8 py-4">
-                    Create Free Account
-                    <Users className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-                <Link href="/login">
-                  <Button variant="outline" className="btn-secondary-modern text-lg px-8 py-4">
-                    Sign In
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
+      </main>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-3 mb-4 md:mb-0">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600">
-                <Fuel className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gradient">FuelMeter</span>
-            </div>
-            <div className="flex items-center space-x-6 text-sm text-gray-600 dark:text-gray-400">
-              <span>© 2024 FuelMeter. All rights reserved.</span>
-              <Link href="#" className="hover:text-gray-900 dark:hover:text-white transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="#" className="hover:text-gray-900 dark:hover:text-white transition-colors">
-                Terms of Service
-              </Link>
-            </div>
+      <footer className="backdrop-blur-md bg-white/10 border-t border-white/20 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center">
+            <p className="text-white/70">
+              © 2024 FuelMeter. Made with ❤️ in Indonesia.
+            </p>
           </div>
         </div>
       </footer>

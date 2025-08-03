@@ -167,12 +167,14 @@ export default function StatisticsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <BurgerMenu />
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading statistics...</p>
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto"></div>
+              <p className="mt-4 text-white/80">Loading statistics...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -184,75 +186,77 @@ export default function StatisticsPage() {
   const trend = getRecentTrend()
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <BurgerMenu />
-      
+
       <div className="max-w-7xl mx-auto p-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Statistics
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Detailed analysis of your fuel consumption patterns
-          </p>
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl">
+            <h1 className="text-3xl font-bold text-white mb-2">
+              📊 Statistics
+            </h1>
+            <p className="text-white/70 text-lg">
+              Detailed analysis of your fuel consumption patterns
+            </p>
+          </div>
         </div>
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Records</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalRecords}</p>
-                </div>
-                <Fuel className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-sm uppercase tracking-wide">Total Records</p>
+                <p className="text-3xl font-bold text-white">{stats.totalRecords}</p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="bg-blue-500/20 rounded-full p-3">
+                <Fuel className="h-8 w-8 text-blue-300" />
+              </div>
+            </div>
+          </div>
 
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Cost</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Rp {stats.totalCost.toLocaleString()}
-                  </p>
-                </div>
-                <DollarSign className="h-8 w-8 text-green-600 dark:text-green-400" />
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-sm uppercase tracking-wide">Total Cost</p>
+                <p className="text-3xl font-bold text-white">
+                  Rp {stats.totalCost.toLocaleString()}
+                </p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="bg-green-500/20 rounded-full p-3">
+                <DollarSign className="h-8 w-8 text-green-300" />
+              </div>
+            </div>
+          </div>
 
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Distance</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {stats.totalDistance.toFixed(1)} km
-                  </p>
-                </div>
-                <Target className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-sm uppercase tracking-wide">Total Distance</p>
+                <p className="text-3xl font-bold text-white">
+                  {stats.totalDistance.toFixed(1)} km
+                </p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="bg-purple-500/20 rounded-full p-3">
+                <Target className="h-8 w-8 text-purple-300" />
+              </div>
+            </div>
+          </div>
 
-          <Card className="dark:bg-gray-800 dark:border-gray-700">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Avg Cost/km</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                    Rp {stats.averageCostPerKm.toFixed(0)}
-                  </p>
-                </div>
-                <BarChart3 className="h-8 w-8 text-orange-600 dark:text-orange-400" />
+          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-white/60 text-sm uppercase tracking-wide">Avg Cost/km</p>
+                <p className="text-3xl font-bold text-white">
+                  Rp {stats.averageCostPerKm.toFixed(0)}
+                </p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="bg-orange-500/20 rounded-full p-3">
+                <BarChart3 className="h-8 w-8 text-orange-300" />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Detailed Stats */}

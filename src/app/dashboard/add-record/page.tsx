@@ -3,8 +3,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ArrowLeft, Save, Plus } from 'lucide-react'
 import Link from 'next/link'
@@ -191,95 +189,98 @@ export default function AddRecordPage() {
 
   if (showOdometerModal) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md dark:bg-gray-800 dark:border-gray-700">
-          <CardHeader>
-            <CardTitle className="text-gray-900 dark:text-white">
-              Welcome to FuelMeter!
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-gray-600 dark:text-gray-400">
-              To get started, please enter your current odometer reading. This will help us calculate distances for your fuel records.
-            </p>
-            <Input
-              type="number"
-              placeholder="Current odometer (km)"
-              value={initialOdometer}
-              onChange={(e) => setInitialOdometer(e.target.value)}
-              className="text-gray-900 dark:text-white"
-            />
-            <Button
-              onClick={saveInitialOdometer}
-              disabled={!initialOdometer}
-              className="w-full"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save & Continue
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+        <div className="w-full max-w-md backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl">
+          <div className="p-6 space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                🚗 Welcome to FuelMeter!
+              </h2>
+              <p className="text-white/70">
+                To get started, please enter your current odometer reading. This will help us calculate distances for your fuel records.
+              </p>
+            </div>
+            <div className="space-y-4">
+              <Input
+                type="number"
+                placeholder="Current odometer (km)"
+                value={initialOdometer}
+                onChange={(e) => setInitialOdometer(e.target.value)}
+                className="backdrop-blur-md bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl"
+              />
+              <button
+                onClick={saveInitialOdometer}
+                disabled={!initialOdometer}
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-500 disabled:to-gray-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              >
+                <Save className="h-4 w-4" />
+                <span>✨ Save & Continue</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-8">
           <Link
             href="/dashboard"
-            className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+            className="backdrop-blur-md bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white hover:bg-white/20 transition-all duration-300 flex items-center space-x-2"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Dashboard</span>
           </Link>
         </div>
 
-        <Card className="dark:bg-gray-800 dark:border-gray-700">
-          <CardHeader>
-            <CardTitle className="flex items-center text-gray-900 dark:text-white">
-              <Plus className="h-5 w-5 mr-2" />
-              Add Fuel Record
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl">
+          <div className="p-6">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-white flex items-center space-x-2">
+                <Plus className="h-6 w-6" />
+                <span>⛽ Add Fuel Record</span>
+              </h1>
+            </div>
+            <div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Date
+                  <label className="block text-sm font-medium text-white/80 mb-2">
+                    📅 Date
                   </label>
                   <Input
                     type="date"
                     value={formData.date}
                     onChange={(e) => handleInputChange('date', e.target.value)}
                     required
-                    className="text-gray-900 dark:text-white"
+                    className="backdrop-blur-md bg-white/10 border border-white/20 text-white rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Fuel Type
+                  <label className="block text-sm font-medium text-white/80 mb-2">
+                    ⛽ Fuel Type
                   </label>
                   <select
                     value={formData.fuel_type}
                     onChange={(e) => handleInputChange('fuel_type', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    className="w-full px-4 py-3 backdrop-blur-md bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     required
                   >
-                    <option value="Pertalite">Pertalite</option>
-                    <option value="Pertamax">Pertamax</option>
-                    <option value="Pertamax Turbo">Pertamax Turbo</option>
-                    <option value="Solar">Solar</option>
+                    <option value="Pertalite" className="bg-gray-800 text-white">Pertalite</option>
+                    <option value="Pertamax" className="bg-gray-800 text-white">Pertamax</option>
+                    <option value="Pertamax Turbo" className="bg-gray-800 text-white">Pertamax Turbo</option>
+                    <option value="Solar" className="bg-gray-800 text-white">Solar</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Quantity (L)
+                  <label className="block text-sm font-medium text-white/80 mb-2">
+                    🔢 Quantity (L)
                   </label>
                   <Input
                     type="number"
@@ -288,13 +289,13 @@ export default function AddRecordPage() {
                     onChange={(e) => handleInputChange('quantity', e.target.value)}
                     placeholder="e.g., 25.5"
                     required
-                    className="text-gray-900 dark:text-white"
+                    className="backdrop-blur-md bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Price per Liter (Rp)
+                  <label className="block text-sm font-medium text-white/80 mb-2">
+                    💰 Price per Liter (Rp)
                   </label>
                   <Input
                     type="number"
@@ -302,13 +303,13 @@ export default function AddRecordPage() {
                     onChange={(e) => handleInputChange('price_per_liter', e.target.value)}
                     placeholder="e.g., 10000"
                     required
-                    className="text-gray-900 dark:text-white"
+                    className="backdrop-blur-md bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Total Cost (Rp)
+                  <label className="block text-sm font-medium text-white/80 mb-2">
+                    💵 Total Cost (Rp)
                   </label>
                   <Input
                     type="number"
@@ -316,26 +317,27 @@ export default function AddRecordPage() {
                     onChange={(e) => handleInputChange('total_cost', e.target.value)}
                     placeholder="Auto-calculated"
                     required
-                    className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-600"
+                    className="backdrop-blur-md bg-white/5 border border-white/20 text-white/60 placeholder-white/40 rounded-xl cursor-not-allowed"
+                    readOnly
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Current Odometer (km)
+                  <label className="block text-sm font-medium text-white/80 mb-2">
+                    🚗 Current Odometer (km)
                   </label>
                   <Input
                     type="number"
                     value={formData.odometer_km}
                     onChange={(e) => handleInputChange('odometer_km', e.target.value)}
                     placeholder="e.g., 50000"
-                    className="text-gray-900 dark:text-white"
+                    className="backdrop-blur-md bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Distance (km)
+                  <label className="block text-sm font-medium text-white/80 mb-2">
+                    🛣️ Distance (km)
                   </label>
                   <Input
                     type="number"
@@ -343,45 +345,47 @@ export default function AddRecordPage() {
                     value={formData.distance_km}
                     onChange={(e) => handleInputChange('distance_km', e.target.value)}
                     placeholder="Auto-calculated"
-                    className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-600"
+                    className="backdrop-blur-md bg-white/5 border border-white/20 text-white/60 placeholder-white/40 rounded-xl cursor-not-allowed"
+                    readOnly
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Station
+                  <label className="block text-sm font-medium text-white/80 mb-2">
+                    ⛽ Station
                   </label>
                   <Input
                     type="text"
                     value={formData.station}
                     onChange={(e) => handleInputChange('station', e.target.value)}
                     placeholder="e.g., Pertamina, Shell"
-                    className="text-gray-900 dark:text-white"
+                    className="backdrop-blur-md bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl"
                   />
                 </div>
               </div>
 
-              <Button
+              <button
                 type="submit"
                 disabled={loading}
-                className="w-full"
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-500 disabled:to-gray-600 text-white px-6 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
               >
                 {loading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Saving...
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>Saving...</span>
                   </>
                 ) : (
                   <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Record
+                    <Save className="h-5 w-5" />
+                    <span>💾 Save Record</span>
                   </>
                 )}
-              </Button>
+              </button>
             </form>
-          </CardContent>
-        </Card>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
-} 
+}

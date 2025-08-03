@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS fuel_records (
   odometer_km DECIMAL(10,2) DEFAULT 0,
   distance_km DECIMAL(10,2) DEFAULT 0,
   cost_per_km DECIMAL(10,2) DEFAULT 0,
+  station TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
