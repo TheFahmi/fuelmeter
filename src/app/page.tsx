@@ -5,13 +5,11 @@ import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Fuel, BarChart3, Plus, Target, TrendingUp, Shield, Zap, Globe } from 'lucide-react'
 import Link from 'next/link'
-import { useTheme } from '@/contexts/theme-context'
 
 export default function HomePage() {
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const supabase = createClient()
-  const { isDarkMode, toggleDarkMode } = useTheme()
 
   const checkUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -44,7 +42,7 @@ export default function HomePage() {
       {/* Header */}
       <header className="backdrop-blur-md bg-black/10 dark:bg-white/10 border-b border-black/20 dark:border-white/20 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg">
                 <Fuel className="h-6 w-6 text-white" />
@@ -89,12 +87,6 @@ export default function HomePage() {
                   🔑 Sign In
                 </button>
               </Link>
-              <button
-                onClick={toggleDarkMode}
-                className="backdrop-blur-md bg-red-500/20 border border-red-500/30 rounded-xl px-8 py-4 text-black dark:text-white hover:bg-red-500/30 transition-all duration-300 font-semibold w-full sm:w-auto"
-              >
-                {isDarkMode ? '☀️ Light' : '🌙 Dark'} (Debug)
-              </button>
             </div>
           </div>
         </div>

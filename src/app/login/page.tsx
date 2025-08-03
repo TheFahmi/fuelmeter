@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
-import { Fuel, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { Fuel, Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 
 export default function LoginPage() {
@@ -146,7 +146,7 @@ export default function LoginPage() {
                   href="/register"
                   className="font-medium text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200 transition-colors"
                 >
-                  Sign up
+                  Create one now
                 </Link>
               </p>
             </div>

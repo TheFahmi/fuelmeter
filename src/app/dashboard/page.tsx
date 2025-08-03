@@ -283,17 +283,39 @@ export default function DashboardPage() {
 
         {/* Feature Components */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <BudgetTracker />
-          <SmartReminders />
-          <AdvancedStats />
-          <AchievementSystem />
-          <ReceiptScanner />
-          <VehicleManager />
-          <CarbonFootprint />
-          <PDFExport />
-          <Challenges />
-          <Notifications />
-          <AdvancedAnalytics />
+          <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
+            <BudgetTracker />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <SmartReminders />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <AdvancedStats />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '0.7s' }}>
+            <AchievementSystem />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '0.8s' }}>
+            <ReceiptScanner />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '0.9s' }}>
+            <VehicleManager />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '1.0s' }}>
+            <CarbonFootprint />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '1.1s' }}>
+            <PDFExport />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '1.2s' }}>
+            <Challenges />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '1.3s' }}>
+            <Notifications />
+          </div>
+          <div className="animate-fade-in" style={{ animationDelay: '1.4s' }}>
+            <AdvancedAnalytics />
+          </div>
         </div>
       </div>
     </div>
