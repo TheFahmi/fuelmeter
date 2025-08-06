@@ -14,7 +14,7 @@ export default function ResendVerificationPage() {
   const [message, setMessage] = useState('')
   const [success, setSuccess] = useState(false)
   const [lastSentTime, setLastSentTime] = useState<number | null>(null)
-  const [rateLimitStatus, setRateLimitStatus] = useState<{ attempts: number; remainingAttempts: number; resetTime?: number } | null>(null)
+  const [, setRateLimitStatus] = useState<{ attempts: number; remainingAttempts: number; resetTime?: number } | null>(null)
   const supabase = createClient()
   const toast = useToast()
 
@@ -130,12 +130,12 @@ export default function ResendVerificationPage() {
                     ✅ Verification Email Sent!
                   </h3>
                   <p className="text-black/70 dark:text-white/70 mb-4">
-                    We've sent a new verification link to <strong>{email}</strong>. Please check your inbox and click the verification link.
+                    We&apos;ve sent a new verification link to <strong>{email}</strong>. Please check your inbox and click the verification link.
                   </p>
                   <div className="backdrop-blur-md bg-blue-500/10 border border-blue-300/30 rounded-xl p-4 mb-4">
                     <div className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 text-sm">
                       <Shield className="h-4 w-4" />
-                      <span>Check your spam folder if you don't see the email</span>
+                      <span>Check your spam folder if you don&apos;t see the email</span>
                     </div>
                   </div>
                 </div>
@@ -224,7 +224,7 @@ export default function ResendVerificationPage() {
                     <div>
                       <p className="font-medium">Rate Limiting Active</p>
                       <p className="text-xs mt-1">
-                        Limited to 5 attempts per 10 minutes for security. If you exceed this limit, you'll need to wait 20 minutes.
+                        Limited to 5 attempts per 10 minutes for security. If you exceed this limit, you&apos;ll need to wait 20 minutes.
                       </p>
                     </div>
                   </div>

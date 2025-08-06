@@ -31,9 +31,9 @@ export default function ForgotPasswordPage() {
   // Development utility - expose functions to window for testing
   useEffect(() => {
     if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-      // @ts-ignore
-      window.clearRateLimits = () => {
-        const { clearAllRateLimits, getAllRateLimitStatuses } = require('@/lib/rate-limit')
+      // @ts-expect-error - Adding debug functions to window for development
+      window.clearRateLimits = async () => {
+        const { clearAllRateLimits } = await import('@/lib/rate-limit')
         clearAllRateLimits()
         console.log('All rate limits cleared!')
         // Refresh status
@@ -42,9 +42,9 @@ export default function ForgotPasswordPage() {
           setRateLimitStatus(status)
         }
       }
-      // @ts-ignore
-      window.getRateLimitStatus = () => {
-        const { getAllRateLimitStatuses } = require('@/lib/rate-limit')
+      // @ts-expect-error - Adding debug functions to window for development
+      window.getRateLimitStatus = async () => {
+        const { getAllRateLimitStatuses } = await import('@/lib/rate-limit')
         console.table(getAllRateLimitStatuses())
       }
     }
@@ -153,12 +153,12 @@ export default function ForgotPasswordPage() {
                     ✅ Email Sent Successfully!
                   </h3>
                   <p className="text-black/70 dark:text-white/70 mb-4">
-                    We've sent a password reset link to <strong>{email}</strong>. Please check your inbox and follow the instructions.
+                    We&apos;ve sent a password reset link to <strong>{email}</strong>. Please check your inbox and follow the instructions.
                   </p>
                   <div className="backdrop-blur-md bg-blue-500/10 border border-blue-300/30 rounded-xl p-4 mb-4">
                     <div className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 text-sm">
                       <Shield className="h-4 w-4" />
-                      <span>Check your spam folder if you don't see the email</span>
+                      <span>Check your spam folder if you don&apos;t see the email</span>
                     </div>
                   </div>
                 </div>
@@ -248,7 +248,7 @@ export default function ForgotPasswordPage() {
                       <div>
                         <p className="font-medium">Rate Limiting Active</p>
                         <p className="text-xs mt-1">
-                          Limited to 3 attempts per 15 minutes for security. If you exceed this limit, you'll need to wait 30 minutes.
+                          Limited to 3 attempts per 15 minutes for security. If you exceed this limit, you&apos;ll need to wait 30 minutes.
                         </p>
                       </div>
                     </div>

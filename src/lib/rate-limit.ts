@@ -46,8 +46,8 @@ class RateLimiter {
       }
 
       return entry
-    } catch (error) {
-      console.error('Error reading rate limit entry:', error)
+    } catch {
+      // Error reading rate limit entry
       return null
     }
   }
@@ -57,8 +57,8 @@ class RateLimiter {
 
     try {
       localStorage.setItem(key, JSON.stringify(entry))
-    } catch (error) {
-      console.error('Error storing rate limit entry:', error)
+    } catch {
+      // Error storing rate limit entry
     }
   }
 
@@ -67,8 +67,8 @@ class RateLimiter {
 
     try {
       localStorage.removeItem(key)
-    } catch (error) {
-      console.error('Error removing rate limit entry:', error)
+    } catch {
+      // Error removing rate limit entry
     }
   }
 
@@ -91,7 +91,7 @@ class RateLimiter {
               keysToRemove.push(key)
             }
           }
-        } catch (error) {
+        } catch {
           // Remove invalid entries
           keysToRemove.push(key)
         }
@@ -290,10 +290,10 @@ export function clearAllRateLimits(): void {
 }
 
 // Utility function to get all current rate limit statuses
-export function getAllRateLimitStatuses(): Record<string, any> {
+export function getAllRateLimitStatuses(): Record<string, unknown> {
   if (typeof window === 'undefined') return {}
 
-  const statuses: Record<string, any> = {}
+  const statuses: Record<string, unknown> = {}
 
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i)
@@ -307,7 +307,7 @@ export function getAllRateLimitStatuses(): Record<string, any> {
             timeRemaining: entry.blockedUntil ? Math.max(0, entry.blockedUntil - Date.now()) : 0
           }
         }
-      } catch (error) {
+      } catch {
         statuses[key] = { error: 'Invalid entry' }
       }
     }

@@ -210,7 +210,7 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-black/80 dark:text-white/80 mb-4">
-                "FuelMeter helped me save 20% on fuel costs by tracking my consumption patterns. Amazing app!"
+                &quot;FuelMeter helped me save 20% on fuel costs by tracking my consumption patterns. Amazing app!&quot;
               </p>
               <div className="text-black/60 dark:text-white/60 text-sm">
                 - Ahmad, Jakarta
@@ -228,7 +228,7 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-black/80 dark:text-white/80 mb-4">
-                "Simple, elegant, and powerful. The analytics feature gives me insights I never had before."
+                "                &quot;Simple, elegant, and powerful. The analytics feature gives me insights I never had before.&quot;"
               </p>
               <div className="text-black/60 dark:text-white/60 text-sm">
                 - Sari, Surabaya
@@ -246,7 +246,7 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-black/80 dark:text-white/80 mb-4">
-                "Perfect for fleet management. We track all our vehicles efficiently with this tool."
+                "                &quot;Perfect for fleet management. We track all our vehicles efficiently with this tool.&quot;"
               </p>
               <div className="text-black/60 dark:text-white/60 text-sm">
                 - Budi, Bandung
