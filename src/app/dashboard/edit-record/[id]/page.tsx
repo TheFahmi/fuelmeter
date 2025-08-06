@@ -24,6 +24,7 @@ export default function EditRecordPage() {
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [inputMode, setInputMode] = useState<'quantity' | 'total'>('quantity') // New state for input mode
   const router = useRouter()
   const params = useParams()
   const recordId = params.id as string
@@ -75,14 +76,40 @@ export default function EditRecordPage() {
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
 
-    // Auto-calculate total cost
-    if (field === 'quantity' || field === 'price_per_liter') {
-      const quantity = field === 'quantity' ? parseFloat(value) : parseFloat(formData.quantity)
-      const price = field === 'price_per_liter' ? parseFloat(value) : parseFloat(formData.price_per_liter)
-      
-      if (!isNaN(quantity) && !isNaN(price)) {
-        setFormData(prev => ({ ...prev, total_cost: (quantity * price).toString() }))
+    // Auto-calculate based on input mode
+    if (inputMode === 'quantity') {
+      // Mode 1: Calculate total cost from quantity × price per liter
+      if (field === 'quantity' || field === 'price_per_liter') {
+        const quantity = field === 'quantity' ? parseFloat(value) : parseFloat(formData.quantity)
+        const price = field === 'price_per_liter' ? parseFloat(value) : parseFloat(formData.price_per_liter)
+
+        if (!isNaN(quantity) && !isNaN(price)) {
+          setFormData(prev => ({ ...prev, total_cost: (quantity * price).toString() }))
+        }
       }
+    } else if (inputMode === 'total') {
+      // Mode 2: Calculate quantity from total cost ÷ price per liter
+      if (field === 'total_cost' || field === 'price_per_liter') {
+        const totalCost = field === 'total_cost' ? parseFloat(value) : parseFloat(formData.total_cost)
+        const price = field === 'price_per_liter' ? parseFloat(value) : parseFloat(formData.price_per_liter)
+
+        if (!isNaN(totalCost) && !isNaN(price) && price > 0) {
+          const calculatedQuantity = totalCost / price
+          setFormData(prev => ({ ...prev, quantity: calculatedQuantity.toFixed(2) }))
+        }
+      }
+    }
+  }
+
+  const handleModeChange = (mode: 'quantity' | 'total') => {
+    setInputMode(mode)
+    // Clear calculated fields when switching modes
+    if (mode === 'quantity') {
+      // Clear total cost, keep quantity and price
+      setFormData(prev => ({ ...prev, total_cost: '' }))
+    } else {
+      // Clear quantity, keep total cost and price
+      setFormData(prev => ({ ...prev, quantity: '' }))
     }
   }
 
@@ -186,18 +213,96 @@ export default function EditRecordPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {/* Input Mode Toggle */}
+            <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">📝 Input Method</h3>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleModeChange('quantity')}
+                  className={`flex-1 p-3 rounded-lg border transition-all duration-300 ${
+                    inputMode === 'quantity'
+                      ? 'bg-blue-500/20 border-blue-400 text-blue-700 dark:text-blue-300'
+                      : 'bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  <div className="text-center">
+                    <div className="text-lg mb-1">🔢</div>
+                    <div className="font-medium">By Quantity</div>
+                    <div className="text-xs opacity-75">Enter liters + price per liter</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleModeChange('total')}
+                  className={`flex-1 p-3 rounded-lg border transition-all duration-300 ${
+                    inputMode === 'total'
+                      ? 'bg-purple-500/20 border-purple-400 text-purple-700 dark:text-purple-300'
+                      : 'bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  <div className="text-center">
+                    <div className="text-lg mb-1">🧾</div>
+                    <div className="font-medium">From Receipt</div>
+                    <div className="text-xs opacity-75">Enter total cost from receipt</div>
+                  </div>
+                </button>
+              </div>
+
+              <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg">
+                <div className="flex items-start space-x-2 text-yellow-800 dark:text-yellow-200 text-sm">
+                  <span className="text-yellow-600 dark:text-yellow-400">💡</span>
+                  <div>
+                    <strong>
+                      {inputMode === 'quantity' ? 'Quantity Mode:' : 'Receipt Mode:'}
+                    </strong>
+                    <span className="ml-1">
+                      {inputMode === 'quantity'
+                        ? 'Total cost will be calculated automatically (Quantity × Price per Liter)'
+                        : 'Quantity will be calculated automatically (Total Cost ÷ Price per Liter)'
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Date
+                    📅 Date
                   </label>
-                  <Input
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => handleInputChange('date', e.target.value)}
-                    required
-                  />
+                  <div className="space-y-2">
+                    <Input
+                      type="date"
+                      value={formData.date}
+                      onChange={(e) => handleInputChange('date', e.target.value)}
+                      max={new Date().toISOString().split('T')[0]} // Prevent future dates
+                      required
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleInputChange('date', new Date().toISOString().split('T')[0])}
+                        className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-colors"
+                      >
+                        Today
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const yesterday = new Date()
+                          yesterday.setDate(yesterday.getDate() - 1)
+                          handleInputChange('date', yesterday.toISOString().split('T')[0])
+                        }}
+                        className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/20 border border-purple-300 dark:border-purple-700 rounded text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-900/40 transition-colors"
+                      >
+                        Yesterday
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 <div>
@@ -220,15 +325,18 @@ export default function EditRecordPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Quantity (L)
+                    🔢 Quantity (L)
+                    {inputMode === 'total' && <span className="text-yellow-600 dark:text-yellow-400 text-xs ml-2">(Auto-calculated)</span>}
                   </label>
                   <Input
                     type="number"
                     step="0.01"
                     value={formData.quantity}
                     onChange={(e) => handleInputChange('quantity', e.target.value)}
-                    placeholder="e.g., 25.5"
+                    placeholder={inputMode === 'quantity' ? "e.g., 25.5" : "Auto-calculated from total cost"}
                     required
+                    readOnly={inputMode === 'total'}
+                    className={inputMode === 'total' ? 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed' : ''}
                   />
                 </div>
 
@@ -247,14 +355,17 @@ export default function EditRecordPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Total Cost (Rp)
+                    💵 Total Cost (Rp)
+                    {inputMode === 'quantity' && <span className="text-yellow-600 dark:text-yellow-400 text-xs ml-2">(Auto-calculated)</span>}
                   </label>
                   <Input
                     type="number"
                     value={formData.total_cost}
                     onChange={(e) => handleInputChange('total_cost', e.target.value)}
-                    placeholder="Auto-calculated"
+                    placeholder={inputMode === 'total' ? "Enter total from receipt (e.g., 255000)" : "Auto-calculated"}
                     required
+                    readOnly={inputMode === 'quantity'}
+                    className={inputMode === 'quantity' ? 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed' : ''}
                   />
                 </div>
 
