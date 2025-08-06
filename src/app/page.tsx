@@ -228,7 +228,7 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-black/80 dark:text-white/80 mb-4">
-                "                &quot;Simple, elegant, and powerful. The analytics feature gives me insights I never had before.&quot;"
+                &quot;Simple, elegant, and powerful. The analytics feature gives me insights I never had before.&quot;
               </p>
               <div className="text-black/60 dark:text-white/60 text-sm">
                 - Sari, Surabaya
@@ -246,7 +246,7 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-black/80 dark:text-white/80 mb-4">
-                "                &quot;Perfect for fleet management. We track all our vehicles efficiently with this tool.&quot;"
+                &quot;Perfect for fleet management. We track all our vehicles efficiently with this tool.&quot;
               </p>
               <div className="text-black/60 dark:text-white/60 text-sm">
                 - Budi, Bandung

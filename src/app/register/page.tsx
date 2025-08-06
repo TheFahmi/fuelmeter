@@ -63,16 +63,15 @@ export default function RegisterPage() {
         const successMessage = 'Registration successful! Please check your email to verify your account.'
         setMessage(successMessage)
 
-        toast.success(
-          'Account Created Successfully!',
-          'Please check your email for verification link.',
-          {
-            action: {
-              label: 'Resend Email',
-              onClick: () => router.push('/resend-verification')
-            }
+        toast.addToast({
+          type: 'success',
+          title: 'Account Created Successfully!',
+          message: 'Please check your email for verification link.',
+          action: {
+            label: 'Resend Email',
+            onClick: () => router.push('/resend-verification')
           }
-        )
+        })
 
         setTimeout(() => {
           router.push('/login')

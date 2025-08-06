@@ -143,7 +143,7 @@ export default function ResendVerificationPage() {
                 <div className="space-y-3">
                   <button
                     onClick={handleResend}
-                    disabled={loading || (lastSentTime && Date.now() - lastSentTime < 30000)}
+                    disabled={loading || Boolean(lastSentTime && Date.now() - lastSentTime < 30000)}
                     className="w-full backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-xl px-6 py-3 text-black dark:text-white hover:bg-black/20 dark:hover:bg-white/20 transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                   >
                     {loading ? (
