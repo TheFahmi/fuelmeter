@@ -9,9 +9,26 @@ import jsPDF from 'jspdf'
 import 'jspdf-autotable'
 
 // Extend jsPDF type to include autoTable
+interface AutoTableOptions {
+  startY?: number
+  head?: string[][]
+  body?: string[][]
+  theme?: 'striped' | 'grid' | 'plain'
+  headStyles?: {
+    fillColor?: number[]
+  }
+  margin?: {
+    left?: number
+    right?: number
+  }
+  styles?: {
+    fontSize?: number
+  }
+}
+
 declare module 'jspdf' {
   interface jsPDF {
-    autoTable: (options: any) => jsPDF
+    autoTable: (options: AutoTableOptions) => jsPDF
     lastAutoTable: {
       finalY: number
     }
