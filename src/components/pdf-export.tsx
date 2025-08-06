@@ -94,14 +94,14 @@ export function PDFExport() {
   }
 
   return (
-    <Card className="dark:bg-gray-800 dark:border-gray-700">
-      <CardHeader>
-        <CardTitle className="flex items-center text-gray-900 dark:text-white">
-          <FileText className="h-5 w-5 mr-2" />
-          PDF Export Reports
+    <Card className="dark:bg-gray-800 dark:border-gray-700 w-full overflow-hidden">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center text-gray-900 dark:text-white text-lg">
+          <FileText className="h-5 w-5 mr-2 flex-shrink-0" />
+          <span className="truncate">PDF Export Reports</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 px-4 sm:px-6">
         {/* Report Configuration */}
         <div className="space-y-4">
           <h4 className="font-medium text-gray-900 dark:text-white">Generate New Report</h4>
@@ -141,7 +141,7 @@ export function PDFExport() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
             <label className="flex items-center">
               <input
                 type="checkbox"
@@ -151,7 +151,7 @@ export function PDFExport() {
               />
               <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Include Charts</span>
             </label>
-            
+
             <label className="flex items-center">
               <input
                 type="checkbox"
@@ -196,35 +196,38 @@ export function PDFExport() {
               {generatedReports.map((report) => (
                 <div
                   key={report.id}
-                  className="flex items-center justify-between p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 space-y-3 sm:space-y-0"
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                  <div className="flex items-center space-x-3 min-w-0 flex-1">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex-shrink-0">
                       {getReportTypeIcon(report.type)}
                     </div>
-                    <div>
-                      <h5 className="font-medium text-gray-900 dark:text-white">{report.name}</h5>
-                      <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
-                        <span>{report.type}</span>
-                        <span>•</span>
-                        <span>{report.dateRange}</span>
-                        <span>•</span>
-                        <span>{report.size}</span>
+                    <div className="min-w-0 flex-1">
+                      <h5 className="font-medium text-gray-900 dark:text-white truncate">{report.name}</h5>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-600 dark:text-gray-400">
+                        <span className="truncate">{report.type}</span>
+                        <span className="hidden sm:inline">•</span>
+                        <span className="truncate">{report.dateRange}</span>
+                        <span className="hidden sm:inline">•</span>
+                        <span className="whitespace-nowrap">{report.size}</span>
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                         Generated: {report.generatedAt}
                       </p>
                     </div>
                   </div>
-                  
-                  <Button
-                    onClick={() => handleDownloadReport(report.id)}
-                    size="sm"
-                    variant="outline"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Download
-                  </Button>
+
+                  <div className="flex-shrink-0 w-full sm:w-auto">
+                    <Button
+                      onClick={() => handleDownloadReport(report.id)}
+                      size="sm"
+                      variant="outline"
+                      className="w-full sm:w-auto"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Download
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -233,19 +236,19 @@ export function PDFExport() {
 
         {/* Report Features */}
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-          <h4 className="font-medium text-gray-900 dark:text-white mb-2">📊 Report Features</h4>
+          <h4 className="font-medium text-gray-900 dark:text-white mb-3">📊 Report Features</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
-            <div>
-              <h5 className="font-medium text-gray-900 dark:text-white mb-1">Summary Report</h5>
-              <ul className="space-y-1">
+            <div className="space-y-2">
+              <h5 className="font-medium text-gray-900 dark:text-white">Summary Report</h5>
+              <ul className="space-y-1 pl-2">
                 <li>• Key statistics overview</li>
                 <li>• Monthly spending trends</li>
                 <li>• Fuel efficiency metrics</li>
               </ul>
             </div>
-            <div>
-              <h5 className="font-medium text-gray-900 dark:text-white mb-1">Detailed Report</h5>
-              <ul className="space-y-1">
+            <div className="space-y-2">
+              <h5 className="font-medium text-gray-900 dark:text-white">Detailed Report</h5>
+              <ul className="space-y-1 pl-2">
                 <li>• Complete transaction history</li>
                 <li>• Detailed cost analysis</li>
                 <li>• Performance comparisons</li>

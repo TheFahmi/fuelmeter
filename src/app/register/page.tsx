@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Fuel, Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import Link from 'next/link'
+import { useToast } from '@/contexts/toast-context'
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
@@ -17,6 +18,7 @@ export default function RegisterPage() {
   const [message, setMessage] = useState('')
   const router = useRouter()
   const supabase = createClient()
+  const toast = useToast()
 
   const checkUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -49,20 +51,38 @@ export default function RegisterPage() {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
-        password
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`
+        }
       })
 
       if (error) throw error
 
       if (data.user) {
-        setMessage('Registration successful! Please check your email to verify your account.')
+        const successMessage = 'Registration successful! Please check your email to verify your account.'
+        setMessage(successMessage)
+
+        toast.success(
+          'Account Created Successfully!',
+          'Please check your email for verification link.',
+          {
+            action: {
+              label: 'Resend Email',
+              onClick: () => router.push('/resend-verification')
+            }
+          }
+        )
+
         setTimeout(() => {
           router.push('/login')
-        }, 3000)
+        }, 5000)
       }
     } catch (error) {
       console.error('Registration error:', error)
-      setMessage('Registration failed. Please try again.')
+      const errorMessage = 'Registration failed. Please try again.'
+      setMessage(errorMessage)
+      toast.error('Registration Failed', errorMessage)
     } finally {
       setLoading(false)
     }

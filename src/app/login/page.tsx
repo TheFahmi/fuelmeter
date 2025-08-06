@@ -4,17 +4,21 @@ import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
-import { Fuel, Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react'
+import { Fuel, Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles, Check } from 'lucide-react'
 import Link from 'next/link'
+import { useToast } from '@/contexts/toast-context'
+import { loginLimiter, getClientIdentifier, formatRemainingTime } from '@/lib/rate-limit'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const router = useRouter()
   const supabase = createClient()
+  const toast = useToast()
 
   const checkUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -25,12 +29,38 @@ export default function LoginPage() {
 
   useEffect(() => {
     checkUser()
+    
+    // Check for remembered login data
+    const remembered = localStorage.getItem('fuelmeter_remember_me')
+    const rememberedEmail = localStorage.getItem('fuelmeter_user_email')
+    
+    if (remembered === 'true' && rememberedEmail) {
+      setRememberMe(true)
+      setEmail(rememberedEmail)
+    }
   }, [checkUser])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMessage('')
+
+    // Check rate limiting
+    const clientId = getClientIdentifier()
+    const rateLimitResult = loginLimiter.isAllowed(email || clientId, 'login')
+
+    if (!rateLimitResult.allowed) {
+      const remainingTime = loginLimiter.getRemainingTime(email || clientId, 'login')
+      const timeStr = remainingTime ? formatRemainingTime(remainingTime) : 'some time'
+
+      setMessage(`Too many login attempts. Please try again in ${timeStr}.`)
+      toast.warning(
+        'Rate Limit Exceeded',
+        `Please wait ${timeStr} before trying again.`
+      )
+      setLoading(false)
+      return
+    }
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -41,11 +71,31 @@ export default function LoginPage() {
       if (error) throw error
 
       if (data.user) {
+        // Handle remember me functionality
+        if (rememberMe) {
+          // Set session to persist longer (30 days)
+          await supabase.auth.setSession({
+            access_token: data.session?.access_token || '',
+            refresh_token: data.session?.refresh_token || ''
+          })
+
+          // Store remember me preference in localStorage
+          localStorage.setItem('fuelmeter_remember_me', 'true')
+          localStorage.setItem('fuelmeter_user_email', email)
+        } else {
+          // Clear remember me data if not checked
+          localStorage.removeItem('fuelmeter_remember_me')
+          localStorage.removeItem('fuelmeter_user_email')
+        }
+
+        toast.success('Welcome back!', 'You have been successfully signed in.')
         router.push('/dashboard')
       }
     } catch (error) {
       console.error('Login error:', error)
-      setMessage('Invalid email or password. Please try again.')
+      const errorMessage = 'Invalid email or password. Please try again.'
+      setMessage(errorMessage)
+      toast.error('Sign In Failed', errorMessage)
     } finally {
       setLoading(false)
     }
@@ -117,6 +167,37 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              {/* Remember Me and Forgot Password */}
+              <div className="flex items-center justify-between">
+                <label className="flex items-center space-x-3 cursor-pointer">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="sr-only"
+                    />
+                    <div className={`w-5 h-5 border-2 rounded-md flex items-center justify-center transition-all duration-200 ${
+                      rememberMe 
+                        ? 'bg-blue-500 border-blue-500' 
+                        : 'bg-transparent border-black/30 dark:border-white/30'
+                    }`}>
+                      {rememberMe && <Check className="h-3 w-3 text-white" />}
+                    </div>
+                  </div>
+                  <span className="text-sm text-black/80 dark:text-white/80">
+                    💾 Remember me
+                  </span>
+                </label>
+                
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200 transition-colors"
+                >
+                  🔑 Forgot password?
+                </Link>
+              </div>
+
               {message && (
                 <div className="text-sm text-red-600 dark:text-red-300 bg-red-500/20 border border-red-600/30 dark:border-red-300/30 p-4 rounded-xl backdrop-blur-sm">
                   {message}
@@ -139,7 +220,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="mt-8 text-center">
+            <div className="mt-8 text-center space-y-3">
               <p className="text-black/70 dark:text-white/70">
                 Don&apos;t have an account?{' '}
                 <Link
@@ -147,6 +228,15 @@ export default function LoginPage() {
                   className="font-medium text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200 transition-colors"
                 >
                   Create one now
+                </Link>
+              </p>
+              <p className="text-black/60 dark:text-white/60 text-sm">
+                Need to verify your email?{' '}
+                <Link
+                  href="/resend-verification"
+                  className="font-medium text-purple-600 dark:text-purple-300 hover:text-purple-700 dark:hover:text-purple-200 transition-colors"
+                >
+                  📧 Resend verification
                 </Link>
               </p>
             </div>

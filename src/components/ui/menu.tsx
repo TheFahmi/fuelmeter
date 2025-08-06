@@ -15,6 +15,10 @@ export function BurgerMenu() {
   const { isDarkMode, toggleDarkMode } = useTheme()
 
   const handleLogout = async () => {
+    // Clear remember me data
+    localStorage.removeItem('fuelmeter_remember_me')
+    localStorage.removeItem('fuelmeter_user_email')
+    
     await supabase.auth.signOut()
     router.push('/login')
   }
