@@ -60,25 +60,7 @@ export default function AdminPremium() {
     fetchPremiumUsers()
   }, [fetchPremiumUsers])
 
-  const fetchPremiumUsers = async () => {
-    try {
-      setLoading(true)
-      
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('is_premium', true)
-        .order('premium_expires_at', { ascending: true })
-
-      if (error) throw error
-      setPremiumUsers(data || [])
-    } catch (error) {
-      console.error('Error fetching premium users:', error)
-      toast.error('Failed to load premium users')
-    } finally {
-      setLoading(false)
-    }
-  }
+  // duplicate fetchPremiumUsers removed; using useCallback version above
 
   const grantPremium = async (userId: string, days: number) => {
     try {

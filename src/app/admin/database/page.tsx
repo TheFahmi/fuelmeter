@@ -105,55 +105,7 @@ export default function AdminDatabasePage() {
     fetchDatabaseInfo()
   }, [fetchDatabaseInfo])
 
-  const fetchDatabaseInfo = async () => {
-    try {
-      setLoading(true)
-
-      // Get table information
-      const tableQueries = [
-        { name: 'profiles', query: supabase.from('profiles').select('*', { count: 'exact', head: true }) },
-        { name: 'fuel_records', query: supabase.from('fuel_records').select('*', { count: 'exact', head: true }) },
-        { name: 'user_settings', query: supabase.from('user_settings').select('*', { count: 'exact', head: true }) }
-      ]
-
-      const tableResults = await Promise.all(
-        tableQueries.map(async ({ name, query }) => {
-          const { count, error } = await query
-          return {
-            name,
-            records: count || 0,
-            size: `${Math.round((count || 0) * 0.5)}KB`, // Estimated size
-            lastModified: new Date().toISOString(),
-            status: error ? 'error' : count && count > 1000 ? 'warning' : 'healthy'
-          } as TableInfo
-        })
-      )
-
-      setTables(tableResults)
-
-      // Calculate stats
-      const totalRecords = tableResults.reduce((sum, table) => sum + table.records, 0)
-      const totalSize = tableResults.reduce((sum, table) => {
-        const sizeNum = parseInt(table.size.replace('KB', ''))
-        return sum + sizeNum
-      }, 0)
-
-      setStats({
-        totalTables: tableResults.length,
-        totalRecords,
-        databaseSize: totalSize > 1024 ? `${(totalSize / 1024).toFixed(1)} MB` : `${totalSize} KB`,
-        lastBackup: 'Today 03:00 AM',
-        uptime: '15 days',
-        connections: Math.floor(Math.random() * 50) + 10
-      })
-
-    } catch (error) {
-      console.error('Error fetching database info:', error)
-      toast.error('Failed to load database information')
-    } finally {
-      setLoading(false)
-    }
-  }
+  // duplicate fetchDatabaseInfo removed; using useCallback version above
 
   const refreshData = async () => {
     setRefreshing(true)

@@ -72,33 +72,7 @@ export default function ManagePremiumPage() {
   useEffect(() => {
     fetchSubscriptionData()
   }, [fetchSubscriptionData])
-
-  const fetchSubscriptionData = async () => {
-    try {
-      setLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        router.push('/login')
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, is_premium, subscription_type, premium_expires_at, premium_started_at, payment_method, last_payment_at')
-        .eq('id', user.id)
-        .single()
-
-      if (error) throw error
-
-      setSubscriptionData(data)
-    } catch (error) {
-      console.error('Error fetching subscription data:', error)
-      toast.error('Failed to load subscription data')
-    } finally {
-      setLoading(false)
-    }
-  }
+  // duplicate fetchSubscriptionData removed; using useCallback version above
 
   const cancelSubscription = async () => {
     try {

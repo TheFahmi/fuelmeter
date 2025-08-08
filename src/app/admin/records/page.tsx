@@ -113,73 +113,7 @@ export default function AdminRecords() {
   useEffect(() => {
     filterRecords()
   }, [filterRecords])
-
-  const fetchRecords = async () => {
-    try {
-      setLoading(true)
-
-      // First get fuel records
-      const { data: recordsData, error: recordsError } = await supabase
-        .from('fuel_records')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(1000) // Limit for performance
-
-      if (recordsError) throw recordsError
-
-      // Then get profiles data and merge
-      const recordsWithProfiles = await Promise.all(
-        (recordsData || []).map(async (record) => {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('email, full_name')
-            .eq('id', record.user_id)
-            .single()
-
-          return {
-            ...record,
-            profiles: profile || { email: 'Unknown', full_name: 'Unknown' }
-          }
-        })
-      )
-
-      setRecords(recordsWithProfiles)
-    } catch (error) {
-      console.error('Error fetching records:', error)
-      showError('Error', 'Failed to load fuel records')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const filterRecords = () => {
-    let filtered = records
-
-    // Filter by search term (user email or station)
-    if (searchTerm) {
-      filtered = filtered.filter(record => 
-        record.profiles.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.station.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.fuel_type.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    }
-
-    // Filter by date
-    if (dateFilter) {
-      filtered = filtered.filter(record => 
-        record.date.startsWith(dateFilter)
-      )
-    }
-
-    // Filter by station
-    if (stationFilter) {
-      filtered = filtered.filter(record => 
-        record.station.toLowerCase().includes(stationFilter.toLowerCase())
-      )
-    }
-
-    setFilteredRecords(filtered)
-  }
+  // duplicate fetchRecords/filterRecords removed; using useCallback versions above
 
   const deleteRecord = async (recordId: string) => {
     if (!confirm('Are you sure you want to delete this fuel record?')) {

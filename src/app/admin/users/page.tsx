@@ -110,77 +110,7 @@ export default function AdminUsers() {
   useEffect(() => {
     filterUsers()
   }, [filterUsers])
-
-  const fetchUsers = async () => {
-    try {
-      setLoading(true)
-      
-      // Fetch users with fuel records count
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select(`
-          id,
-          email,
-          full_name,
-          is_premium,
-          premium_expires_at,
-          role,
-          created_at
-        `)
-        .order('created_at', { ascending: false })
-
-      if (profilesError) throw profilesError
-
-      // Fetch fuel records count for each user
-      const usersWithCounts = await Promise.all(
-        (profiles || []).map(async (profile) => {
-          const { count } = await supabase
-            .from('fuel_records')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', profile.id)
-
-          return {
-            ...profile,
-            fuel_records_count: count || 0
-          }
-        })
-      )
-
-      setUsers(usersWithCounts)
-    } catch (error) {
-      console.error('Error fetching users:', error)
-      showError('Error', 'Failed to load users')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const filterUsers = () => {
-    let filtered = users
-
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(user => 
-        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    }
-
-    // Filter by type
-    switch (filterType) {
-      case 'premium':
-        filtered = filtered.filter(user => user.is_premium)
-        break
-      case 'free':
-        filtered = filtered.filter(user => !user.is_premium)
-        break
-      case 'admin':
-        filtered = filtered.filter(user => user.role === 'admin')
-        break
-    }
-
-    setFilteredUsers(filtered)
-  }
+  // duplicate fetchUsers/filterUsers removed; using useCallback versions above
 
   const togglePremiumStatus = async (userId: string, currentStatus: boolean) => {
     try {
