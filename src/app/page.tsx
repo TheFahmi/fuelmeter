@@ -38,53 +38,53 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-slate-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900">
-      {/* Header */}
-      <header className="backdrop-blur-md bg-black/10 dark:bg-white/10 border-b border-black/20 dark:border-white/20 sticky top-0 z-40">
+    <div className="min-h-screen bg-gradient-to-b from-white via-indigo-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      {/* Top Navigation (Footer is provided globally in layout, not here) */}
+      <nav className="sticky top-0 z-40 backdrop-blur-md bg-white/70 dark:bg-slate-950/60 border-b border-black/10 dark:border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg">
                 <Fuel className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-black dark:text-white">🚗 FuelMeter</h1>
+              <h1 className="text-xl font-bold text-black dark:text-white">FuelMeter</h1>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/login">
-                <button className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-xl px-4 py-2 text-black dark:text-white hover:bg-black/20 dark:hover:bg-white/20 transition-all duration-300 font-medium">
+                <button className="backdrop-blur-md bg-white/50 dark:bg-white/10 border border-black/10 dark:border-white/15 rounded-xl px-4 py-2 text-black dark:text-white hover:bg-white/70 dark:hover:bg-white/15 transition-all duration-300 font-medium">
                   Sign In
                 </button>
               </Link>
               <Link href="/register">
-                <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                <button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300">
                   Sign Up
                 </button>
               </Link>
             </div>
           </div>
         </div>
-      </header>
+      </nav>
 
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-16">
-          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-3xl p-12 shadow-2xl mb-12">
-            <h2 className="text-5xl font-bold text-black dark:text-white mb-6">
-              ⛽ Track Your Fuel Consumption
+          <div className="backdrop-blur-md bg-white/60 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-12 shadow-2xl mb-12">
+            <h2 className="text-5xl font-extrabold text-slate-900 dark:text-white mb-6">
+              Track fuel. Save money. Drive smarter.
             </h2>
-            <p className="text-xl text-black/80 dark:text-white/80 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Monitor your vehicle&apos;s fuel efficiency, calculate costs per kilometer, and gain insights into your driving patterns with our comprehensive fuel tracking app.
+            <p className="text-xl text-slate-700 dark:text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+              Pantau konsumsi BBM, biaya per km, dan insight berkendara—semua dalam satu aplikasi sederhana.
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Link href="/register">
-                <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 w-full sm:w-auto">
+                <button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center space-x-2 w-full sm:w-auto">
                   <Plus className="h-5 w-5" />
-                  <span>✨ Get Started Free</span>
+                  <span>Mulai Gratis</span>
                 </button>
               </Link>
               <Link href="/login">
-                <button className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-xl px-8 py-4 text-black dark:text-white hover:bg-black/20 dark:hover:bg-white/20 transition-all duration-300 font-semibold w-full sm:w-auto">
-                  🔑 Sign In
+                <button className="backdrop-blur-md bg-white/50 dark:bg-white/10 border border-black/10 dark:border-white/15 rounded-xl px-8 py-4 text-black dark:text-white hover:bg-white/70 dark:hover:bg-white/15 transition-all duration-300 font-semibold w-full sm:w-auto">
+                  Masuk
                 </button>
               </Link>
             </div>

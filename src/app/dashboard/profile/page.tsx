@@ -253,7 +253,7 @@ export default function ProfilePage() {
                       const formatted = formatLicensePlate(e.target.value)
                       setFormData(prev => ({ ...prev, license_plate: formatted }))
                     }}
-                    placeholder="e.g., b4297bhx (auto-formats to B 4297 BHX)"
+                    placeholder="e.g., d1234abc (auto-formats to D 1234 ABC)"
                     maxLength={12}
                   />
                 </div>

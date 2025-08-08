@@ -6,15 +6,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Formats Indonesian license plate from lowercase input to proper format
- * Example: "b4297bhx" -> "B 4297 BHX"
- * @param input - The raw license plate input
- * @returns Formatted license plate string
- */
-export function formatLicensePlate(input: string): string {
  * Formats Indonesian license plate from lowercase input to proper format.
- * Example: "b4297bhx" -> "B 4297 BHX"
- * 
+ * Example: "d1234abc" -> "D 1234 ABC"
+ *
  * @param input - The raw license plate input. If input is null, undefined, or not a string, returns an empty string.
  *                If input is a very short string (less than 5 characters), returns the cleaned (uppercased, no spaces) input.
  *                For very long strings, only the first 8 characters are considered for formatting; the rest are ignored.
@@ -28,7 +22,7 @@ export function formatLicensePlate(input: string): string {
   
   // Handle different license plate formats
   if (cleaned.length >= 7) {
-    // Format: B 4297 BHX (1 letter + 4 numbers + 3 letters)
+    // Format: D 1234 ABC (1 letter + 4 numbers + 3 letters)
     const areaCode = cleaned.charAt(0)
     const numbers = cleaned.slice(1, 5)
     const letters = cleaned.slice(5, 8)
