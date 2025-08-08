@@ -120,6 +120,21 @@ export function UserSettingsProvider({ children }: UserSettingsProviderProps) {
   const supabase = createClient()
   const { success, error: showError } = useToast()
 
+  const createDefaultSettings = useCallback(async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_settings')
+        .insert([{ user_id: userId, ...defaultSettings }])
+        .select()
+        .single()
+      if (error) throw error
+      setSettings(data)
+    } catch (error) {
+      console.error('Error creating default settings:', error)
+      setSettings(defaultSettings)
+    }
+  }, [supabase])
+
   const loadSettings = useCallback(async () => {
     try {
       setLoading(true)
@@ -150,64 +165,13 @@ export function UserSettingsProvider({ children }: UserSettingsProviderProps) {
     } finally {
       setLoading(false)
     }
-  }, [supabase])
+  }, [supabase, createDefaultSettings])
 
   useEffect(() => {
     loadSettings()
   }, [loadSettings])
 
-  const loadSettings = async () => {
-    try {
-      setLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        setSettings(null)
-        return
-      }
-
-      const { data: userSettings, error } = await supabase
-        .from('user_settings')
-        .select('*')
-        .eq('user_id', user.id)
-        .single()
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading user settings:', error)
-        // Create default settings if none exist
-        await createDefaultSettings(user.id)
-      } else if (userSettings) {
-        setSettings(userSettings)
-      } else {
-        // Create default settings for new user
-        await createDefaultSettings(user.id)
-      }
-    } catch (error) {
-      console.error('Error in loadSettings:', error)
-      setSettings(defaultSettings)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const createDefaultSettings = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_settings')
-        .insert([{
-          user_id: userId,
-          ...defaultSettings
-        }])
-        .select()
-        .single()
-
-      if (error) throw error
-      setSettings(data)
-    } catch (error) {
-      console.error('Error creating default settings:', error)
-      setSettings(defaultSettings)
-    }
-  }
+  // duplicate createDefaultSettings removed; using useCallback version above
 
   const updateSettings = async (updates: Partial<UserSettings>): Promise<boolean> => {
     try {
@@ -279,15 +243,13 @@ export function UserSettingsProvider({ children }: UserSettingsProviderProps) {
       }
 
       // Remove metadata fields
-      const {
-        exported_at: _exported_at,
-        version: _version,
-        id: _id,
-        user_id: _user_id,
-        created_at: _created_at,
-        updated_at: _updated_at,
-        ...cleanSettings
-      } = importedData
+      const cleanSettings: Partial<UserSettings> & Record<string, unknown> = { ...importedData }
+      delete cleanSettings.exported_at as unknown as never
+      delete cleanSettings.version as unknown as never
+      delete cleanSettings.id
+      delete cleanSettings.user_id
+      delete cleanSettings.created_at
+      delete cleanSettings.updated_at
 
       // Merge with current settings
       const updatedSettings = {
