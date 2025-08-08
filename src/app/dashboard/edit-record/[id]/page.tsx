@@ -8,8 +8,40 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { BurgerMenu } from '@/components/ui/menu'
 import { ArrowLeft, Save, Trash2 } from 'lucide-react'
+import { useToast } from '@/contexts/toast-context'
 
-// ... existing code ...
+// Data SPBU dan Bahan Bakar Indonesia dengan mapping
+const FUEL_STATIONS = [
+  'SPBU Pertamina', 'Shell', 'BP AKR', 'Total Energies', 'Vivo Energy',
+  'SPBU Duta Energy', 'SPBU Petronas', 'SPBU Bright Gas', 'SPBU Primagas',
+  'SPBU Esso', 'SPBU Mobil', 'SPBU Caltex', 'SPBU Agip', 'SPBU Texaco',
+  'SPBU Chevron', 'SPBU ConocoPhillips', 'SPBU Lukoil', 'SPBU Gazprom', 'SPBU Rosneft'
+]
+
+// Mapping SPBU ke fuel types yang tersedia
+const STATION_FUEL_MAPPING = {
+  'SPBU Pertamina': ['Pertalite', 'Pertamax', 'Pertamax Turbo', 'Pertamax Green 95', 'Dexlite', 'Pertamina Dex', 'Bio Solar', 'Solar', 'Premium'],
+  'Shell': ['Shell Super', 'Shell V-Power', 'Shell V-Power Racing', 'Shell V-Power Diesel', 'Shell V-Power Nitro+', 'Shell FuelSave 95', 'Shell FuelSave Diesel'],
+  'BP AKR': ['BP Ultimate', 'BP 92', 'BP 95', 'BP Diesel', 'BP Ultimate Diesel'],
+  'Total Energies': ['Total Quartz 7000', 'Total Excellium', 'Total Excellium Diesel'],
+  'Vivo Energy': ['Vivo Revvo 90', 'Vivo Revvo 92', 'Vivo Revvo 95', 'Vivo Diesel'],
+  'SPBU Duta Energy': ['Pertalite', 'Pertamax', 'Solar'],
+  'SPBU Petronas': ['Petronas Primax 95', 'Petronas Primax 97', 'Petronas Diesel Max'],
+  'SPBU Bright Gas': ['Premium', 'Pertalite', 'Solar'],
+  'SPBU Primagas': ['Premium', 'Pertalite', 'Solar'],
+  'SPBU Esso': ['Esso Super', 'Esso Diesel'],
+  'SPBU Mobil': ['Mobil Super', 'Mobil Diesel'],
+  'SPBU Caltex': ['Caltex Super', 'Caltex Diesel'],
+  'SPBU Agip': ['Agip Super', 'Agip Diesel'],
+  'SPBU Texaco': ['Texaco Super', 'Texaco Diesel'],
+  'SPBU Chevron': ['Chevron Super', 'Chevron Diesel'],
+  'SPBU ConocoPhillips': ['Phillips 66', 'Phillips Diesel'],
+  'SPBU Lukoil': ['Lukoil 95', 'Lukoil Diesel'],
+  'SPBU Gazprom': ['Gazprom 95', 'Gazprom Diesel'],
+  'SPBU Rosneft': ['Rosneft 95', 'Rosneft Diesel']
+}
+
+const ALL_FUEL_TYPES = Object.values(STATION_FUEL_MAPPING).flat()
 
 export default function EditRecordPage() {
   const [formData, setFormData] = useState({
@@ -29,6 +61,27 @@ export default function EditRecordPage() {
   const params = useParams()
   const recordId = params.id as string
   const supabase = createClient()
+  const { success, error: showError } = useToast()
+
+  // Get available fuel types based on selected station
+  const getAvailableFuelTypes = (station: string): string[] => {
+    return STATION_FUEL_MAPPING[station as keyof typeof STATION_FUEL_MAPPING] || ALL_FUEL_TYPES
+  }
+
+  // Handle station change and auto-select compatible fuel type
+  const handleStationChange = (station: string) => {
+    setFormData(prev => {
+      const availableFuels = getAvailableFuelTypes(station)
+      // Keep current fuel if compatible, otherwise select first available
+      const newFuelType = availableFuels.includes(prev.fuel_type) ? prev.fuel_type : availableFuels[0] || 'Pertalite'
+
+      return {
+        ...prev,
+        station,
+        fuel_type: newFuelType
+      }
+    })
+  }
 
   const checkUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -61,12 +114,12 @@ export default function EditRecordPage() {
       }
     } catch (error) {
       console.error('Error fetching record:', error)
-      alert('Record not found')
+      showError('Record Not Found', 'The requested fuel record could not be found.')
       router.push('/dashboard/records')
     } finally {
       setLoading(false)
     }
-  }, [supabase, recordId, router])
+  }, [supabase, recordId, router, showError])
 
   useEffect(() => {
     checkUser()
@@ -134,11 +187,11 @@ export default function EditRecordPage() {
 
       if (error) throw error
 
-      alert('Record updated successfully!')
+      success('Record Updated!', 'Your fuel record has been successfully updated.')
       router.push('/dashboard/records')
     } catch (error) {
       console.error('Error updating record:', error)
-      alert('Failed to update record. Please try again.')
+      showError('Update Failed', 'Failed to update record. Please try again.')
     } finally {
       setSaving(false)
     }
@@ -159,11 +212,11 @@ export default function EditRecordPage() {
 
       if (error) throw error
 
-      alert('Record deleted successfully!')
+      success('Record Deleted!', 'The fuel record has been successfully deleted.')
       router.push('/dashboard/records')
     } catch (error) {
       console.error('Error deleting record:', error)
-      alert('Failed to delete record. Please try again.')
+      showError('Delete Failed', 'Failed to delete record. Please try again.')
     } finally {
       setSaving(false)
     }
@@ -307,7 +360,45 @@ export default function EditRecordPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Gas Station
+                  </label>
+                  <select
+                    value={formData.station}
+                    onChange={(e) => handleStationChange(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="">Select gas station</option>
+                    <optgroup label="🔴 Pertamina">
+                      <option value="SPBU Pertamina">SPBU Pertamina</option>
+                    </optgroup>
+                    <optgroup label="🟡 Shell">
+                      <option value="Shell">Shell</option>
+                    </optgroup>
+                    <optgroup label="🟢 BP">
+                      <option value="BP AKR">BP AKR</option>
+                    </optgroup>
+                    <optgroup label="🔵 Total Energies">
+                      <option value="Total Energies">Total Energies</option>
+                    </optgroup>
+                    <optgroup label="🟠 Vivo Energy">
+                      <option value="Vivo Energy">Vivo Energy</option>
+                    </optgroup>
+                    <optgroup label="⚫ SPBU Lainnya">
+                      {FUEL_STATIONS.filter(station =>
+                        !['SPBU Pertamina', 'Shell', 'BP AKR', 'Total Energies', 'Vivo Energy'].includes(station)
+                      ).map(station => (
+                        <option key={station} value={station}>{station}</option>
+                      ))}
+                    </optgroup>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Fuel Type
+                    <span className="text-xs text-gray-500 ml-2">
+                      (Available for {formData.station || 'selected station'})
+                    </span>
                   </label>
                   <select
                     value={formData.fuel_type}
@@ -316,11 +407,17 @@ export default function EditRecordPage() {
                     required
                   >
                     <option value="">Select fuel type</option>
-                    <option value="Pertalite">Pertalite</option>
-                    <option value="Pertamax">Pertamax</option>
-                    <option value="Pertamax Turbo">Pertamax Turbo</option>
-                    <option value="Solar">Solar</option>
+                    {formData.station && getAvailableFuelTypes(formData.station).map(fuel => (
+                      <option key={fuel} value={fuel}>
+                        {fuel}
+                      </option>
+                    ))}
                   </select>
+                  {formData.station && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {getAvailableFuelTypes(formData.station).length} fuel types available for {formData.station}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -391,17 +488,6 @@ export default function EditRecordPage() {
                     value={formData.odometer_km}
                     onChange={(e) => handleInputChange('odometer_km', e.target.value)}
                     placeholder="e.g., 50000"
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Station
-                  </label>
-                  <Input
-                    value={formData.station}
-                    onChange={(e) => handleInputChange('station', e.target.value)}
-                    placeholder="e.g., Pertamina, Shell, BP"
                   />
                 </div>
               </div>

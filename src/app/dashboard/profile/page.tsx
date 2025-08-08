@@ -2,14 +2,17 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
+import { useUserSettings } from '@/contexts/user-settings-context'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { BurgerMenu } from '@/components/ui/menu'
 import { Settings, Download, Trash2, AlertTriangle } from 'lucide-react'
+import { formatLicensePlate } from '@/lib/utils'
 
 export default function ProfilePage() {
+  const { settings, loading: settingsLoading, updateSettings } = useUserSettings()
   const [formData, setFormData] = useState({
     display_name: '',
     vehicle_type: '',
@@ -32,67 +35,49 @@ export default function ProfilePage() {
     }
   }, [supabase, router])
 
-  const loadProfile = useCallback(async () => {
-    try {
-      const { data: settings, error } = await supabase
-        .from('user_settings')
-        .select('*')
-        .single()
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading profile:', error)
-      } else if (settings) {
-        setFormData({
-          display_name: settings.display_name || '',
-          vehicle_type: settings.vehicle_type || '',
-          vehicle_model: settings.vehicle_model || '',
-          license_plate: settings.license_plate || '',
-          monthly_budget: settings.monthly_budget?.toString() || '',
-          currency: settings.currency || 'IDR',
-          last_service_date: settings.last_service_date || '',
-          service_interval_days: settings.service_interval_days?.toString() || ''
-        })
-      }
-    } catch (error) {
-      console.error('Error loading profile:', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [supabase])
 
   useEffect(() => {
-    const initializeProfile = async () => {
-      await checkUser()
-      await loadProfile()
+    if (settings && !settingsLoading) {
+      setFormData({
+        display_name: settings.display_name || '',
+        vehicle_type: settings.vehicle_type || '',
+        vehicle_model: settings.vehicle_model || '',
+        license_plate: settings.license_plate || '',
+        monthly_budget: settings.monthly_budget?.toString() || '',
+        currency: settings.currency || 'IDR',
+        last_service_date: settings.last_service_date || '',
+        service_interval_days: settings.service_interval_days?.toString() || ''
+      })
+      setLoading(false)
     }
+  }, [settings, settingsLoading])
 
-    initializeProfile()
-  }, [checkUser, loadProfile])
+  useEffect(() => {
+    checkUser()
+  }, [checkUser])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
 
     try {
-      const { error } = await supabase
-        .from('user_settings')
-        .upsert({
-          display_name: formData.display_name,
-          vehicle_type: formData.vehicle_type,
-          vehicle_model: formData.vehicle_model,
-          license_plate: formData.license_plate,
-          monthly_budget: formData.monthly_budget ? parseFloat(formData.monthly_budget) : null,
-          currency: formData.currency,
-          last_service_date: formData.last_service_date || null,
-          service_interval_days: formData.service_interval_days ? parseInt(formData.service_interval_days) : null
-        })
+      const success = await updateSettings({
+        display_name: formData.display_name,
+        vehicle_type: formData.vehicle_type,
+        vehicle_model: formData.vehicle_model,
+        license_plate: formData.license_plate,
+        monthly_budget: formData.monthly_budget ? parseFloat(formData.monthly_budget) : 0,
+        currency: formData.currency,
+        last_service_date: formData.last_service_date || '',
+        service_interval_days: formData.service_interval_days ? parseInt(formData.service_interval_days) : 90
+      })
 
-      if (error) throw error
-
-      alert('Profile updated successfully!')
+      if (!success) {
+        throw new Error('Failed to update settings')
+      }
     } catch (error) {
       console.error('Error updating profile:', error)
-      alert('Failed to update profile. Please try again.')
     } finally {
       setSaving(false)
     }
@@ -194,17 +179,17 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-slate-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900">
       <BurgerMenu />
 
       <div className="max-w-4xl mx-auto p-4">
         {/* Header */}
         <div className="mb-8">
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl">
-            <h1 className="text-3xl font-bold text-white mb-2">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               👤 Profile Settings
             </h1>
-            <p className="text-white/70 text-lg">
+            <p className="text-gray-700 dark:text-white/70 text-lg">
               Manage your account settings and preferences
             </p>
           </div>
@@ -264,8 +249,12 @@ export default function ProfilePage() {
                   <Input
                     type="text"
                     value={formData.license_plate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, license_plate: e.target.value }))}
-                    placeholder="e.g., B 1234 ABC"
+                    onChange={(e) => {
+                      const formatted = formatLicensePlate(e.target.value)
+                      setFormData(prev => ({ ...prev, license_plate: formatted }))
+                    }}
+                    placeholder="e.g., b4297bhx (auto-formats to B 4297 BHX)"
+                    maxLength={12}
                   />
                 </div>
 

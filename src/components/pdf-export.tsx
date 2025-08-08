@@ -6,34 +6,9 @@ import { Button } from '@/components/ui/button'
 import { FileText, Download, Calendar, BarChart3, TrendingUp } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import jsPDF from 'jspdf'
-import 'jspdf-autotable'
-
-// Extend jsPDF type to include autoTable
-interface AutoTableOptions {
-  startY?: number
-  head?: string[][]
-  body?: string[][]
-  theme?: 'striped' | 'grid' | 'plain'
-  headStyles?: {
-    fillColor?: number[]
-  }
-  margin?: {
-    left?: number
-    right?: number
-  }
-  styles?: {
-    fontSize?: number
-  }
-}
-
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: AutoTableOptions) => jsPDF
-    lastAutoTable: {
-      finalY: number
-    }
-  }
-}
+import { usePremiumFeature } from '@/contexts/premium-context'
+import { UpgradeModal } from '@/components/premium/upgrade-modal'
+import { PremiumFeatureBadge } from '@/components/premium/premium-badge'
 
 interface ReportConfig {
   type: 'summary' | 'detailed' | 'monthly' | 'annual'
@@ -76,7 +51,9 @@ export function PDFExport() {
   const [generating, setGenerating] = useState(false)
   const [fuelRecords, setFuelRecords] = useState<FuelRecord[]>([])
   const [showSuccess, setShowSuccess] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const supabase = createClient()
+  const { hasAccess: hasUnlimitedReports } = usePremiumFeature('unlimited_reports')
 
   const fetchFuelRecords = useCallback(async () => {
     try {
@@ -156,35 +133,74 @@ export function PDFExport() {
     }
   }
 
+  // Get monthly data for charts
+  const getMonthlyData = (records: FuelRecord[]) => {
+    const monthlyMap = new Map<string, { cost: number, quantity: number }>()
+
+    records.forEach(record => {
+      const date = new Date(record.date)
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+      const existing = monthlyMap.get(monthKey) || { cost: 0, quantity: 0 }
+
+      monthlyMap.set(monthKey, {
+        cost: existing.cost + record.total_cost,
+        quantity: existing.quantity + record.quantity
+      })
+    })
+
+    return Array.from(monthlyMap.entries())
+      .map(([month, data]) => ({
+        month: month.substring(5), // Just MM
+        cost: data.cost,
+        quantity: data.quantity
+      }))
+      .sort((a, b) => a.month.localeCompare(b.month))
+      .slice(-6) // Last 6 months
+  }
+
+
+
   // Generate PDF report
   const generatePDF = (records: FuelRecord[], config: ReportConfig) => {
     const doc = new jsPDF()
     const filteredRecords = getFilteredRecords(records, config.dateRange)
     const stats = calculateStats(filteredRecords)
 
-    // Header
+    // Header with colors
+    doc.setFillColor(59, 130, 246) // Blue background
+    doc.rect(0, 0, 210, 30, 'F')
+
+    doc.setTextColor(255, 255, 255) // White text
     doc.setFontSize(20)
     doc.text('Fuel Consumption Report', 20, 20)
 
+    doc.setTextColor(0, 0, 0) // Black text
     doc.setFontSize(12)
-    doc.text(`Report Type: ${config.type.charAt(0).toUpperCase() + config.type.slice(1)} Report`, 20, 35)
-    doc.text(`Date Range: ${config.dateRange.replace('_', ' ').toUpperCase()}`, 20, 45)
+    doc.text(`Report Type: ${config.type.charAt(0).toUpperCase() + config.type.slice(1)} Report`, 20, 40)
+    doc.text(`Date Range: ${config.dateRange.replace('_', ' ').toUpperCase()}`, 20, 50)
     doc.text(`Generated: ${new Date().toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    })}`, 20, 55)
+    })}`, 20, 60)
 
-    let yPosition = 70
+    let yPosition = 75
 
-    // Statistics Section
+    // Statistics Section with colors
     if (config.includeStats) {
-      doc.setFontSize(16)
-      doc.text('Summary Statistics', 20, yPosition)
-      yPosition += 15
+      // Section header with background
+      doc.setFillColor(240, 249, 255) // Light blue background
+      doc.rect(15, yPosition - 5, 180, 20, 'F')
 
+      doc.setTextColor(59, 130, 246) // Blue text
+      doc.setFontSize(16)
+      doc.text('Summary Statistics', 20, yPosition + 5)
+      yPosition += 25
+
+      doc.setTextColor(0, 0, 0) // Black text
+      doc.setFontSize(10)
       const statsData = [
         ['Total Records', stats.totalRecords.toString()],
         ['Total Cost', `Rp ${stats.totalCost.toLocaleString('id-ID')}`],
@@ -195,42 +211,92 @@ export function PDFExport() {
         ['Average Consumption', `${stats.averageConsumption.toFixed(2)} L/100km`]
       ]
 
-      doc.autoTable({
-        startY: yPosition,
-        head: [['Metric', 'Value']],
-        body: statsData,
-        theme: 'grid',
-        headStyles: { fillColor: [59, 130, 246] },
-        margin: { left: 20, right: 20 }
+      // Colored table
+      statsData.forEach((row, index) => {
+        const y = yPosition + (index * 10)
+
+        // Alternating row colors
+        if (index % 2 === 0) {
+          doc.setFillColor(249, 250, 251) // Light gray
+          doc.rect(15, y - 3, 180, 8, 'F')
+        }
+
+        doc.setTextColor(75, 85, 99) // Gray text for labels
+        doc.text(`${row[0]}:`, 20, y)
+        doc.setTextColor(17, 24, 39) // Dark text for values
+        doc.text(row[1], 120, y)
       })
 
-      yPosition = doc.lastAutoTable.finalY + 20
+      yPosition += statsData.length * 10 + 20
+    }
+
+    // Add chart if enabled
+    if (config.includeCharts && filteredRecords.length > 0) {
+      // Chart section header
+      doc.setFillColor(240, 249, 255)
+      doc.rect(15, yPosition - 5, 180, 20, 'F')
+
+      doc.setTextColor(59, 130, 246)
+      doc.setFontSize(16)
+      doc.text('Fuel Cost Trend', 20, yPosition + 5)
+      yPosition += 25
+
+      // Create simple chart representation
+      const monthlyData = getMonthlyData(filteredRecords)
+      if (monthlyData.length > 0) {
+        // Draw simple bar chart
+        const chartWidth = 160
+        const chartHeight = 60
+        const barWidth = chartWidth / monthlyData.length
+        const maxValue = Math.max(...monthlyData.map(d => d.cost))
+
+        monthlyData.forEach((data, index) => {
+          const barHeight = (data.cost / maxValue) * chartHeight
+          const x = 20 + (index * barWidth)
+          const y = yPosition + chartHeight - barHeight
+
+          // Draw bar with color
+          doc.setFillColor(59, 130, 246)
+          doc.rect(x, y, barWidth - 2, barHeight, 'F')
+
+          // Add label
+          doc.setTextColor(0, 0, 0)
+          doc.setFontSize(8)
+          doc.text(data.month, x, yPosition + chartHeight + 10)
+        })
+
+        yPosition += chartHeight + 25
+      }
     }
 
     // Detailed Records Section
     if (config.type === 'detailed' && filteredRecords.length > 0) {
       doc.setFontSize(16)
       doc.text('Detailed Records', 20, yPosition)
+      yPosition += 15
+
+      doc.setFontSize(8)
+
+      // Table headers
+      doc.text('Date', 20, yPosition)
+      doc.text('Fuel Type', 50, yPosition)
+      doc.text('Quantity', 80, yPosition)
+      doc.text('Price/L', 110, yPosition)
+      doc.text('Total Cost', 140, yPosition)
+      doc.text('Distance', 170, yPosition)
       yPosition += 10
 
-      const tableData = filteredRecords.map(record => [
-        new Date(record.date).toLocaleDateString('id-ID'),
-        record.fuel_type,
-        `${record.quantity.toFixed(2)} L`,
-        `Rp ${record.price_per_liter.toLocaleString('id-ID')}`,
-        `Rp ${record.total_cost.toLocaleString('id-ID')}`,
-        `${record.distance_km.toFixed(2)} km`,
-        record.station || '-'
-      ])
+      // Table data
+      filteredRecords.slice(0, 20).forEach((record, index) => { // Limit to 20 records to fit on page
+        const y = yPosition + (index * 8)
+        if (y > 280) return // Stop if we're near the bottom of the page
 
-      doc.autoTable({
-        startY: yPosition,
-        head: [['Date', 'Fuel Type', 'Quantity', 'Price/L', 'Total Cost', 'Distance', 'Station']],
-        body: tableData,
-        theme: 'grid',
-        headStyles: { fillColor: [59, 130, 246] },
-        margin: { left: 20, right: 20 },
-        styles: { fontSize: 8 }
+        doc.text(new Date(record.date).toLocaleDateString('id-ID'), 20, y)
+        doc.text(record.fuel_type, 50, y)
+        doc.text(`${record.quantity.toFixed(1)}L`, 80, y)
+        doc.text(`Rp ${record.price_per_liter.toLocaleString('id-ID')}`, 110, y)
+        doc.text(`Rp ${record.total_cost.toLocaleString('id-ID')}`, 140, y)
+        doc.text(`${record.distance_km.toFixed(1)}km`, 170, y)
       })
     }
 
@@ -238,6 +304,12 @@ export function PDFExport() {
   }
 
   const handleGenerateReport = async () => {
+    // Check if user has unlimited reports or if this is within free limit
+    if (!hasUnlimitedReports && generatedReports.length >= 3) {
+      setShowUpgradeModal(true)
+      return
+    }
+
     setGenerating(true)
 
     try {
@@ -303,11 +375,22 @@ export function PDFExport() {
   }
 
   return (
-    <Card className="dark:bg-gray-800 dark:border-gray-700 w-full overflow-hidden">
+    <>
+      <Card className="dark:bg-gray-800 dark:border-gray-700 w-full overflow-hidden">
       <CardHeader className="pb-4">
-        <CardTitle className="flex items-center text-gray-900 dark:text-white text-lg">
-          <FileText className="h-5 w-5 mr-2 flex-shrink-0" />
-          <span className="truncate">PDF Export Reports</span>
+        <CardTitle className="flex items-center justify-between text-gray-900 dark:text-white text-lg">
+          <div className="flex items-center">
+            <FileText className="h-5 w-5 mr-2 flex-shrink-0" />
+            <span className="truncate">PDF Export Reports</span>
+          </div>
+          {!hasUnlimitedReports && (
+            <div className="flex items-center space-x-2">
+              <span className="text-xs text-gray-500">
+                {generatedReports.length}/3 free reports
+              </span>
+              <PremiumFeatureBadge />
+            </div>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6 px-4 sm:px-6">
@@ -483,6 +566,14 @@ export function PDFExport() {
           </div>
         </div>
       </CardContent>
-    </Card>
+      </Card>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature="Unlimited PDF Reports"
+      />
+    </>
   )
-} 
+}

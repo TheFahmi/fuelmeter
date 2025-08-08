@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { Menu as MenuIcon, X, Home, Plus, BarChart3, User, LogOut, Sun, Moon } from 'lucide-react'
+import { Menu as MenuIcon, X, Home, Plus, BarChart3, User, LogOut, Sun, Moon, Crown, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { useTheme } from '@/contexts/theme-context'
+import { usePremium } from '@/contexts/premium-context'
+import { PremiumBadge } from '@/components/premium/premium-badge'
 
 export function BurgerMenu() {
   const [isOpen, setIsOpen] = useState(false)
@@ -13,6 +15,7 @@ export function BurgerMenu() {
   const router = useRouter()
   const supabase = createClient()
   const { isDarkMode, toggleDarkMode } = useTheme()
+  const { isPremium, loading: premiumLoading } = usePremium()
 
   const handleLogout = async () => {
     // Clear remember me data
@@ -43,6 +46,16 @@ export function BurgerMenu() {
       name: 'Statistik',
       href: '/dashboard/statistics',
       icon: BarChart3
+    },
+    {
+      name: 'Premium',
+      href: '/dashboard/premium',
+      icon: Crown
+    },
+    {
+      name: 'Manage Premium',
+      href: '/dashboard/manage-premium',
+      icon: Settings
     },
     {
       name: 'Profil',
@@ -90,9 +103,12 @@ export function BurgerMenu() {
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-bold text-black dark:text-white">
-                  🚗 FuelMeter
-                </h2>
+                <div className="flex items-center space-x-2">
+                  <h2 className="text-2xl font-bold text-black dark:text-white">
+                    🚗 FuelMeter
+                  </h2>
+                  {isPremium && !premiumLoading && <PremiumBadge variant="minimal" />}
+                </div>
                 <p className="text-xs text-black/60 dark:text-white/60">
                   {isDarkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
                 </p>
@@ -123,6 +139,11 @@ export function BurgerMenu() {
                 >
                   <item.icon className="h-5 w-5" />
                   <span className="font-medium">{item.name}</span>
+                  {item.name === 'Premium' && !isPremium && (
+                    <span className="ml-auto text-xs bg-yellow-500 text-white px-2 py-1 rounded-full">
+                      Upgrade
+                    </span>
+                  )}
                 </Link>
               ))}
             </nav>

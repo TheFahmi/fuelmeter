@@ -16,6 +16,9 @@ import { PDFExport } from '@/components/pdf-export'
 import { Challenges } from '@/components/challenges'
 import { Notifications } from '@/components/notifications'
 import { AdvancedAnalytics } from '@/components/advanced-analytics'
+import { usePremium } from '@/contexts/premium-context'
+import { PremiumBadge } from '@/components/premium/premium-badge'
+import { PremiumGuard } from '@/components/premium/premium-guard'
 
 interface UserSettings {
   display_name?: string
@@ -47,6 +50,7 @@ interface Stats {
 export default function DashboardPage() {
   const [user, setUser] = useState<{ email?: string } | null>(null)
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
+  const { isPremium } = usePremium()
   const [stats, setStats] = useState<Stats>({
     totalRecords: 0,
     totalCost: 0,
@@ -148,7 +152,7 @@ export default function DashboardPage() {
           <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-8 shadow-2xl">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto"></div>
-              <p className="mt-4 text-black/80 dark:text-white/80">Loading dashboard...</p>
+              <p className="mt-4 text-gray-800 dark:text-white/80">Loading dashboard...</p>
             </div>
           </div>
         </div>
@@ -163,13 +167,16 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto p-4">
         {/* Header */}
         <div className="mb-8">
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl">
-            <h1 className="text-3xl font-bold text-white mb-2">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               🚗 Dashboard
             </h1>
-            <p className="text-white/70 text-lg">
-              Welcome back, {userSettings?.display_name || user?.email}! ✨
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-gray-700 dark:text-white/70 text-lg">
+                Welcome back, {userSettings?.display_name || user?.email}! ✨
+              </p>
+              {isPremium && <PremiumBadge size="lg" variant="default" />}
+            </div>
           </div>
         </div>
 
@@ -279,6 +286,21 @@ export default function DashboardPage() {
               <span className="font-semibold">👤 Profile</span>
             </div>
           </button>
+
+          {!isPremium && (
+            <button
+              onClick={() => router.push('/dashboard/premium')}
+              className="backdrop-blur-md bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 border border-yellow-400/30 rounded-2xl p-6 shadow-2xl hover:from-yellow-500/30 hover:to-yellow-600/30 transition-all duration-300 transform hover:scale-105 text-white"
+            >
+              <div className="flex flex-col items-center space-y-3">
+                <div className="bg-yellow-500/30 rounded-full p-3">
+                  <Target className="h-8 w-8 text-yellow-300" />
+                </div>
+                <span className="font-semibold">👑 Upgrade Premium</span>
+                <span className="text-xs text-yellow-200">Unlock all features</span>
+              </div>
+            </button>
+          )}
         </div>
 
         {/* Feature Components */}
@@ -296,25 +318,37 @@ export default function DashboardPage() {
             <AchievementSystem />
           </div>
           <div className="animate-fade-in" style={{ animationDelay: '0.8s' }}>
-            <ReceiptScanner />
+            <PremiumGuard feature="AI Receipt Scanner">
+              <ReceiptScanner />
+            </PremiumGuard>
           </div>
           <div className="animate-fade-in" style={{ animationDelay: '0.9s' }}>
-            <VehicleManager />
+            <PremiumGuard feature="Multi-Vehicle Management">
+              <VehicleManager />
+            </PremiumGuard>
           </div>
           <div className="animate-fade-in" style={{ animationDelay: '1.0s' }}>
-            <CarbonFootprint />
+            <PremiumGuard feature="Carbon Footprint Tracking">
+              <CarbonFootprint />
+            </PremiumGuard>
           </div>
           <div className="animate-fade-in" style={{ animationDelay: '1.1s' }}>
-            <PDFExport />
+            <PremiumGuard feature="PDF Export">
+              <PDFExport />
+            </PremiumGuard>
           </div>
           <div className="animate-fade-in" style={{ animationDelay: '1.2s' }}>
-            <Challenges />
+            <PremiumGuard feature="Challenges & Gamification">
+              <Challenges />
+            </PremiumGuard>
           </div>
           <div className="animate-fade-in" style={{ animationDelay: '1.3s' }}>
             <Notifications />
           </div>
           <div className="animate-fade-in" style={{ animationDelay: '1.4s' }}>
-            <AdvancedAnalytics />
+            <PremiumGuard feature="Advanced Analytics">
+              <AdvancedAnalytics />
+            </PremiumGuard>
           </div>
         </div>
       </div>
