@@ -8,7 +8,7 @@ ALTER TABLE profiles
 ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS premium_expires_at TIMESTAMPTZ,
 ADD COLUMN IF NOT EXISTS premium_started_at TIMESTAMPTZ,
-ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin', 'moderator', 'premium_user')),
+ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'user' CHECK (role IN ('user', 'admin', 'moderator')),
 ADD COLUMN IF NOT EXISTS permissions TEXT[] DEFAULT '{}',
 ADD COLUMN IF NOT EXISTS subscription_type TEXT CHECK (subscription_type IN ('monthly', 'yearly', 'lifetime', 'trial')),
 ADD COLUMN IF NOT EXISTS payment_method TEXT,
