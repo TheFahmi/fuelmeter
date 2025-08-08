@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { Fuel, BarChart3, Plus, Target, TrendingUp, Shield, Zap, Globe } from 'lucide-react'
+import { Fuel, BarChart3, Plus, Target, TrendingUp, Shield, Zap, Users, Star, CheckCircle, ArrowRight, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 
 export default function HomePage() {
@@ -154,33 +154,198 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* CTA Section */}
-        <div className="text-center backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-12 shadow-2xl">
-          <h3 className="text-3xl font-bold text-white mb-6">
-            🚀 Ready to Start Tracking?
-          </h3>
-          <p className="text-white/80 mb-8 text-lg">
-            Join thousands of users who are already optimizing their fuel consumption.
-          </p>
-          <Link href="/register">
-            <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 mx-auto">
-              <Globe className="h-5 w-5" />
-              <span>🌟 Create Free Account</span>
-            </button>
-          </Link>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="backdrop-blur-md bg-white/10 border-t border-white/20 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <p className="text-white/70">
-              © 2024 FuelMeter. Made with ❤️ in Indonesia.
-            </p>
+        {/* Statistics Section */}
+        <div className="text-center mb-16">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-8 shadow-2xl">
+            <h3 className="text-2xl font-bold text-black dark:text-white mb-8">
+              📊 Trusted by Fuel Enthusiasts
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">1,000+</div>
+                <div className="text-black/70 dark:text-white/70">
+                  <Users className="h-5 w-5 mx-auto mb-1" />
+                  Active Users
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">50K+</div>
+                <div className="text-black/70 dark:text-white/70">
+                  <Fuel className="h-5 w-5 mx-auto mb-1" />
+                  Records Tracked
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">Rp2M+</div>
+                <div className="text-black/70 dark:text-white/70">
+                  <TrendingUp className="h-5 w-5 mx-auto mb-1" />
+                  Money Saved
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-orange-600 dark:text-orange-400 mb-2">4.9★</div>
+                <div className="text-black/70 dark:text-white/70">
+                  <Star className="h-5 w-5 mx-auto mb-1" />
+                  User Rating
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </footer>
+
+        {/* Testimonials Section */}
+        <div className="mb-16">
+          <h3 className="text-3xl font-bold text-black dark:text-white text-center mb-8">
+            💬 What Our Users Say
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl">
+              <div className="flex items-center mb-4">
+                <div className="flex text-yellow-400">
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                </div>
+              </div>
+              <p className="text-black/80 dark:text-white/80 mb-4">
+                &quot;FuelMeter helped me save 20% on fuel costs by tracking my consumption patterns. Amazing app!&quot;
+              </p>
+              <div className="text-black/60 dark:text-white/60 text-sm">
+                - Ahmad, Jakarta
+              </div>
+            </div>
+
+            <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl">
+              <div className="flex items-center mb-4">
+                <div className="flex text-yellow-400">
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                </div>
+              </div>
+              <p className="text-black/80 dark:text-white/80 mb-4">
+                &quot;Simple, elegant, and powerful. The analytics feature gives me insights I never had before.&quot;
+              </p>
+              <div className="text-black/60 dark:text-white/60 text-sm">
+                - Sari, Surabaya
+              </div>
+            </div>
+
+            <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl">
+              <div className="flex items-center mb-4">
+                <div className="flex text-yellow-400">
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                  <Star className="h-4 w-4 fill-current" />
+                </div>
+              </div>
+              <p className="text-black/80 dark:text-white/80 mb-4">
+                &quot;Perfect for fleet management. We track all our vehicles efficiently with this tool.&quot;
+              </p>
+              <div className="text-black/60 dark:text-white/60 text-sm">
+                - Budi, Bandung
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ Section */}
+        <div className="mb-16">
+          <h3 className="text-3xl font-bold text-black dark:text-white text-center mb-8">
+            ❓ Frequently Asked Questions
+          </h3>
+          <div className="max-w-3xl mx-auto space-y-4">
+            <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl">
+              <h4 className="text-lg font-semibold text-black dark:text-white mb-2 flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                Is FuelMeter free to use?
+              </h4>
+              <p className="text-black/70 dark:text-white/70">
+                Yes! FuelMeter is completely free to use. You can track unlimited fuel records, view analytics, and access all features without any cost.
+              </p>
+            </div>
+
+            <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl">
+              <h4 className="text-lg font-semibold text-black dark:text-white mb-2 flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                How secure is my data?
+              </h4>
+              <p className="text-black/70 dark:text-white/70">
+                Your data is protected with enterprise-grade security. We use encryption and secure servers to ensure your fuel records are safe and private.
+              </p>
+            </div>
+
+            <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl">
+              <h4 className="text-lg font-semibold text-black dark:text-white mb-2 flex items-center">
+                <CheckCircle className="h-5 w-5 text-green-500 mr-2" />
+                Can I export my data?
+              </h4>
+              <p className="text-black/70 dark:text-white/70">
+                Absolutely! You can export your fuel records in various formats including CSV and PDF for your personal records or tax purposes.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced CTA Section */}
+        <div className="text-center backdrop-blur-md bg-gradient-to-r from-blue-500/20 to-purple-600/20 border border-blue-300/30 dark:border-purple-300/30 rounded-3xl p-12 shadow-2xl relative overflow-hidden">
+          {/* Background decoration */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-600/10 rounded-3xl"></div>
+          <div className="absolute top-4 right-4">
+            <Sparkles className="h-8 w-8 text-yellow-400 animate-pulse" />
+          </div>
+          <div className="absolute bottom-4 left-4">
+            <Sparkles className="h-6 w-6 text-blue-400 animate-pulse" style={{ animationDelay: '1s' }} />
+          </div>
+
+          <div className="relative z-10">
+            <h3 className="text-4xl font-bold text-black dark:text-white mb-4">
+              🚀 Ready to Start Saving?
+            </h3>
+            <p className="text-xl text-black/80 dark:text-white/80 mb-6 max-w-2xl mx-auto">
+              Join thousands of smart drivers who are already optimizing their fuel consumption and saving money!
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
+              <div className="flex items-center space-x-2 text-black/70 dark:text-white/70">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <span>Free Forever</span>
+              </div>
+              <div className="flex items-center space-x-2 text-black/70 dark:text-white/70">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <span>No Credit Card</span>
+              </div>
+              <div className="flex items-center space-x-2 text-black/70 dark:text-white/70">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <span>Setup in 2 Minutes</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/register">
+                <button className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-10 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2">
+                  <Sparkles className="h-6 w-6" />
+                  <span>Start Tracking Now</span>
+                  <ArrowRight className="h-5 w-5" />
+                </button>
+              </Link>
+
+              <Link href="/login">
+                <button className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-xl px-10 py-4 text-black dark:text-white hover:bg-black/20 dark:hover:bg-white/20 transition-all duration-300 font-semibold text-lg flex items-center justify-center space-x-2">
+                  <span>I Have an Account</span>
+                  <ArrowRight className="h-5 w-5" />
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }

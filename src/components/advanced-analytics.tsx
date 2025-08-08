@@ -13,6 +13,7 @@ interface FuelRecord {
   price_per_liter: number
   total_cost: number
   distance_km: number
+  station: string
   created_at: string
 }
 
@@ -33,6 +34,8 @@ interface AnalyticsData {
     bestFillTime: string
     worstFillTime: string
     optimalFuelType: string
+    bestStation: string
+    mostExpensiveStation: string
     costOptimization: string
     efficiencyTips: string[]
   }
@@ -210,8 +213,37 @@ export function AdvancedAnalytics() {
     const optimalFuelType = Object.entries(fuelTypeAnalysis)
       .sort(([,a], [,b]) => (b.efficiency / b.count) - (a.efficiency / a.count))[0]?.[0] || 'Pertalite'
 
+    // Station analysis
+    interface StationAnalysis {
+      [key: string]: {
+        totalCost: number
+        totalQuantity: number
+        avgPrice: number
+        count: number
+      }
+    }
+
+    const stationAnalysis = records.reduce((acc, record) => {
+      if (!record.station) return acc
+
+      if (!acc[record.station]) {
+        acc[record.station] = { totalCost: 0, totalQuantity: 0, avgPrice: 0, count: 0 }
+      }
+      acc[record.station].totalCost += record.total_cost
+      acc[record.station].totalQuantity += record.quantity
+      acc[record.station].count += 1
+      acc[record.station].avgPrice = acc[record.station].totalCost / acc[record.station].totalQuantity
+      return acc
+    }, {} as StationAnalysis)
+
+    const bestStation = Object.entries(stationAnalysis)
+      .sort(([,a], [,b]) => a.avgPrice - b.avgPrice)[0]?.[0] || 'SPBU Pertamina'
+
+    const mostExpensiveStation = Object.entries(stationAnalysis)
+      .sort(([,a], [,b]) => b.avgPrice - a.avgPrice)[0]?.[0] || 'Unknown'
+
     // Cost optimization tips
-    const costOptimization = 'Consider filling up on weekdays before 10 AM for better prices'
+    const costOptimization = `Best prices found at ${bestStation}. Consider filling up on weekdays before 10 AM for better prices.`
 
     // Efficiency tips based on data
     const efficiencyTips = [
@@ -226,6 +258,8 @@ export function AdvancedAnalytics() {
       bestFillTime: 'Morning (6-10 AM)',
       worstFillTime: 'Evening (6-10 PM)',
       optimalFuelType,
+      bestStation,
+      mostExpensiveStation,
       costOptimization,
       efficiencyTips
     }
@@ -522,16 +556,40 @@ export function AdvancedAnalytics() {
             
             <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
               <h5 className="font-medium text-gray-900 dark:text-white mb-2">
-                Optimal Fuel Type
+                🔴 Optimal Fuel Type
               </h5>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {analyticsData.insights.optimalFuelType}
               </p>
             </div>
-            
+
+            <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <h5 className="font-medium text-gray-900 dark:text-white mb-2">
+                🏪 Best Gas Station
+              </h5>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {analyticsData.insights.bestStation}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                Lowest average price per liter
+              </p>
+            </div>
+
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+              <h5 className="font-medium text-gray-900 dark:text-white mb-2">
+                💸 Most Expensive Station
+              </h5>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {analyticsData.insights.mostExpensiveStation}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                Consider avoiding for cost savings
+              </p>
+            </div>
+
             <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
               <h5 className="font-medium text-gray-900 dark:text-white mb-2">
-                Cost Optimization
+                💡 Cost Optimization
               </h5>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {analyticsData.insights.costOptimization}

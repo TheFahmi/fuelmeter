@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/theme-context";
+import { ToastProvider } from "@/contexts/toast-context";
+import { PremiumProvider } from "@/contexts/premium-context";
+import { UserSettingsProvider } from "@/contexts/user-settings-context";
 import { Footer } from "@/components/ui/footer";
 
 const geistSans = Geist({
@@ -31,10 +34,16 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ThemeProvider>
-          <div className="min-h-screen flex flex-col">
-            {children}
-            <Footer />
-          </div>
+          <ToastProvider>
+            <PremiumProvider>
+              <UserSettingsProvider>
+                <div className="min-h-screen flex flex-col">
+                  {children}
+                  <Footer />
+                </div>
+              </UserSettingsProvider>
+            </PremiumProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>
