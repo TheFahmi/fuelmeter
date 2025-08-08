@@ -35,6 +35,8 @@ export async function POST(request: NextRequest) {
 
 // Fallback processing using pattern matching and reasonable defaults
 async function processReceiptWithFallback(_image: string, _prompt: string) {
+  void _image;
+  void _prompt;
   // Since we can't actually process the image without a vision model,
   // we'll provide a smart fallback that asks the user to verify/edit the data
   

@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { AdminGuard } from '@/components/admin/admin-guard'
 import { AdminLayout } from '@/components/admin/admin-layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase'
-import { useToast } from '@/contexts/toast-context'
+import { toast } from 'sonner'
 import {
   Search,
   Settings,
@@ -63,17 +63,8 @@ export default function AdminUserSettings() {
   const [selectedUser, setSelectedUser] = useState<UserSettingsData | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
   const supabase = createClient()
-  const { success, error: showError } = useToast()
 
-  useEffect(() => {
-    fetchUserSettings()
-  }, [])
-
-  useEffect(() => {
-    filterUserSettings()
-  }, [userSettings, searchTerm, filterType])
-
-  const fetchUserSettings = async () => {
+  const fetchUserSettings = useCallback(async () => {
     try {
       setLoading(true)
 
@@ -104,13 +95,13 @@ export default function AdminUserSettings() {
       setUserSettings(userSettingsWithProfiles)
     } catch (error) {
       console.error('Error fetching user settings:', error)
-      showError('Error', 'Failed to load user settings')
+      toast.error('Failed to load user settings')
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
 
-  const filterUserSettings = () => {
+  const filterUserSettings = useCallback(() => {
     let filtered = userSettings
 
     // Filter by search term
@@ -142,7 +133,15 @@ export default function AdminUserSettings() {
     }
 
     setFilteredSettings(filtered)
-  }
+  }, [userSettings, searchTerm, filterType])
+
+  useEffect(() => {
+    fetchUserSettings()
+  }, [fetchUserSettings])
+
+  useEffect(() => {
+    filterUserSettings()
+  }, [filterUserSettings])
 
   const exportUserSettings = () => {
     const csvContent = [
@@ -170,7 +169,7 @@ export default function AdminUserSettings() {
     a.click()
     window.URL.revokeObjectURL(url)
 
-    success('Export Complete', 'User settings have been exported to CSV')
+    toast.success('User settings have been exported to CSV')
   }
 
   const resetUserSettings = async (userId: string) => {
@@ -213,11 +212,11 @@ export default function AdminUserSettings() {
 
       if (error) throw error
 
-      success('Settings Reset', 'User settings have been reset to default values')
+      toast.success('User settings have been reset to default values')
       fetchUserSettings()
     } catch (error) {
       console.error('Error resetting user settings:', error)
-      showError('Error', 'Failed to reset user settings')
+      toast.error('Failed to reset user settings')
     }
   }
 

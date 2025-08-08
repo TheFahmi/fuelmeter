@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase'
-import { useToast } from '@/contexts/toast-context'
+import { toast } from 'sonner'
 import {
   Search,
   Crown,
@@ -34,7 +34,7 @@ export default function AdminUsers() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<'all' | 'premium' | 'free' | 'admin'>('all')
   const supabase = createClient()
-  const { success, error: showError } = useToast()
+
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -72,7 +72,7 @@ export default function AdminUsers() {
       setUsers(usersWithCounts)
     } catch (error) {
       console.error('Error fetching users:', error)
-      showError('Error', 'Failed to load users')
+      toast.error('Failed to load users')
     } finally {
       setLoading(false)
     }
@@ -129,15 +129,12 @@ export default function AdminUsers() {
 
       if (error) throw error
 
-      success(
-        'Premium Status Updated',
-        `User premium status has been ${newStatus ? 'activated' : 'deactivated'}`
-      )
-      
+      toast.success(`User premium status has been ${newStatus ? 'activated' : 'deactivated'}`)
+
       fetchUsers() // Refresh the list
     } catch (error) {
       console.error('Error updating premium status:', error)
-      showError('Error', 'Failed to update premium status')
+      toast.error('Failed to update premium status')
     }
   }
 
@@ -152,15 +149,12 @@ export default function AdminUsers() {
 
       if (error) throw error
 
-      success(
-        'Role Updated',
-        `User role has been changed to ${newRole}`
-      )
-      
+      toast.success(`User role has been changed to ${newRole}`)
+
       fetchUsers() // Refresh the list
     } catch (error) {
       console.error('Error updating user role:', error)
-      showError('Error', 'Failed to update user role')
+      toast.error('Failed to update user role')
     }
   }
 

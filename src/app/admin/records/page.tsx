@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase'
-import { useToast } from '@/contexts/toast-context'
+import { toast } from 'sonner'
 import {
   Search,
   FileText,
@@ -43,7 +43,7 @@ export default function AdminRecords() {
   const [dateFilter, setDateFilter] = useState('')
   const [stationFilter, setStationFilter] = useState('')
   const supabase = createClient()
-  const { success, error: showError } = useToast()
+
 
   const fetchRecords = useCallback(async () => {
     try {
@@ -74,7 +74,7 @@ export default function AdminRecords() {
       setRecords(recordsWithProfiles)
     } catch (error) {
       console.error('Error fetching records:', error)
-      showError('Error', 'Failed to load fuel records')
+      toast.error('Failed to load fuel records')
     } finally {
       setLoading(false)
     }
@@ -128,11 +128,11 @@ export default function AdminRecords() {
 
       if (error) throw error
 
-      success('Record Deleted', 'Fuel record has been successfully deleted')
+      toast.success('Fuel record has been successfully deleted')
       fetchRecords() // Refresh the list
     } catch (error) {
       console.error('Error deleting record:', error)
-      showError('Error', 'Failed to delete fuel record')
+      toast.error('Failed to delete fuel record')
     }
   }
 
@@ -163,7 +163,7 @@ export default function AdminRecords() {
     a.click()
     window.URL.revokeObjectURL(url)
 
-    success('Export Complete', 'Fuel records have been exported to CSV')
+    toast.success('Fuel records have been exported to CSV')
   }
 
   const formatCurrency = (amount: number) => {
