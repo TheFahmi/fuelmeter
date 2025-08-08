@@ -6,6 +6,8 @@ import { ToastProvider } from "@/contexts/toast-context";
 import { PremiumProvider } from "@/contexts/premium-context";
 import { UserSettingsProvider } from "@/contexts/user-settings-context";
 import { Footer } from "@/components/ui/footer";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { ThemeEnforcer } from "@/components/ui/theme-enforcer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,12 +35,20 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
+        {/* Early theme application to avoid flash and forced dark */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `!function(){try{var t=localStorage.getItem('theme');var r=document.documentElement;if(t==='dark'){r.classList.add('dark');r.style.colorScheme='dark';}else{r.classList.remove('dark');r.style.colorScheme='light';}}catch(e){}}();`,
+          }}
+        />
         <ThemeProvider>
           <ToastProvider>
             <PremiumProvider>
               <UserSettingsProvider>
                 <div className="min-h-screen flex flex-col">
+                  <ThemeEnforcer />
                   {children}
+                  <ThemeToggle />
                   <Footer />
                 </div>
               </UserSettingsProvider>

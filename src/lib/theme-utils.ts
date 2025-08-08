@@ -2,7 +2,7 @@
 
 export const themeClasses = {
   // Background gradients
-  background: "bg-gradient-to-br from-blue-50 via-purple-50 to-slate-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900",
+  background: "bg-white dark:bg-slate-950",
   
   // Glass containers
   glass: "backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20",

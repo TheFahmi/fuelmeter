@@ -102,7 +102,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-slate-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen relative overflow-hidden flex items-center justify-center p-4">
+      <div className="pointer-events-none absolute -top-24 -right-16 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -left-16 h-80 w-80 rounded-full bg-purple-500/10 blur-3xl" />
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -120,9 +122,9 @@ export default function LoginPage() {
         </div>
 
         {/* Login Form */}
-        <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl shadow-2xl">
+        <div className="backdrop-blur-xl bg-white/60 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl">
           <div className="p-8">
-            <h2 className="text-2xl font-bold text-black dark:text-white mb-6 text-center">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 text-center">
               🔑 Sign In
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -131,13 +133,13 @@ export default function LoginPage() {
                   📧 Email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-black/50 dark:text-white/50" />
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500 dark:text-white/50" />
                   <Input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
-                    className="pl-12 backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 text-black dark:text-white placeholder-black/50 dark:placeholder-white/50 rounded-xl py-3"
+                    className="pl-12 backdrop-blur-sm bg-white/40 dark:bg-white/10 border border-black/10 dark:border-white/15 text-black dark:text-white placeholder-slate-500 dark:placeholder-white/50 rounded-xl py-3"
                     required
                   />
                 </div>
@@ -148,19 +150,19 @@ export default function LoginPage() {
                   🔒 Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-black/50 dark:text-white/50" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500 dark:text-white/50" />
                   <Input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="pl-12 pr-12 backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 text-black dark:text-white placeholder-black/50 dark:placeholder-white/50 rounded-xl py-3"
+                    className="pl-12 pr-12 backdrop-blur-sm bg-white/40 dark:bg-white/10 border border-black/10 dark:border-white/15 text-black dark:text-white placeholder-slate-500 dark:placeholder-white/50 rounded-xl py-3"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-black/50 dark:text-white/50 hover:text-black/80 dark:hover:text-white/80 transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-white/50 hover:text-slate-700 dark:hover:text-white/80 transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -199,7 +201,7 @@ export default function LoginPage() {
               </div>
 
               {message && (
-                <div className="text-sm text-red-600 dark:text-red-300 bg-red-500/20 border border-red-600/30 dark:border-red-300/30 p-4 rounded-xl backdrop-blur-sm">
+                <div className="text-sm text-red-700 dark:text-red-300 bg-red-500/15 border border-red-600/25 dark:border-red-300/25 p-4 rounded-xl backdrop-blur-sm">
                   {message}
                 </div>
               )}

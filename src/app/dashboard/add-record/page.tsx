@@ -353,39 +353,39 @@ export default function AddRecordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+    <div className="min-h-screen p-4 pb-28 sm:pb-6">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <Link
             href="/dashboard"
-            className="backdrop-blur-md bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white hover:bg-white/20 transition-all duration-300 flex items-center space-x-2"
+            className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-xl px-4 py-2 text-slate-900 dark:text-white hover:bg-black/15 dark:hover:bg-white/15 transition-all duration-300 flex items-center space-x-2"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back to Dashboard</span>
           </Link>
         </div>
 
-        <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl">
+        <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl shadow-2xl">
           <div className="p-6">
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-white flex items-center space-x-2">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
                 <Plus className="h-6 w-6" />
                 <span>⛽ Add Fuel Record</span>
               </h1>
             </div>
 
             {/* Input Mode Toggle */}
-            <div className="mb-6 p-4 backdrop-blur-md bg-white/5 border border-white/20 rounded-xl">
-              <h3 className="text-lg font-semibold text-white mb-3">📝 Input Method</h3>
+            <div className="mb-6 p-4 backdrop-blur-md bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/20 rounded-xl">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">📝 Input Method</h3>
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   type="button"
                   onClick={() => handleModeChange('quantity')}
                   className={`flex-1 p-3 rounded-xl border transition-all duration-300 ${
                     inputMode === 'quantity'
-                      ? 'bg-blue-500/30 border-blue-400 text-white'
-                      : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10'
+                      ? 'bg-blue-500/10 dark:bg-blue-500/30 border-blue-400 text-slate-900 dark:text-white'
+                      : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/20 text-slate-700 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10'
                   }`}
                 >
                   <div className="text-center">
@@ -400,8 +400,8 @@ export default function AddRecordPage() {
                   onClick={() => handleModeChange('total')}
                   className={`flex-1 p-3 rounded-xl border transition-all duration-300 ${
                     inputMode === 'total'
-                      ? 'bg-purple-500/30 border-purple-400 text-white'
-                      : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10'
+                      ? 'bg-purple-500/10 dark:bg-purple-500/30 border-purple-400 text-slate-900 dark:text-white'
+                      : 'bg-black/5 dark:bg-white/5 border-black/10 dark:border-white/20 text-slate-700 dark:text-white/70 hover:bg-black/10 dark:hover:bg-white/10'
                   }`}
                 >
                   <div className="text-center">
@@ -413,7 +413,7 @@ export default function AddRecordPage() {
               </div>
 
               <div className="mt-3 p-3 bg-yellow-500/10 border border-yellow-400/30 rounded-lg">
-                <div className="flex items-start space-x-2 text-yellow-200 text-sm">
+                <div className="flex items-start space-x-2 text-yellow-800 dark:text-yellow-200 text-sm">
                   <span className="text-yellow-400">💡</span>
                   <div>
                     <strong>
@@ -433,7 +433,7 @@ export default function AddRecordPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-slate-800 dark:text-white/80 mb-2">
                     📅 Date
                   </label>
                   <div className="relative">
@@ -443,13 +443,13 @@ export default function AddRecordPage() {
                       onChange={(e) => handleInputChange('date', e.target.value)}
                       max={new Date().toISOString().split('T')[0]} // Prevent future dates
                       required
-                      className="backdrop-blur-md bg-white/10 border border-white/20 text-white rounded-xl"
+                      className="backdrop-blur-md bg-white dark:bg-gray-700 border border-black/20 dark:border-white/20 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-white/50 rounded-xl"
                     />
                     <div className="flex gap-2 mt-2">
                       <button
                         type="button"
                         onClick={() => handleInputChange('date', new Date().toISOString().split('T')[0])}
-                        className="text-xs px-2 py-1 bg-blue-500/20 border border-blue-400/30 rounded text-blue-200 hover:bg-blue-500/30 transition-colors"
+                        className="text-xs px-2 py-1 bg-blue-500/10 dark:bg-blue-500/20 border border-blue-400/30 rounded text-blue-700 dark:text-blue-200 hover:bg-blue-500/20 dark:hover:bg-blue-500/30 transition-colors"
                       >
                         Today
                       </button>
@@ -460,7 +460,7 @@ export default function AddRecordPage() {
                           yesterday.setDate(yesterday.getDate() - 1)
                           handleInputChange('date', yesterday.toISOString().split('T')[0])
                         }}
-                        className="text-xs px-2 py-1 bg-purple-500/20 border border-purple-400/30 rounded text-purple-200 hover:bg-purple-500/30 transition-colors"
+                        className="text-xs px-2 py-1 bg-purple-500/10 dark:bg-purple-500/20 border border-purple-400/30 rounded text-purple-700 dark:text-purple-200 hover:bg-purple-500/20 dark:hover:bg-purple-500/30 transition-colors"
                       >
                         Yesterday
                       </button>
@@ -469,45 +469,45 @@ export default function AddRecordPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-slate-800 dark:text-white/80 mb-2">
                     🏪 Gas Station
                   </label>
                   <select
                     value={formData.station}
                     onChange={(e) => handleStationChange(e.target.value)}
-                    className="w-full px-4 py-3 backdrop-blur-md bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                    className="w-full px-4 py-3 backdrop-blur-md bg-white dark:bg-gray-700 border border-black/20 dark:border-white/20 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     required
                   >
-                    <optgroup label="🔴 Pertamina" className="bg-gray-800">
-                      <option value="SPBU Pertamina" className="bg-gray-800 text-white">
+                    <optgroup label="🔴 Pertamina">
+                      <option value="SPBU Pertamina">
                         SPBU Pertamina
                       </option>
                     </optgroup>
-                    <optgroup label="🟡 Shell" className="bg-gray-800">
-                      <option value="Shell" className="bg-gray-800 text-white">
+                    <optgroup label="🟡 Shell">
+                      <option value="Shell">
                         Shell
                       </option>
                     </optgroup>
-                    <optgroup label="🟢 BP" className="bg-gray-800">
-                      <option value="BP AKR" className="bg-gray-800 text-white">
+                    <optgroup label="🟢 BP">
+                      <option value="BP AKR">
                         BP AKR
                       </option>
                     </optgroup>
-                    <optgroup label="🔵 Total Energies" className="bg-gray-800">
-                      <option value="Total Energies" className="bg-gray-800 text-white">
+                    <optgroup label="🔵 Total Energies">
+                      <option value="Total Energies">
                         Total Energies
                       </option>
                     </optgroup>
-                    <optgroup label="🟠 Vivo Energy" className="bg-gray-800">
-                      <option value="Vivo Energy" className="bg-gray-800 text-white">
+                    <optgroup label="🟠 Vivo Energy">
+                      <option value="Vivo Energy">
                         Vivo Energy
                       </option>
                     </optgroup>
-                    <optgroup label="⚫ SPBU Lainnya" className="bg-gray-800">
+                    <optgroup label="⚫ SPBU Lainnya">
                       {FUEL_STATIONS.filter(station =>
                         !['SPBU Pertamina', 'Shell', 'BP AKR', 'Total Energies', 'Vivo Energy'].includes(station)
                       ).map(station => (
-                        <option key={station} value={station} className="bg-gray-800 text-white">
+                        <option key={station} value={station}>
                           {station}
                         </option>
                       ))}
@@ -516,33 +516,33 @@ export default function AddRecordPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-slate-800 dark:text-white/80 mb-2">
                     ⛽ Fuel Type
-                    <span className="text-xs text-white/60 ml-2">
+                    <span className="text-xs text-slate-600 dark:text-white/60 ml-2">
                       (Available for {formData.station})
                     </span>
                   </label>
                   <select
                     value={formData.fuel_type}
                     onChange={(e) => handleInputChange('fuel_type', e.target.value)}
-                    className="w-full px-4 py-3 backdrop-blur-md bg-white/10 border border-white/20 rounded-xl text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                    className="w-full px-4 py-3 backdrop-blur-md bg-white dark:bg-gray-700 border border-black/20 dark:border-white/20 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                     required
                   >
                     {getAvailableFuelTypes(formData.station).map(fuel => (
-                      <option key={fuel} value={fuel} className="bg-gray-800 text-white">
+                      <option key={fuel} value={fuel}>
                         {fuel}
                       </option>
                     ))}
                   </select>
-                  <p className="text-xs text-white/50 mt-1">
+                  <p className="text-xs text-slate-600 dark:text-white/50 mt-1">
                     {getAvailableFuelTypes(formData.station).length} fuel types available
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-slate-800 dark:text-white/80 mb-2">
                     🔢 Quantity (L)
-                    {inputMode === 'total' && <span className="text-yellow-300 text-xs ml-2">(Auto-calculated)</span>}
+                    {inputMode === 'total' && <span className="text-yellow-700 dark:text-yellow-300 text-xs ml-2">(Auto-calculated)</span>}
                   </label>
                   <Input
                     type="number"
@@ -552,16 +552,16 @@ export default function AddRecordPage() {
                     placeholder={inputMode === 'quantity' ? "e.g., 25.5" : "Auto-calculated from total cost"}
                     required
                     readOnly={inputMode === 'total'}
-                    className={`backdrop-blur-md border border-white/20 text-white placeholder-white/50 rounded-xl ${
+                    className={`backdrop-blur-md border border-black/20 dark:border-white/20 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-white/50 rounded-xl ${
                       inputMode === 'total'
-                        ? 'bg-white/5 text-white/60 cursor-not-allowed'
-                        : 'bg-white/10'
+                        ? 'bg-black/5 dark:bg-white/5 text-slate-500 dark:text-white/60 cursor-not-allowed'
+                        : 'bg-white dark:bg-gray-700'
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-slate-800 dark:text-white/80 mb-2">
                     💰 Price per Liter (Rp)
                   </label>
                   <Input
@@ -570,14 +570,14 @@ export default function AddRecordPage() {
                     onChange={(e) => handleInputChange('price_per_liter', e.target.value)}
                     placeholder="e.g., 10000"
                     required
-                    className="backdrop-blur-md bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl"
+                    className="backdrop-blur-md bg-white dark:bg-gray-700 border border-black/20 dark:border-white/20 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-white/50 rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-slate-800 dark:text-white/80 mb-2">
                     💵 Total Cost (Rp)
-                    {inputMode === 'quantity' && <span className="text-yellow-300 text-xs ml-2">(Auto-calculated)</span>}
+                    {inputMode === 'quantity' && <span className="text-yellow-700 dark:text-yellow-300 text-xs ml-2">(Auto-calculated)</span>}
                   </label>
                   <Input
                     type="number"
@@ -586,16 +586,16 @@ export default function AddRecordPage() {
                     placeholder={inputMode === 'total' ? "Enter total from receipt (e.g., 255000)" : "Auto-calculated"}
                     required
                     readOnly={inputMode === 'quantity'}
-                    className={`backdrop-blur-md border border-white/20 text-white placeholder-white/50 rounded-xl ${
+                    className={`backdrop-blur-md border border-black/20 dark:border-white/20 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-white/50 rounded-xl ${
                       inputMode === 'quantity'
-                        ? 'bg-white/5 text-white/60 cursor-not-allowed'
-                        : 'bg-white/10'
+                        ? 'bg-black/5 dark:bg-white/5 text-slate-500 dark:text-white/60 cursor-not-allowed'
+                        : 'bg-white dark:bg-gray-700'
                     }`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-slate-800 dark:text-white/80 mb-2">
                     🚗 Current Odometer (km)
                   </label>
                   <Input
@@ -603,12 +603,12 @@ export default function AddRecordPage() {
                     value={formData.odometer_km}
                     onChange={(e) => handleInputChange('odometer_km', e.target.value)}
                     placeholder="e.g., 50000"
-                    className="backdrop-blur-md bg-white/10 border border-white/20 text-white placeholder-white/50 rounded-xl"
+                    className="backdrop-blur-md bg-white dark:bg-gray-700 border border-black/20 dark:border-white/20 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-white/50 rounded-xl"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
+                  <label className="block text-sm font-medium text-slate-800 dark:text-white/80 mb-2">
                     🛣️ Distance (km)
                   </label>
                   <Input
@@ -617,7 +617,7 @@ export default function AddRecordPage() {
                     value={formData.distance_km}
                     onChange={(e) => handleInputChange('distance_km', e.target.value)}
                     placeholder="Auto-calculated"
-                    className="backdrop-blur-md bg-white/5 border border-white/20 text-white/60 placeholder-white/40 rounded-xl cursor-not-allowed"
+                    className="backdrop-blur-md bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/20 text-slate-500 dark:text-white/60 placeholder-slate-400 dark:placeholder-white/40 rounded-xl cursor-not-allowed"
                     readOnly
                   />
                 </div>
@@ -636,7 +636,7 @@ export default function AddRecordPage() {
                 ) : (
                   <>
                     <Save className="h-5 w-5" />
-                    <span>💾 Save Record</span>
+                    <span>Save Record</span>
                   </>
                 )}
               </button>

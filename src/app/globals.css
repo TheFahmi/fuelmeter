@@ -50,3 +50,26 @@ input, textarea, select {
 .menu-panel {
   transition: transform 0.3s ease-out;
 }
+
+/* Light mode readability fix for glass/translucent containers */
+html:not(.dark) .backdrop-blur-sm [class*="text-white"]:not([class*="bg-gradient-"]) {
+  color: #0f172a !important;
+}
+html:not(.dark) .backdrop-blur-md [class*="text-white"]:not([class*="bg-gradient-"]) {
+  color: #0f172a !important;
+}
+html:not(.dark) .backdrop-blur-xl [class*="text-white"]:not([class*="bg-gradient-"]) {
+  color: #0f172a !important;
+}
+html:not(.dark) [class*="bg-white/"] [class*="text-white"]:not([class*="bg-gradient-"]) {
+  color: #0f172a !important;
+}
+ 
+/* Light mode: make glass surfaces visible and with contrast */
+html:not(.dark) .backdrop-blur-sm,
+html:not(.dark) .backdrop-blur-md,
+html:not(.dark) .backdrop-blur-xl {
+  background-color: rgba(15, 23, 42, 0.08) !important;
+  border: 1px solid rgba(15, 23, 42, 0.18) !important;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+}

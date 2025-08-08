@@ -26,7 +26,7 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-slate-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-8 shadow-2xl">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto"></div>
@@ -38,7 +38,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-indigo-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="min-h-screen">
       {/* Top Navigation (Footer is provided globally in layout, not here) */}
       <nav className="sticky top-0 z-40 backdrop-blur-md bg-white/70 dark:bg-slate-950/60 border-b border-black/10 dark:border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -93,62 +93,62 @@ export default function HomePage() {
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-black/15 dark:hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
             <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-500/20 mb-6">
               <Fuel className="h-8 w-8 text-blue-300" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-4">⛽ Fuel Tracking</h3>
-            <p className="text-white/70 leading-relaxed">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">⛽ Fuel Tracking</h3>
+            <p className="text-slate-700 dark:text-white/70 leading-relaxed">
               Easily record fuel purchases with automatic cost calculations and odometer tracking.
             </p>
           </div>
 
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-black/15 dark:hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
             <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-green-500/20 mb-6">
               <BarChart3 className="h-8 w-8 text-green-300" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-4">📊 Smart Analytics</h3>
-            <p className="text-white/70 leading-relaxed">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">📊 Smart Analytics</h3>
+            <p className="text-slate-700 dark:text-white/70 leading-relaxed">
               Get detailed insights into your fuel consumption patterns and cost per kilometer.
             </p>
           </div>
 
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-black/15 dark:hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
             <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-purple-500/20 mb-6">
               <Target className="h-8 w-8 text-purple-300" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-4">🎯 Cost Optimization</h3>
-            <p className="text-white/70 leading-relaxed">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">🎯 Cost Optimization</h3>
+            <p className="text-slate-700 dark:text-white/70 leading-relaxed">
               Identify the most cost-effective fuel stations and optimize your driving habits.
             </p>
           </div>
 
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-black/15 dark:hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
             <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-orange-500/20 mb-6">
               <TrendingUp className="h-8 w-8 text-orange-300" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-4">📈 Performance Tracking</h3>
-            <p className="text-white/70 leading-relaxed">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">📈 Performance Tracking</h3>
+            <p className="text-slate-700 dark:text-white/70 leading-relaxed">
               Monitor your vehicle&apos;s performance over time with comprehensive statistics.
             </p>
           </div>
 
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-black/15 dark:hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
             <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-red-500/20 mb-6">
               <Shield className="h-8 w-8 text-red-300" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-4">🔒 Secure & Private</h3>
-            <p className="text-white/70 leading-relaxed">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">🔒 Secure & Private</h3>
+            <p className="text-slate-700 dark:text-white/70 leading-relaxed">
               Your data is securely stored and protected with enterprise-grade security.
             </p>
           </div>
 
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-black/15 dark:hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
             <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-yellow-500/20 mb-6">
               <Zap className="h-8 w-8 text-yellow-300" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-4">⚡ Real-time Sync</h3>
-            <p className="text-white/70 leading-relaxed">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">⚡ Real-time Sync</h3>
+            <p className="text-slate-700 dark:text-white/70 leading-relaxed">
               Access your data anywhere with cloud synchronization across all devices.
             </p>
           </div>

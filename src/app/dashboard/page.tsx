@@ -3,22 +3,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { BurgerMenu } from '@/components/ui/menu'
-import { Plus, BarChart3, List, TrendingUp, Calendar, Target } from 'lucide-react'
-import { BudgetTracker } from '@/components/budget-tracker'
-import { SmartReminders } from '@/components/smart-reminders'
-import { AdvancedStats } from '@/components/advanced-stats'
-import { AchievementSystem } from '@/components/achievement-system'
-import { ReceiptScanner } from '@/components/receipt-scanner'
-import { VehicleManager } from '@/components/vehicle-manager'
-import { CarbonFootprint } from '@/components/carbon-footprint'
-import { PDFExport } from '@/components/pdf-export'
-import { Challenges } from '@/components/challenges'
-import { Notifications } from '@/components/notifications'
-import { AdvancedAnalytics } from '@/components/advanced-analytics'
+import { Plus, BarChart3, List, TrendingUp, Calendar, Target, ScanLine, Car, Leaf, FileText, Bell } from 'lucide-react'
 import { usePremium } from '@/contexts/premium-context'
 import { PremiumBadge } from '@/components/premium/premium-badge'
-import { PremiumGuard } from '@/components/premium/premium-guard'
 
 interface UserSettings {
   display_name?: string
@@ -146,8 +133,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-slate-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900">
-        <BurgerMenu />
+      <div className="min-h-screen">
         <div className="flex items-center justify-center min-h-screen">
           <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-8 shadow-2xl">
             <div className="text-center">
@@ -161,8 +147,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-slate-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900">
-      <BurgerMenu />
+    <div className="min-h-screen">
 
       <div className="max-w-7xl mx-auto p-4">
         {/* Header */}
@@ -182,11 +167,11 @@ export default function DashboardPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/60 text-sm uppercase tracking-wide">Total Records</p>
-                <p className="text-3xl font-bold text-white">{stats.totalRecords}</p>
+                <p className="text-slate-600 dark:text-white/60 text-sm uppercase tracking-wide">Total Records</p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white">{stats.totalRecords}</p>
               </div>
               <div className="bg-blue-500/20 rounded-full p-3">
                 <List className="h-8 w-8 text-blue-300" />
@@ -194,11 +179,11 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/60 text-sm uppercase tracking-wide">Total Cost</p>
-                <p className="text-3xl font-bold text-white">
+                <p className="text-slate-600 dark:text-white/60 text-sm uppercase tracking-wide">Total Cost</p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white">
                   Rp {stats.totalCost.toLocaleString()}
                 </p>
               </div>
@@ -208,11 +193,11 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/60 text-sm uppercase tracking-wide">Total Distance</p>
-                <p className="text-3xl font-bold text-white">
+                <p className="text-slate-600 dark:text-white/60 text-sm uppercase tracking-wide">Total Distance</p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white">
                   {stats.totalDistance.toFixed(1)} km
                 </p>
               </div>
@@ -222,11 +207,11 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/60 text-sm uppercase tracking-wide">Avg Cost/km</p>
-                <p className="text-3xl font-bold text-white">
+                <p className="text-slate-600 dark:text-white/60 text-sm uppercase tracking-wide">Avg Cost/km</p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white">
                   Rp {stats.averageCostPerKm.toFixed(0)}
                 </p>
               </div>
@@ -241,7 +226,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
           <button
             onClick={() => router.push('/dashboard/add-record')}
-            className="backdrop-blur-md bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-white/20 rounded-2xl p-6 shadow-2xl hover:from-blue-500/30 hover:to-purple-500/30 transition-all duration-300 transform hover:scale-105 text-white"
+            className="backdrop-blur-md bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl hover:from-blue-500/20 hover:to-purple-500/20 transition-all duration-300 transform hover:scale-105 text-slate-900 dark:text-white"
           >
             <div className="flex flex-col items-center space-y-3">
               <div className="bg-white/20 rounded-full p-3">
@@ -253,7 +238,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => router.push('/dashboard/records')}
-            className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105 text-white"
+            className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105 text-slate-900 dark:text-white"
           >
             <div className="flex flex-col items-center space-y-3">
               <div className="bg-white/20 rounded-full p-3">
@@ -265,7 +250,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => router.push('/dashboard/statistics')}
-            className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105 text-white"
+            className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105 text-slate-900 dark:text-white"
           >
             <div className="flex flex-col items-center space-y-3">
               <div className="bg-white/20 rounded-full p-3">
@@ -277,7 +262,7 @@ export default function DashboardPage() {
 
           <button
             onClick={() => router.push('/dashboard/profile')}
-            className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105 text-white"
+            className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105 text-slate-900 dark:text-white"
           >
             <div className="flex flex-col items-center space-y-3">
               <div className="bg-white/20 rounded-full p-3">
@@ -290,7 +275,7 @@ export default function DashboardPage() {
           {!isPremium && (
             <button
               onClick={() => router.push('/dashboard/premium')}
-              className="backdrop-blur-md bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 border border-yellow-400/30 rounded-2xl p-6 shadow-2xl hover:from-yellow-500/30 hover:to-yellow-600/30 transition-all duration-300 transform hover:scale-105 text-white"
+              className="backdrop-blur-md bg-gradient-to-r from-yellow-500/10 to-yellow-600/10 border border-yellow-400/30 rounded-2xl p-6 shadow-2xl hover:from-yellow-500/20 hover:to-yellow-600/20 transition-all duration-300 transform hover:scale-105 text-slate-900 dark:text-white"
             >
               <div className="flex flex-col items-center space-y-3">
                 <div className="bg-yellow-500/30 rounded-full p-3">
@@ -303,53 +288,26 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Feature Components */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="animate-fade-in" style={{ animationDelay: '0.4s' }}>
-            <BudgetTracker />
-          </div>
-          <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
-            <SmartReminders />
-          </div>
-          <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
-            <AdvancedStats />
-          </div>
-          <div className="animate-fade-in" style={{ animationDelay: '0.7s' }}>
-            <AchievementSystem />
-          </div>
-          <div className="animate-fade-in" style={{ animationDelay: '0.8s' }}>
-            <PremiumGuard feature="AI Receipt Scanner">
-              <ReceiptScanner />
-            </PremiumGuard>
-          </div>
-          <div className="animate-fade-in" style={{ animationDelay: '0.9s' }}>
-            <PremiumGuard feature="Multi-Vehicle Management">
-              <VehicleManager />
-            </PremiumGuard>
-          </div>
-          <div className="animate-fade-in" style={{ animationDelay: '1.0s' }}>
-            <PremiumGuard feature="Carbon Footprint Tracking">
-              <CarbonFootprint />
-            </PremiumGuard>
-          </div>
-          <div className="animate-fade-in" style={{ animationDelay: '1.1s' }}>
-            <PremiumGuard feature="PDF Export">
-              <PDFExport />
-            </PremiumGuard>
-          </div>
-          <div className="animate-fade-in" style={{ animationDelay: '1.2s' }}>
-            <PremiumGuard feature="Challenges & Gamification">
-              <Challenges />
-            </PremiumGuard>
-          </div>
-          <div className="animate-fade-in" style={{ animationDelay: '1.3s' }}>
-            <Notifications />
-          </div>
-          <div className="animate-fade-in" style={{ animationDelay: '1.4s' }}>
-            <PremiumGuard feature="Advanced Analytics">
-              <AdvancedAnalytics />
-            </PremiumGuard>
-          </div>
+        {/* Feature Entrypoints (link to dedicated pages) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <button onClick={() => router.push('/dashboard/ai-scanner')} className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
+            <ScanLine className="h-6 w-6" /> AI Receipt Scanner
+          </button>
+          <button onClick={() => router.push('/dashboard/vehicles')} className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
+            <Car className="h-6 w-6" /> Vehicles
+          </button>
+          <button onClick={() => router.push('/dashboard/carbon')} className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
+            <Leaf className="h-6 w-6" /> Carbon Footprint
+          </button>
+          <button onClick={() => router.push('/dashboard/export')} className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
+            <FileText className="h-6 w-6" /> Export / Reports
+          </button>
+          <button onClick={() => router.push('/dashboard/reminders')} className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
+            <Calendar className="h-6 w-6" /> Service Reminders
+          </button>
+          <button onClick={() => router.push('/dashboard/notifications')} className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
+            <Bell className="h-6 w-6" /> Notifications
+          </button>
         </div>
       </div>
     </div>

@@ -179,7 +179,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-slate-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900">
+<div className="min-h-screen pb-28 sm:pb-6">
       <BurgerMenu />
 
       <div className="max-w-4xl mx-auto p-4">

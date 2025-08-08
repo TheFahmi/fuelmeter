@@ -224,8 +224,7 @@ export default function EditRecordPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <BurgerMenu />
+      <div className="min-h-screen">
         <div className="flex items-center justify-center min-h-screen">
           <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 shadow-2xl">
             <div className="text-center">
@@ -239,8 +238,7 @@ export default function EditRecordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <BurgerMenu />
+    <div className="min-h-screen pb-28 sm:pb-6">
 
       <div className="max-w-2xl mx-auto p-4">
         {/* Header */}

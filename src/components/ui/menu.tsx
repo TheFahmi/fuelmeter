@@ -126,26 +126,33 @@ export function BurgerMenu() {
 
             {/* Menu Items */}
             <nav className="space-y-3">
-              {menuItems.map((item, index) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => {
-                    setIsAnimating(false)
-                    setTimeout(() => setIsOpen(false), 300)
-                  }}
-                  className="flex items-center space-x-4 px-4 py-3 rounded-xl text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/10 transition-all duration-300 transform hover:scale-105 backdrop-blur-sm border border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span className="font-medium">{item.name}</span>
-                  {item.name === 'Premium' && !isPremium && (
-                    <span className="ml-auto text-xs bg-yellow-500 text-white px-2 py-1 rounded-full">
-                      Upgrade
-                    </span>
-                  )}
-                </Link>
-              ))}
+              {menuItems.map((item, index) => {
+                const isActive = typeof window !== 'undefined' && (window.location.pathname === item.href || window.location.pathname.startsWith(item.href + '/'))
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => {
+                      setIsAnimating(false)
+                      setTimeout(() => setIsOpen(false), 300)
+                    }}
+                    className={`flex items-center space-x-4 px-4 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 backdrop-blur-sm border ${
+                      isActive
+                        ? 'bg-blue-100/80 text-blue-700 border-blue-300 dark:bg-blue-500/10 dark:text-white dark:border-blue-400/30'
+                        : 'text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/10 border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20'
+                    }`}
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span className="font-medium">{item.name}</span>
+                    {item.name === 'Premium' && !isPremium && (
+                      <span className="ml-auto text-xs bg-yellow-500 text-white px-2 py-1 rounded-full">
+                        Upgrade
+                      </span>
+                    )}
+                  </Link>
+                )
+              })}
             </nav>
 
             {/* Settings */}
