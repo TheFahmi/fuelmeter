@@ -245,7 +245,8 @@ export function UserSettingsProvider({ children }: UserSettingsProviderProps) {
       // Remove metadata fields
       const cleanSettings: Partial<UserSettings> & Record<string, unknown> = { ...importedData }
       delete cleanSettings.exported_at as unknown as never
-      delete cleanSettings.version as unknown as never
+      delete cleanSettings.exported_at
+      delete cleanSettings.version
       delete cleanSettings.id
       delete cleanSettings.user_id
       delete cleanSettings.created_at
