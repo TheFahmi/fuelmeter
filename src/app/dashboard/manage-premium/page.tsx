@@ -182,21 +182,21 @@ export default function ManagePremiumPage() {
       <div className="max-w-4xl mx-auto p-4">
         {/* Header */}
         <div className="mb-8">
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl">
+          <div className="backdrop-blur-md bg-white/85 border border-black/10 dark:bg-white/10 dark:border-white/20 rounded-2xl p-6 shadow-2xl">
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center space-x-3 mb-2">
-                  <Crown className="h-8 w-8 text-yellow-400" />
-                  <h1 className="text-3xl font-bold text-white">Manage Premium</h1>
+                  <Crown className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
+                  <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Manage Premium</h1>
                 </div>
-                <p className="text-white/70">
+                <p className="text-slate-700 dark:text-white/70">
                   Manage your premium subscription and billing
                 </p>
               </div>
               <Button
                 variant="outline"
                 onClick={() => router.push('/dashboard')}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                className="bg-white text-slate-900 border-gray-300 hover:bg-gray-100 dark:bg-white/10 dark:border-white/20 dark:text-white dark:hover:bg-white/20"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Dashboard
@@ -207,19 +207,19 @@ export default function ManagePremiumPage() {
 
         {/* Subscription Status */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <Card className="backdrop-blur-md bg-white/10 border border-white/20 shadow-2xl">
+          <Card className="backdrop-blur-md bg-white/85 border border-black/10 dark:bg-white/10 dark:border-white/20 shadow-2xl">
             <CardHeader>
-              <CardTitle className="flex items-center text-white">
-                <Crown className="h-5 w-5 mr-2 text-yellow-400" />
+              <CardTitle className="flex items-center text-slate-900 dark:text-white">
+                <Crown className="h-5 w-5 mr-2 text-yellow-600 dark:text-yellow-400" />
                 Subscription Status
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-white/70">Status:</span>
+                <span className="text-slate-700 dark:text-white/70">Status:</span>
                 <Badge 
                   variant={isPremium ? "default" : "secondary"}
-                  className={isPremium ? "bg-green-600 text-white" : "bg-gray-600 text-white"}
+                  className={isPremium ? "bg-green-600 text-white" : "bg-gray-200 text-slate-900 dark:bg-gray-600 dark:text-white"}
                 >
                   {isPremium ? "Premium Active" : "Free Plan"}
                 </Badge>
@@ -227,8 +227,8 @@ export default function ManagePremiumPage() {
               
               {subscriptionData?.subscription_type && (
                 <div className="flex items-center justify-between">
-                  <span className="text-white/70">Plan Type:</span>
-                  <span className="text-white capitalize">
+                  <span className="text-slate-700 dark:text-white/70">Plan Type:</span>
+                  <span className="text-slate-900 dark:text-white capitalize">
                     {subscriptionData.subscription_type}
                   </span>
                 </div>
@@ -236,8 +236,8 @@ export default function ManagePremiumPage() {
               
               {subscriptionData?.premium_started_at && (
                 <div className="flex items-center justify-between">
-                  <span className="text-white/70">Started:</span>
-                  <span className="text-white">
+                  <span className="text-slate-700 dark:text-white/70">Started:</span>
+                  <span className="text-slate-900 dark:text-white">
                     {formatDate(subscriptionData.premium_started_at)}
                   </span>
                 </div>
@@ -245,13 +245,13 @@ export default function ManagePremiumPage() {
               
               {subscriptionData?.premium_expires_at && (
                 <div className="flex items-center justify-between">
-                  <span className="text-white/70">Expires:</span>
+                  <span className="text-slate-700 dark:text-white/70">Expires:</span>
                   <div className="text-right">
-                    <span className="text-white">
+                    <span className="text-slate-900 dark:text-white">
                       {formatDate(subscriptionData.premium_expires_at)}
                     </span>
                     {isPremium && !isExpired(subscriptionData.premium_expires_at) && (
-                      <div className="text-xs text-green-400">
+                      <div className="text-xs text-green-600 dark:text-green-400">
                         {getDaysRemaining(subscriptionData.premium_expires_at)} days remaining
                       </div>
                     )}
@@ -261,33 +261,33 @@ export default function ManagePremiumPage() {
             </CardContent>
           </Card>
 
-          <Card className="backdrop-blur-md bg-white/10 border border-white/20 shadow-2xl">
+          <Card className="backdrop-blur-md bg-white/85 border border-black/10 dark:bg-white/10 dark:border-white/20 shadow-2xl">
             <CardHeader>
-              <CardTitle className="flex items-center text-white">
-                <CreditCard className="h-5 w-5 mr-2 text-blue-400" />
+              <CardTitle className="flex items-center text-slate-900 dark:text-white">
+                <CreditCard className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
                 Billing Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-white/70">Payment Method:</span>
-                <span className="text-white">
+                <span className="text-slate-700 dark:text-white/70">Payment Method:</span>
+                <span className="text-slate-900 dark:text-white">
                   {subscriptionData?.payment_method || 'Not set'}
                 </span>
               </div>
               
               {subscriptionData?.last_payment_at && (
                 <div className="flex items-center justify-between">
-                  <span className="text-white/70">Last Payment:</span>
-                  <span className="text-white">
+                  <span className="text-slate-700 dark:text-white/70">Last Payment:</span>
+                  <span className="text-slate-900 dark:text-white">
                     {formatDate(subscriptionData.last_payment_at)}
                   </span>
                 </div>
               )}
               
               <div className="flex items-center justify-between">
-                <span className="text-white/70">Next Billing:</span>
-                <span className="text-white">
+                <span className="text-slate-700 dark:text-white/70">Next Billing:</span>
+                <span className="text-slate-900 dark:text-white">
                   {subscriptionData?.premium_expires_at && isPremium
                     ? formatDate(subscriptionData.premium_expires_at)
                     : 'N/A'
@@ -390,12 +390,12 @@ export default function ManagePremiumPage() {
               </div>
 
               {!isPremium && (
-                <div className="p-4 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
+                <div className="p-4 rounded-lg border bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700">
                   <div className="flex items-center space-x-2 mb-2">
-                    <AlertTriangle className="h-4 w-4 text-yellow-400" />
-                    <span className="text-yellow-400 font-medium">Free Plan</span>
+                    <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                    <span className="font-medium text-slate-900 dark:text-yellow-200">Free Plan</span>
                   </div>
-                  <p className="text-yellow-300 text-xs">
+                  <p className="text-sm text-slate-700 dark:text-yellow-200/80">
                     You&apos;re currently on the free plan. Upgrade to premium to unlock all features.
                   </p>
                 </div>

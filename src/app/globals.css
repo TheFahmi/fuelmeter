@@ -64,14 +64,83 @@ html:not(.dark) .backdrop-blur-xl [class*="text-white"]:not([class*="bg-gradient
 html:not(.dark) [class*="bg-white/"] [class*="text-white"]:not([class*="bg-gradient-"]) {
   color: #0f172a !important;
 }
+
+/* Global safeguard: any `text-white` turns dark on light mode (except primary gradients) */
+html:not(.dark) [class*="text-white"]:not([class*="bg-gradient-"]) {
+  color: #0f172a !important;
+}
+html:not(.dark) .text-white svg,
+html:not(.dark) svg.text-white,
+html:not(.dark) [class*="text-white"] svg {
+  color: #0f172a !important;
+  stroke: #0f172a !important;
+}
+
+/* Premium page specific: ensure high contrast on subscription cards */
+html:not(.dark) .current-subscription-card,
+html:not(.dark) .premium-features-card {
+  background-color: rgba(255,255,255,0.95) !important;
+  color: #0f172a !important;
+}
+html:not(.dark) .current-subscription-card *,
+html:not(.dark) .premium-features-card * {
+  color: #0f172a !important;
+}
+
+/* Premium: ensure Pricing Plans and Feature Comparison are light in light mode */
+html:not(.dark) .pricing-card,
+html:not(.dark) .comparison-card {
+  background-color: rgba(255,255,255,0.95) !important;
+  border-color: rgba(15,23,42,0.1) !important;
+  color: #0f172a !important;
+}
+html:not(.dark) .pricing-card *,
+html:not(.dark) .comparison-card * {
+  color: #0f172a !important;
+}
+
+/* Ensure edit-record inputs are readable in light mode */
+/* Ensure edit-record inputs are readable (force light style) */
+.edit-record-page input,
+.edit-record-page select,
+.edit-record-page textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(15,23,42,0.2) !important;
+}
+.edit-record-page ::placeholder {
+  color: #6b7280 !important; /* slate-500 */
+}
+.edit-record-page select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Page-specific safeguards */
+/* Removed page-specific color overrides to allow icon colors to show */
  
 /* Light mode: make glass surfaces visible and with contrast */
 html:not(.dark) .backdrop-blur-sm,
 html:not(.dark) .backdrop-blur-md,
 html:not(.dark) .backdrop-blur-xl {
-  background-color: rgba(15, 23, 42, 0.08) !important;
-  border: 1px solid rgba(15, 23, 42, 0.18) !important;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+html.dark .backdrop-blur-sm,
+html.dark .backdrop-blur-md,
+html.dark .backdrop-blur-xl {
+  background-color: rgba(2, 6, 23, 0.35) !important; /* slate-950 @35% */
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+}
+
+/* Force lighter glass on statistics page when light mode */
+html:not(.dark) .statistics-page .backdrop-blur-sm,
+html:not(.dark) .statistics-page .backdrop-blur-md,
+html:not(.dark) .statistics-page .backdrop-blur-xl {
+  background-color: rgba(255,255,255,0.95) !important;
+  border-color: rgba(15,23,42,0.10) !important;
 }
 
 /* Ensure dashboard entry buttons have dark text in light mode */

@@ -174,7 +174,7 @@ export default function DashboardPage() {
                 <p className="text-3xl font-bold text-slate-900 dark:text-white">{stats.totalRecords}</p>
               </div>
               <div className="bg-blue-500/20 rounded-full p-3">
-                <List className="h-8 w-8 text-blue-300" />
+                <List className="h-8 w-8 text-blue-700 dark:text-blue-300" style={{ color: '#1d4ed8' }} />
               </div>
             </div>
           </div>
@@ -188,7 +188,7 @@ export default function DashboardPage() {
                 </p>
               </div>
               <div className="bg-green-500/20 rounded-full p-3">
-                <TrendingUp className="h-8 w-8 text-green-300" />
+                <TrendingUp className="h-8 w-8 text-green-700 dark:text-green-300" style={{ color: '#15803d' }} />
               </div>
             </div>
           </div>
@@ -202,7 +202,7 @@ export default function DashboardPage() {
                 </p>
               </div>
               <div className="bg-purple-500/20 rounded-full p-3">
-                <Target className="h-8 w-8 text-purple-300" />
+                <Target className="h-8 w-8 text-purple-700 dark:text-purple-300" style={{ color: '#7e22ce' }} />
               </div>
             </div>
           </div>
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                 </p>
               </div>
               <div className="bg-orange-500/20 rounded-full p-3">
-                <BarChart3 className="h-8 w-8 text-orange-300" />
+                <BarChart3 className="h-8 w-8 text-orange-700 dark:text-orange-300" style={{ color: '#c2410c' }} />
               </div>
             </div>
           </div>

@@ -238,7 +238,7 @@ export default function EditRecordPage() {
   }
 
   return (
-    <div className="min-h-screen pb-28 sm:pb-6">
+    <div className="edit-record-page min-h-screen pb-28 sm:pb-6">
 
       <div className="max-w-2xl mx-auto p-4">
         {/* Header */}
@@ -251,15 +251,12 @@ export default function EditRecordPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Records
           </Button>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Edit Fuel Record
-          </h1>
         </div>
 
         {/* Form */}
-        <Card className="dark:bg-gray-800 dark:border-gray-700">
+        <Card className="backdrop-blur-md bg-white/85 border border-black/10 dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
-            <CardTitle className="text-gray-900 dark:text-white">
+            <CardTitle className="text-slate-900 dark:text-white">
               Update Fuel Record
             </CardTitle>
           </CardHeader>

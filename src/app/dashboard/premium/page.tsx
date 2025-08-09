@@ -147,7 +147,7 @@ export default function PremiumPage() {
 
   if (premiumLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-600 mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-400">Loading premium status...</p>
@@ -158,11 +158,11 @@ export default function PremiumPage() {
 
   if (isPremium) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+      <div className="min-h-screen py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Premium Status */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 dark:bg-yellow-900/20 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 backdrop-blur-md bg-white/80 dark:bg-yellow-900/20 border border-black/10 dark:border-yellow-700 rounded-full mb-4">
               <Crown className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -174,30 +174,30 @@ export default function PremiumPage() {
           </div>
 
           {/* Current Subscription */}
-          <Card className="bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border-yellow-200 dark:border-yellow-700 mb-8">
+          <Card className="current-subscription-card backdrop-blur-md bg-white/85 dark:from-yellow-900/20 dark:to-yellow-800/20 border border-black/10 dark:border-yellow-700 mb-8">
             <CardHeader>
-              <CardTitle className="flex items-center text-yellow-900 dark:text-yellow-100">
-                <Sparkles className="h-5 w-5 mr-2" />
+              <CardTitle className="flex items-center text-slate-900 dark:text-yellow-100">
+                <Sparkles className="h-5 w-5 mr-2 text-slate-700 dark:text-yellow-300" />
                 Current Subscription
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <p className="text-sm text-yellow-700 dark:text-yellow-300">Plan</p>
-                  <p className="font-semibold text-yellow-900 dark:text-yellow-100 capitalize">
+                  <p className="text-sm text-slate-700 dark:text-yellow-300">Plan</p>
+                  <p className="font-semibold text-slate-900 dark:text-yellow-100 capitalize">
                     {premiumData?.subscription_type || 'Premium'}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-yellow-700 dark:text-yellow-300">Status</p>
+                  <p className="text-sm text-slate-700 dark:text-yellow-300">Status</p>
                   <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
                     Active
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-sm text-yellow-700 dark:text-yellow-300">Expires</p>
-                  <p className="font-semibold text-yellow-900 dark:text-yellow-100">
+                  <p className="text-sm text-slate-700 dark:text-yellow-300">Expires</p>
+                  <p className="font-semibold text-slate-900 dark:text-yellow-100">
                     {premiumData?.premium_expires_at 
                       ? new Date(premiumData.premium_expires_at).toLocaleDateString('id-ID')
                       : 'Never'
@@ -209,16 +209,16 @@ export default function PremiumPage() {
           </Card>
 
           {/* Premium Features */}
-          <Card>
+          <Card className="premium-features-card backdrop-blur-md bg-white/85 border border-black/10 dark:bg-gray-800 dark:border-gray-700">
             <CardHeader>
-              <CardTitle className="text-gray-900 dark:text-white">Your Premium Features</CardTitle>
+              <CardTitle className="text-slate-900 dark:text-white">Your Premium Features</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {features.filter(f => f.premium === true || typeof f.premium === 'string').map((feature, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
-                    <span className="text-sm text-gray-900 dark:text-white">{feature.name}</span>
+                  <div key={index} className="flex items-center space-x-3 p-3 bg-green-50/70 dark:bg-green-900/20 border border-black/5 dark:border-green-800 rounded-lg">
+                    <Check className="h-5 w-5 text-green-600 dark:text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-900 dark:text-white">{feature.name}</span>
                   </div>
                 ))}
               </div>
@@ -246,11 +246,11 @@ export default function PremiumPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
+    <div className="premium-page min-h-screen py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-100 dark:bg-yellow-900/20 rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 backdrop-blur-md bg-white/80 dark:bg-yellow-900/20 border border-black/10 dark:border-yellow-700 rounded-full mb-4">
             <Crown className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -264,7 +264,7 @@ export default function PremiumPage() {
         {/* Pricing Plans */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
           {/* Monthly Plan */}
-          <Card className={`relative ${selectedPlan === 'monthly' ? 'ring-2 ring-blue-500' : ''}`}>
+          <Card className={`pricing-card relative backdrop-blur-md bg-white/90 border border-black/10 dark:bg-gray-800 dark:border-gray-700 ${selectedPlan === 'monthly' ? 'ring-2 ring-blue-500' : ''}`}>
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div>
@@ -300,7 +300,7 @@ export default function PremiumPage() {
           </Card>
 
           {/* Yearly Plan */}
-          <Card className={`relative ${selectedPlan === 'yearly' ? 'ring-2 ring-blue-500' : ''}`}>
+          <Card className={`pricing-card relative backdrop-blur-md bg-white/90 border border-black/10 dark:bg-gray-800 dark:border-gray-700 ${selectedPlan === 'yearly' ? 'ring-2 ring-blue-500' : ''}`}>
             {plans.yearly.popular && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <Badge className="bg-yellow-500 text-yellow-900 px-3 py-1">
@@ -350,7 +350,7 @@ export default function PremiumPage() {
         </div>
 
         {/* Feature Comparison */}
-        <Card>
+        <Card className="comparison-card backdrop-blur-md bg-white/90 border border-black/10 dark:bg-gray-800 dark:border-gray-700">
           <CardHeader>
             <CardTitle className="text-center text-gray-900 dark:text-white">
               Feature Comparison
