@@ -186,10 +186,10 @@ export default function ProfilePage() {
         {/* Header */}
         <div className="mb-8">
           <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
               👤 Profile Settings
             </h1>
-            <p className="text-gray-700 dark:text-white/70 text-lg">
+            <p className="text-slate-700 dark:text-white/70 text-lg">
               Manage your account settings and preferences
             </p>
           </div>

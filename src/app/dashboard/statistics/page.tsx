@@ -204,11 +204,11 @@ export default function StatisticsPage() {
 
         {/* Overview Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/60 text-sm uppercase tracking-wide">Total Records</p>
-                <p className="text-3xl font-bold text-white">{stats.totalRecords}</p>
+                <p className="text-slate-600 dark:text-white/60 text-sm uppercase tracking-wide">Total Records</p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white">{stats.totalRecords}</p>
               </div>
               <div className="bg-blue-500/20 rounded-full p-3">
                 <Fuel className="h-8 w-8 text-blue-300" />
@@ -216,11 +216,11 @@ export default function StatisticsPage() {
             </div>
           </div>
 
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/60 text-sm uppercase tracking-wide">Total Cost</p>
-                <p className="text-3xl font-bold text-white">
+                <p className="text-slate-600 dark:text-white/60 text-sm uppercase tracking-wide">Total Cost</p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white">
                   Rp {stats.totalCost.toLocaleString()}
                 </p>
               </div>
@@ -230,11 +230,11 @@ export default function StatisticsPage() {
             </div>
           </div>
 
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/60 text-sm uppercase tracking-wide">Total Distance</p>
-                <p className="text-3xl font-bold text-white">
+                <p className="text-slate-600 dark:text-white/60 text-sm uppercase tracking-wide">Total Distance</p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white">
                   {stats.totalDistance.toFixed(1)} km
                 </p>
               </div>
@@ -244,11 +244,11 @@ export default function StatisticsPage() {
             </div>
           </div>
 
-          <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-6 shadow-2xl hover:bg-white/15 transition-all duration-300 transform hover:scale-105">
+          <div className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white/60 text-sm uppercase tracking-wide">Avg Cost/km</p>
-                <p className="text-3xl font-bold text-white">
+                <p className="text-slate-600 dark:text-white/60 text-sm uppercase tracking-wide">Avg Cost/km</p>
+                <p className="text-3xl font-bold text-slate-900 dark:text-white">
                   Rp {stats.averageCostPerKm.toFixed(0)}
                 </p>
               </div>

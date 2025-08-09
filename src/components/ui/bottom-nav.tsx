@@ -20,18 +20,19 @@ export function BottomNav() {
       <div className="mx-auto max-w-2xl rounded-2xl backdrop-blur-xl bg-slate-100/80 dark:bg-white/10 border border-slate-300/60 dark:border-white/10 shadow-2xl">
         <ul className="grid grid-cols-5">
           {items.map(({ href, label, icon: Icon }) => {
-            const active = pathname === href || pathname.startsWith(href + "/")
+            const isRoot = href === '/dashboard'
+            const active = isRoot ? (pathname === href) : (pathname === href || pathname.startsWith(href + '/'))
             return (
               <li key={href} className="flex">
                 <Link
                   href={href}
-                  className={`relative flex flex-1 flex-col items-center justify-center gap-1 py-3 text-xs transition-colors ${
+                  aria-current={active ? 'page' : undefined}
+                  className={`flex flex-1 flex-col items-center justify-center gap-1 py-3 text-xs transition-colors rounded-xl ${
                     active
-                      ? 'text-blue-700 dark:text-blue-300 bg-blue-100/80 dark:bg-blue-500/10 ring-1 ring-blue-300/60 dark:ring-0 rounded-xl'
+                      ? 'text-white bg-slate-900 dark:bg-white/15 dark:text-white shadow-sm'
                       : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  <span className={`absolute inset-x-8 -top-1 h-1 rounded-full transition-all ${active ? 'bg-blue-600/80 dark:bg-blue-400/80' : 'bg-transparent'}`} />
                   <Icon className={`h-5 w-5 ${active ? 'stroke-[2.5]' : ''}`} />
                   <span>{label}</span>
                 </Link>

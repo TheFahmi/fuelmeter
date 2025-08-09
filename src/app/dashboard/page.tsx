@@ -226,49 +226,49 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
           <button
             onClick={() => router.push('/dashboard/add-record')}
-            className="backdrop-blur-md bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl hover:from-blue-500/20 hover:to-purple-500/20 transition-all duration-300 transform hover:scale-105 text-slate-900 dark:text-white"
+            className="group backdrop-blur-md bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl hover:from-blue-500/20 hover:to-purple-500/20 transition-all duration-300 transform hover:scale-105 text-slate-900 dark:text-white"
           >
             <div className="flex flex-col items-center space-y-3">
-              <div className="bg-white/20 rounded-full p-3">
-                <Plus className="h-8 w-8" />
+              <div className="bg-black/10 dark:bg-white/20 rounded-full p-3">
+                <Plus className="h-8 w-8 text-slate-900 dark:text-white" />
               </div>
-              <span className="font-semibold">➕ Add Record</span>
+              <span className="font-semibold text-slate-900 dark:text-white">➕ Add Record</span>
             </div>
           </button>
 
           <button
             onClick={() => router.push('/dashboard/records')}
-            className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105 text-slate-900 dark:text-white"
+            className="group backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105 text-slate-900 dark:text-white"
           >
             <div className="flex flex-col items-center space-y-3">
-              <div className="bg-white/20 rounded-full p-3">
-                <List className="h-8 w-8" />
+              <div className="bg-black/10 dark:bg-white/20 rounded-full p-3">
+                <List className="h-8 w-8 text-slate-900 dark:text-white" />
               </div>
-              <span className="font-semibold">📋 View Records</span>
+              <span className="font-semibold text-slate-900 dark:text-white">📋 View Records</span>
             </div>
           </button>
 
           <button
             onClick={() => router.push('/dashboard/statistics')}
-            className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105 text-slate-900 dark:text-white"
+            className="group backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105 text-slate-900 dark:text-white"
           >
             <div className="flex flex-col items-center space-y-3">
-              <div className="bg-white/20 rounded-full p-3">
-                <BarChart3 className="h-8 w-8" />
+              <div className="bg-black/10 dark:bg-white/20 rounded-full p-3">
+                <BarChart3 className="h-8 w-8 text-slate-900 dark:text-white" />
               </div>
-              <span className="font-semibold">📊 Statistics</span>
+              <span className="font-semibold text-slate-900 dark:text-white">📊 Statistics</span>
             </div>
           </button>
 
           <button
             onClick={() => router.push('/dashboard/profile')}
-            className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105 text-slate-900 dark:text-white"
+            className="group backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform hover:scale-105 text-slate-900 dark:text-white"
           >
             <div className="flex flex-col items-center space-y-3">
-              <div className="bg-white/20 rounded-full p-3">
-                <Calendar className="h-8 w-8" />
+                <div className="bg-black/10 dark:bg-white/20 rounded-full p-3">
+                <Calendar className="h-8 w-8 text-slate-900 dark:text-white" />
               </div>
-              <span className="font-semibold">👤 Profile</span>
+              <span className="font-semibold text-slate-900 dark:text-white">👤 Profile</span>
             </div>
           </button>
 
@@ -281,8 +281,8 @@ export default function DashboardPage() {
                 <div className="bg-yellow-500/30 rounded-full p-3">
                   <Target className="h-8 w-8 text-yellow-300" />
                 </div>
-                <span className="font-semibold">👑 Upgrade Premium</span>
-                <span className="text-xs text-yellow-200">Unlock all features</span>
+                <span className="font-semibold text-slate-900 dark:text-white">👑 Upgrade Premium</span>
+                <span className="text-xs text-yellow-700 dark:text-yellow-200">Unlock all features</span>
               </div>
             </button>
           )}
@@ -290,22 +290,22 @@ export default function DashboardPage() {
 
         {/* Feature Entrypoints (link to dedicated pages) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <button onClick={() => router.push('/dashboard/ai-scanner')} className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
+          <button onClick={() => router.push('/dashboard/ai-scanner')} className="dashboard-entry group backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
             <ScanLine className="h-6 w-6" /> AI Receipt Scanner
           </button>
-          <button onClick={() => router.push('/dashboard/vehicles')} className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
+          <button onClick={() => router.push('/dashboard/vehicles')} className="dashboard-entry group backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
             <Car className="h-6 w-6" /> Vehicles
           </button>
-          <button onClick={() => router.push('/dashboard/carbon')} className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
+          <button onClick={() => router.push('/dashboard/carbon')} className="dashboard-entry group backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
             <Leaf className="h-6 w-6" /> Carbon Footprint
           </button>
-          <button onClick={() => router.push('/dashboard/export')} className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
+          <button onClick={() => router.push('/dashboard/export')} className="dashboard-entry group backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
             <FileText className="h-6 w-6" /> Export / Reports
           </button>
-          <button onClick={() => router.push('/dashboard/reminders')} className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
+          <button onClick={() => router.push('/dashboard/reminders')} className="dashboard-entry group backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
             <Calendar className="h-6 w-6" /> Service Reminders
           </button>
-          <button onClick={() => router.push('/dashboard/notifications')} className="backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
+          <button onClick={() => router.push('/dashboard/notifications')} className="dashboard-entry group backdrop-blur-md bg-black/10 dark:bg-white/10 border border-black/20 dark:border-white/20 rounded-2xl p-6 shadow-2xl transition-all duration-300 text-slate-900 dark:text-white flex items-center gap-3">
             <Bell className="h-6 w-6" /> Notifications
           </button>
         </div>

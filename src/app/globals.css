@@ -73,3 +73,9 @@ html:not(.dark) .backdrop-blur-xl {
   border: 1px solid rgba(15, 23, 42, 0.18) !important;
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
 }
+
+/* Ensure dashboard entry buttons have dark text in light mode */
+html:not(.dark) .dashboard-entry,
+html:not(.dark) .dashboard-entry * {
+  color: #0f172a !important;
+}

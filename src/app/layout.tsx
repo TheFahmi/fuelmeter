@@ -6,7 +6,7 @@ import { ToastProvider } from "@/contexts/toast-context";
 import { PremiumProvider } from "@/contexts/premium-context";
 import { UserSettingsProvider } from "@/contexts/user-settings-context";
 import { Footer } from "@/components/ui/footer";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+// import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ThemeEnforcer } from "@/components/ui/theme-enforcer";
 
 const geistSans = Geist({
@@ -48,7 +48,7 @@ export default function RootLayout({
                 <div className="min-h-screen flex flex-col">
                   <ThemeEnforcer />
                   {children}
-                  <ThemeToggle />
+                  {/* <ThemeToggle /> */}
                   <Footer />
                 </div>
               </UserSettingsProvider>
